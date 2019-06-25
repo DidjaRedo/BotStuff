@@ -1,0 +1,45 @@
+{
+  "name": "BotStuff",
+  "version": "1.0.0",
+  "description": "Odds and ends for building bots",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exect ts-node src/index.ts --watch src",
+    "test": "jest --watch",
+    "coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DidjaRedo/BotStuff.git"
+  },
+  "keywords": [
+    "bots",
+    "discord"
+  ],
+  "author": "DidjaRedo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DidjaRedo/BotStuff/issues"
+  },
+  "homepage": "https://github.com/DidjaRedo/BotStuff#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.0.10",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^6.0.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.1",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  }
+}
