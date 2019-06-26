@@ -310,4 +310,94 @@ describe("flexTime", function (): void {
             });
         });
     });
+
+    describe("formatTimeAmPm static method", (): void => {
+        it("should format a FlexTime in morning or evening", (): void => {
+            expect(FlexTime.formatTimeAmPm(new FlexTime("0800"))).toEqual("8:00 AM");
+            expect(FlexTime.formatTimeAmPm(new FlexTime("2000"))).toEqual("8:00 PM");
+        });
+
+        it("should format a Date in morning or evening", (): void => {
+            const morning = new FlexTime("0615").toDate();
+            const evening = new FlexTime("2220").toDate();
+            expect(FlexTime.formatTimeAmPm(morning)).toEqual("6:15 AM");
+            expect(FlexTime.formatTimeAmPm(evening)).toEqual("10:20 PM");
+        });
+
+        it("should format ticks in morning or evening", (): void => {
+            const morning = new FlexTime("0530").toDate().getTime();
+            const evening = new FlexTime("2130").toDate().getTime();
+            expect(FlexTime.formatTimeAmPm(morning)).toEqual("5:30 AM");
+            expect(FlexTime.formatTimeAmPm(evening)).toEqual("9:30 PM");
+        });
+    });
+
+    describe("formatTime24Hours static method", (): void => {
+        it("should format a FlexTime in morning or evening", (): void => {
+            expect(FlexTime.formatTime24Hours(new FlexTime("900a"))).toEqual("0900");
+            expect(FlexTime.formatTime24Hours(new FlexTime("900p"))).toEqual("2100");
+        });
+
+        it("should format a Date in morning or evening", (): void => {
+            const morning = new FlexTime("701am").toDate();
+            const evening = new FlexTime("1159pm").toDate();
+            expect(FlexTime.formatTime24Hours(morning)).toEqual("0701");
+            expect(FlexTime.formatTime24Hours(evening)).toEqual("2359");
+        });
+
+        it("should format ticks in morning or evening", (): void => {
+            const morning = new FlexTime("12:34am").toDate().getTime();
+            const evening = new FlexTime("12:34pm").toDate().getTime();
+            expect(FlexTime.formatTime24Hours(morning)).toEqual("0034");
+            expect(FlexTime.formatTime24Hours(evening)).toEqual("1234");
+        });
+    });
+
+    describe("dateToUnixTimestamp static method", (): void => {
+        it("should convert a date to a unix timestamp", (): void => {
+            const date = new Date();
+            const unix = Math.round(date.getTime() / 1000);
+            expect(FlexTime.dateToUnixTimestamp(date)).toEqual(unix);
+        });
+
+        it("should return 0 for an undefined date", (): void => {
+            expect(FlexTime.dateToUnixTimestamp(undefined)).toEqual(0);
+        });
+    });
+
+    describe("getDeltaDate static method", (): void => {
+        it("should get a later or earlier time", (): void => {
+            const date = new Date();
+            let minutes = 3;
+            let expected = date.getTime() + (minutes * 60 * 1000);
+            expect(FlexTime.getDeltaDate(date, minutes).getTime()).toBe(expected);
+
+            minutes = -10;
+            expected = date.getTime() + (minutes * 60 * 1000);
+            expect(FlexTime.getDeltaDate(date, minutes).getTime()).toBe(expected);
+        });
+    });
+
+    describe("getDeltaFromNow static method", (): void => {
+        it("should get a later or earlier time", (): void => {
+            const date = new Date();
+            let minutes = 3;
+            let expected = (date.getTime() + (minutes * 60 * 1000)) / 100;
+            expect(FlexTime.getDeltaFromNow(minutes).getTime() / 100).toBeCloseTo(expected);
+
+            minutes = -10;
+            expected = (date.getTime() + (minutes * 60 * 1000)) / 100;
+            expect(FlexTime.getDeltaFromNow(minutes).getTime() / 100).toBeCloseTo(expected);
+        });
+    });
+
+    describe("getDeltaInMinutes static methoid", (): void => {
+        it("should get the difference in minutes between two times", (): void => {
+            const minutes = 5;
+            const t1 = new FlexTime("0930").toDate();
+            const t2 = FlexTime.getDeltaDate(t1, minutes);
+            expect(FlexTime.getDeltaInMinutes(t1, t2)).toBe(-minutes);
+            expect(FlexTime.getDeltaInMinutes(t2, t1)).toBe(minutes);
+        });
+    });
 });

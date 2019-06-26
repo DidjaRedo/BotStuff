@@ -235,5 +235,50 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
         return new FlexTime(undefined, date);
     }
 
+    public static formatTimeAmPm(date: TimeOfDayProvider|number): string {
+        if (typeof date === "number") {
+            date = new Date(date);
+        }
+
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let ampm = hours >= 12 ? "PM" : "AM";
+
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const minuteString = minutes < 10 ? `0${minutes}` : `${minutes}`;
+        let strTime = `${hours}:${minuteString} ${ampm}`;
+        return strTime;
+    }
+
+    public static formatTime24Hours(date: TimeOfDayProvider|number): string {
+        if (typeof date === "number") {
+            date = new Date(date);
+        }
+
+        let hour = date.getHours();
+        let minutes = date.getMinutes();
+
+        let hourString = (hour < 10) ? `0${hour}` : `${hour}`;
+        let minuteString = (minutes < 10) ? `0${minutes}` : `${minutes}`;
+        return `${hourString}${minuteString}`;
+    };
+
+    public static dateToUnixTimestamp(date?: Date): number {
+        return Math.round(date ? date.getTime() / 1000 : 0);
+    }
+
+    public static getDeltaDate(date: Date, deltaInMinutes: number): Date {
+        return new Date(date.getTime() + (deltaInMinutes * 60 * 1000));
+    }
+
+    public static getDeltaFromNow(deltaInMinutes: number): Date {
+        return new Date(Date.now() + (deltaInMinutes * 60 * 1000));
+    }
+
+    public static getDeltaInMinutes(date1: Date, date2: Date): number {
+        return (date1.getTime() - date2.getTime()) / (60 * 1000);
+    }
+
     public static substringRegex = flexTimeSubstringRegex;
 }
