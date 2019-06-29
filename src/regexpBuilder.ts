@@ -2,23 +2,27 @@
 
 import { Utils } from "./utils";
 
-export interface RegexpFragment {
+export interface RegExpFragment {
     value: string;
     optional?: boolean;
 }
 
-export interface RegexpField extends RegexpFragment {
+export interface RegExpField extends RegExpFragment {
     name: string;
 }
 
-export class RegexpBuilder {
-    public constructor(fragments: Iterable<RegexpField>) {
-        this._fields = new Map(Utils.select(fragments, (source: RegexpField): [string, RegexpFragment] => {
+export class RegExpBuilder {
+    public constructor(fragments: Iterable<RegExpField>) {
+        this._fields = new Map(Utils.select(fragments, (source: RegExpField): [string, RegExpFragment] => {
             return [source.name, { value: source.value, optional: (source.optional ? true : false) }];
         }));
+
+        if (this._fields.size < 1) {
+            throw new Error("RegExpBuilder needs at least one fragment.");
+        }
     }
 
-    private _getField(field: string): RegexpFragment {
+    private _getField(field: string): RegExpFragment {
         const key = field.toLowerCase();
         let fragment = this._fields.get(key);
         if (!fragment) {
@@ -30,9 +34,13 @@ export class RegexpBuilder {
         return fragment;
     }
 
-    public buildString(fields: string[]): string {
+    public buildString(fields: string[]|string): string {
+        if (typeof fields === "string") {
+            fields = fields.split(/\s/);
+        }
+
         let separator = undefined;
-        let str = "^";
+        let str = "^\\s*";
 
         fields.forEach((raw: string): void => {
             if (separator) {
@@ -53,9 +61,9 @@ export class RegexpBuilder {
         return str;
     }
 
-    public build(fields: string[]): RegExp {
+    public build(fields: string[]|string): RegExp {
         return new RegExp(this.buildString(fields));
     }
 
-    private _fields: Map<string, RegexpFragment>;
+    private _fields: Map<string, RegExpFragment>;
 };
