@@ -9,7 +9,7 @@ export interface LookupResults {
 }
 
 export class NormalizedMap {
-    public constructor(initElement: ElementInitializer, replaceElement: ElementUpdater) {
+    public constructor(initElement?: ElementInitializer, replaceElement?: ElementUpdater) {
         this.initElement = initElement;
         this.replaceElement = replaceElement;
         this.elements = {};
@@ -49,10 +49,15 @@ export class NormalizedMap {
         names.forEach((name): void => {
             let elem = this.tryGetElement(name);
             if (elem) {
-                result.found.push(elem);
+                if (!result.found.includes(elem)) {
+                    result.found.push(elem);
+                }
             }
             else {
-                result.unknown.push(name.trim());
+                name = NormalizedMap.normalizeString(name);
+                if (!result.unknown.includes(name)) {
+                    result.unknown.push(name);
+                }
             }
         });
 
@@ -82,7 +87,7 @@ export class NormalizedMap {
 
     public containsName(name: string): boolean {
         let normalized = NormalizedMap.normalizeString(name);
-        return this.elements.hasOwnProperty(normalized) && this.elements[normalized];
+        return (this.elements.hasOwnProperty(normalized) && this.elements[normalized]) ? true : false;
     }
 
     public select(selectFunc: (value: object, key: string) => object): object[] {
@@ -102,6 +107,10 @@ export class NormalizedMap {
 
     public get values(): string[] {
         return Object.values(this.elements);
+    }
+
+    public get size(): number {
+        return Object.keys(this.elements).length;
     }
 
     public static normalizeString(input: string): string {
