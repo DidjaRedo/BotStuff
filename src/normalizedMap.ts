@@ -1,5 +1,7 @@
 "use strict";
 
+import { Names } from "./names";
+
 export type ElementInitializer = (name: string, normalizedName: string, value: object) => object;
 export type ElementUpdater = (existing: object, name: string, value: object) => object;
 
@@ -20,7 +22,7 @@ export class NormalizedMap {
     private elements: object;
 
     public addOrUpdate(name: string, value: object): object {
-        let normalized = NormalizedMap.normalizeString(name);
+        let normalized = Names.normalizeString(name);
         if (this.elements[normalized]) {
             if (this.replaceElement) {
                 this.elements[normalized] = this.replaceElement(this.elements[normalized], name, value);
@@ -37,7 +39,7 @@ export class NormalizedMap {
     }
 
     public tryGetElement(name: string): object {
-        return this.elements[NormalizedMap.normalizeString(name)];
+        return this.elements[Names.normalizeString(name)];
     }
 
     public lookupElements(names: string[]): LookupResults {
@@ -54,7 +56,7 @@ export class NormalizedMap {
                 }
             }
             else {
-                name = NormalizedMap.normalizeString(name);
+                name = Names.normalizeString(name);
                 if (!result.unknown.includes(name)) {
                     result.unknown.push(name);
                 }
@@ -86,7 +88,7 @@ export class NormalizedMap {
     }
 
     public containsName(name: string): boolean {
-        let normalized = NormalizedMap.normalizeString(name);
+        let normalized = Names.normalizeString(name);
         return (this.elements.hasOwnProperty(normalized) && this.elements[normalized]) ? true : false;
     }
 
@@ -112,30 +114,5 @@ export class NormalizedMap {
     public get size(): number {
         return Object.keys(this.elements).length;
     }
-
-    public static normalizeString(input: string): string {
-        if (typeof input !== "string") {
-            throw new Error(`Cannot normalize an input of type ${typeof input}.`);
-        }
-
-        let trimmed = input.trim();
-        if (trimmed.length < 1) {
-            throw new Error("Cannot normalize an empty string.");
-        }
-        return trimmed.toLowerCase().replace(/[\W]/g, "");
-    };
-
-    public static normalizeStrings(input: string[]): string[] {
-        let normalized = [];
-        input.forEach((name): void => { normalized.push(NormalizedMap.normalizeString(name)); });
-        return normalized;
-    };
-
-    public static normalize(input: string|string[]): string|string[] {
-        if (Array.isArray(input)) {
-            return NormalizedMap.normalizeStrings(input);
-        }
-        return NormalizedMap.normalizeString(input);
-    };
 };
 

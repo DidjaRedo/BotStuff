@@ -1,5 +1,6 @@
 "use strict";
 
+import { Names } from "../../src/names";
 import { NormalizedMap } from "../../src/normalizedMap";
 
 describe("NormalizedMap class", (): void => {
@@ -43,7 +44,7 @@ describe("NormalizedMap class", (): void => {
         it("should update an existing element in the map using normalized names", (): void => {
             const map = new NormalizedMap();
             const n1 = "FIRST ELEMENT";
-            const nn1 = NormalizedMap.normalizeString(n1);
+            const nn1 = Names.normalizeString(n1);
             const p1 = { content: "FIRST PAYLOAD" };
             const p2 = { content: "Second Payload" };
 
@@ -62,8 +63,8 @@ describe("NormalizedMap class", (): void => {
             const map = new NormalizedMap(bogusInit, bogusUpdate);
             const n1 = "FIRST ELEMENT";
             const n2 = "Second Element";
-            const nn1 = NormalizedMap.normalizeString(n1);
-            const nn2 = NormalizedMap.normalizeString(n2);
+            const nn1 = Names.normalizeString(n1);
+            const nn2 = Names.normalizeString(n2);
             const p1 = { content: "FIRST PAYLOAD" };
             const p2 = { content: "Second Payload" };
 
@@ -85,7 +86,7 @@ describe("NormalizedMap class", (): void => {
         it("should use the updater to replace an element in the map", (): void => {
             const map = new NormalizedMap(bogusInit, bogusUpdate);
             const n1 = "FIRST ELEMENT";
-            const nn1 = NormalizedMap.normalizeString(n1);
+            const nn1 = Names.normalizeString(n1);
             const p1 = { content: "FIRST PAYLOAD" };
             const p2 = { content: "Second Payload" };
             const p3 = { content: "thirD payloaD" };
@@ -112,7 +113,7 @@ describe("NormalizedMap class", (): void => {
             const map = new NormalizedMap();
             const n1 = "Test Element";
             const n2 = "Some Other Element";
-            const nn2 = NormalizedMap.normalizeString(n2);
+            const nn2 = Names.normalizeString(n2);
             const payload = { contents: "whatever" };
 
 
@@ -125,7 +126,7 @@ describe("NormalizedMap class", (): void => {
         it("should return each found element only once", (): void => {
             const map = new NormalizedMap();
             const n1 = "Test Element";
-            const nn1 = NormalizedMap.normalizeString(n1);
+            const nn1 = Names.normalizeString(n1);
             const payload = { contents: "whatever" };
 
 
@@ -197,7 +198,7 @@ describe("NormalizedMap class", (): void => {
             map.forEach((e: object, n: string): void => {
                 found.push(e);
                 const gotName = (e as { name: string }).name;
-                expect(NormalizedMap.normalize(gotName)).toEqual(n);
+                expect(Names.normalize(gotName)).toEqual(n);
             });
 
             expect(found.length).toEqual(added.length);
@@ -217,7 +218,7 @@ describe("NormalizedMap class", (): void => {
         it("should return true if an item with the same normalized name is present", (): void => {
             names.forEach((n: string): void => {
                 expect(map.containsName(n)).toBe(true);
-                expect(map.containsName(NormalizedMap.normalizeString(n))).toBe(true);
+                expect(map.containsName(Names.normalizeString(n))).toBe(true);
             });
         });
 
@@ -242,7 +243,7 @@ describe("NormalizedMap class", (): void => {
             let count = 0;
             map.select((value: object, key: string): object => {
                 count++;
-                expect(key).toEqual(NormalizedMap.normalizeString(key));
+                expect(key).toEqual(Names.normalizeString(key));
                 return value;
             });
             expect(count).toBe(map.size);
@@ -251,7 +252,7 @@ describe("NormalizedMap class", (): void => {
         it("should not include elements in the return for which the select method returns undefined", (): void => {
             const selected = map.select((value: object, key: string): object => {
                 if (value) {
-                    expect(key).toEqual(NormalizedMap.normalizeString(key));
+                    expect(key).toEqual(Names.normalizeString(key));
                     return value;
                 }
                 return undefined;
@@ -261,7 +262,7 @@ describe("NormalizedMap class", (): void => {
 
         it("should include elements in the return for which the select method returns a falsy value other than undefined", (): void => {
             const selected = map.select((value: object, key: string): object => {
-                expect(key).toEqual(NormalizedMap.normalizeString(key));
+                expect(key).toEqual(Names.normalizeString(key));
                 return value;
             });
             expect(selected.length).toBe(map.size);
@@ -283,11 +284,11 @@ describe("NormalizedMap class", (): void => {
 
     describe("normalize static method", (): void => {
         it("should normalize a string", (): void => {
-            expect(NormalizedMap.normalize("Some String")).toBe("somestring");
+            expect(Names.normalize("Some String")).toBe("somestring");
         });
 
         it("should throw for an empty string", (): void => {
-            expect((): string|string[] => NormalizedMap.normalize("   ")).toThrowError("Cannot normalize an empty string.");
+            expect((): string|string[] => Names.normalize("   ")).toThrowError("Cannot normalize an empty string.");
         });
 
         /*
@@ -301,13 +302,13 @@ describe("NormalizedMap class", (): void => {
         */
 
         it("should normalize all strings in an array", (): void => {
-            expect(NormalizedMap.normalize(["BLAH", "Some name with spaces and punctuation!", "this-is-a-test"])).toEqual([
+            expect(Names.normalize(["BLAH", "Some name with spaces and punctuation!", "this-is-a-test"])).toEqual([
                 "blah", "somenamewithspacesandpunctuation", "thisisatest",
             ]);
         });
 
         it("should throw if any strings are empty", (): void => {
-            expect((): string|string[] => NormalizedMap.normalize(["BLAH", "    "])).toThrowError("Cannot normalize an empty string.");
+            expect((): string|string[] => Names.normalize(["BLAH", "    "])).toThrowError("Cannot normalize an empty string.");
         });
     });
 });
