@@ -3,7 +3,6 @@
 import { Names } from "../../src/names";
 
 describe("Names static class", (): void => {
-
     describe("normalize static method", (): void => {
         it("should normalize a string", (): void => {
             expect(Names.normalize("Some String")).toBe("somestring");

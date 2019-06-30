@@ -1,5 +1,10 @@
 "use strict";
 
+export interface Normalizable<T extends object> {
+    properties: T;
+    normalize(): T;
+};
+
 export class Names {
     private constructor() {}
 
