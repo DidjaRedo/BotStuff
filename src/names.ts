@@ -1,5 +1,7 @@
 "use strict";
 
+import { Utils } from "./utils";
+
 export interface NamedThing {
     name: string;
 }
@@ -36,5 +38,26 @@ export class Names {
         }
         return Names.normalizeString(input);
     };
+
+    public static tryNormalizeString(input: string): string|undefined {
+        if ((!input) || (input.trim().length < 1)) {
+            return undefined;
+        }
+        return Names.normalizeString(input);
+    }
+
+    public static tryNormalizeStrings(input: string[]): string[]|undefined {
+        if ((!input) || (input.length < 1)) {
+            return undefined;
+        }
+        return Names.normalizeStrings(input);
+    }
+
+    public static tryNormalize(input: string|string[]): string|string[]|undefined {
+        if (Array.isArray(input)) {
+            return Names.tryNormalizeStrings(input);
+        }
+        return Names.tryNormalizeString(input);
+    }
 };
 
