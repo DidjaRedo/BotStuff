@@ -1,8 +1,12 @@
 "use strict";
 
-export interface Normalizable<T extends object> {
+export interface NamedThing {
+    name: string;
+}
+
+export interface Normalizable<T extends TN, TN extends NamedThing> {
     properties: T;
-    normalize(): T;
+    normalized: TN;
 };
 
 export class Names {
@@ -33,3 +37,4 @@ export class Names {
         return Names.normalizeString(input);
     };
 };
+
