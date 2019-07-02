@@ -32,4 +32,25 @@ describe("Names static class", (): void => {
             expect((): string|string[] => Names.normalize(["BLAH", "    "])).toThrowError("Cannot normalize an empty string.");
         });
     });
+
+    describe("tryNormalize static method", (): void => {
+        it("should normalize a string", (): void => {
+            expect(Names.tryNormalize("Some String")).toBe("somestring");
+        });
+
+        it("should return undefined for an empty string", (): void => {
+            expect(Names.tryNormalize("   ")).toBeUndefined();
+        });
+
+        it("should silently omit any elements that cannot be normalized", (): void => {
+            expect(Names.tryNormalize(["BLAH", "   ", "Some name with spaces and punctuation!", "   ", "this-is-a-test"])).toEqual([
+                "blah", "somenamewithspacesandpunctuation", "thisisatest",
+            ]);
+        });
+
+        it("should return undefined if the resulting array has no strings", (): void => {
+            expect(Names.tryNormalize([])).toBe(undefined);
+            expect(Names.tryNormalize([" ", "    "])).toBe(undefined);
+        });
+    });
 });

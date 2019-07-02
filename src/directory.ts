@@ -4,7 +4,7 @@ import { NamedThing, Names } from "./names";
 import { KeyedThing } from "./keyedThing";
 import { Utils } from "./utils";
 
-import Fuse, { FuseResult } from "fuse.js";
+import Fuse = require("fuse.js");
 
 export interface FieldSearchWeight<T> {
     name: keyof T;
@@ -146,7 +146,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
 
         const matches = this._search.search(name);
         if (matches.length > 0) {
-            return Utils.select(matches, (match: FuseResult<T>): LookupResult<T> => {
+            return Utils.select(matches, (match: Fuse.FuseResult<T>): LookupResult<T> => {
                 return {
                     item: match.item,
                     score: 1 - match.score,

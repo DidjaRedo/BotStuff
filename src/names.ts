@@ -47,10 +47,16 @@ export class Names {
     }
 
     public static tryNormalizeStrings(input: string[]): string[]|undefined {
-        if ((!input) || (input.length < 1)) {
-            return undefined;
+        let normalized = [];
+        if (input && (input.length > 0)) {
+            input.forEach((name): void => {
+                name = Names.tryNormalizeString(name);
+                if (name) {
+                    normalized.push(name);
+                }
+            });
         }
-        return Names.normalizeStrings(input);
+        return ((normalized.length > 0) ? normalized : undefined);
     }
 
     public static tryNormalize(input: string|string[]): string|string[]|undefined {

@@ -87,7 +87,13 @@ describe("Directory class", (): void => {
     });
 
     describe("get method", (): void => {
-
+        it("should get the stored object by normalized name", (): void => {
+            const dir = new Directory<FakeProps, FakeNormalizedProps>(noAlternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+            init.forEach((i): void => {
+                const thing = dir.get(i.name);
+                expect(thing).toBe(i);
+            });
+        });
     });
 
     describe("getByField method", (): void => {
@@ -95,6 +101,39 @@ describe("Directory class", (): void => {
     });
 
     describe("lookup method", (): void => {
+        const dir = new Directory<FakeProps, FakeNormalizedProps>(noAlternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+        it("should get a scored list of possible matches based on name", (): void => {
 
+            init.forEach((i): void => {
+                const partialName = i.name.split(" ");
+                const result = dir.lookup(partialName[0]);
+                expect(result.length).toBeGreaterThan(0);
+                expect(result[0].item).toBe(i);
+            });
+        });
+
+        it("should get a scored list of possible matches based other indexed properties", (): void => {
+            init.forEach((i): void => {
+                if (i.alternateName) {
+                    const partialName = i.alternateName.split(" ");
+                    let result = dir.lookup(partialName[0]);
+                    expect(result.length).toBeGreaterThan(0);
+                    expect(result[0].item).toBe(i);
+                }
+
+                if (i.aliases) {
+                    i.aliases.forEach((a): void => {
+                        const partialName = a.split(" ");
+                        let result = dir.lookup(partialName[0]);
+                        expect(result.length).toBeGreaterThan(0);
+                        expect(result[0].item).toBe(i);
+                    });
+                }
+            });
+        });
+
+        it("should return undefined when nothing matches", (): void => {
+            expect(dir.lookup("xyzzy")).toBeUndefined();
+        });
     });
 });
