@@ -19,5 +19,15 @@ describe("Utils static class", (): void => {
             });
             expect(result).toEqual([1, 2, 3]);
         });
+
+        it("should return an empty array for an undefined parametr", (): void => {
+            expect(Utils.select<string, string>(undefined, (s: string): string => s)).toEqual([]);
+        });
+    });
+
+    describe("Utils toArray static method", (): void => {
+        it("should convert an iterable to an array", (): void => {
+            expect(Utils.toArray("blargle")).toEqual(["b", "l", "a", "r", "g", "l", "e"]);
+        });
     });
 });

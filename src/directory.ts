@@ -24,7 +24,7 @@ export interface LookupResult<T> {
 
 export class Directory<T extends TN, TN extends NamedThing> {
     public constructor(options: DirectoryLookupOptions<T, TN>, elements?: Iterable<KeyedThing<T, TN>>) {
-        this._all = (elements ? Utils.toArray(elements) : []);
+        this._all = [];
         this._byKey = new Map<string, KeyedThing<T, TN>>();
         this._byAlternateKey = new Map<keyof TN, Map<string, KeyedThing<T, TN>>>();
         this._options = options;
@@ -38,15 +38,57 @@ export class Directory<T extends TN, TN extends NamedThing> {
     private _search: Fuse<T, { includeScore: true }>;
     private _options: DirectoryLookupOptions<T, TN>;
 
-    private addRange(elements?: Iterable<KeyedThing<T, TN>>): void {
-        if (elements) {
-            for (let elem of elements) {
-                this.add(elem);
+    private _validateItemDoesNotConflict(elem: KeyedThing<T, TN>): void {
+        if (this._byKey.get(elem.key) !== undefined) {
+            throw new Error(`Duplicate entries for key ${elem.key}.`);
+        }
+
+        if (this._options.alternateKeys) {
+            this._options.alternateKeys.forEach((key: keyof TN): void => {
+                const map = this._byAlternateKey.get(key);
+                if (map) {
+                    const value = elem.normalized[key];
+                    if (value && (typeof value === "string") && (map.get(value) !== undefined)) {
+                        throw new Error(`Duplicate entries for value "${value}" of "${key}".`);
+                    }
+                }
+            });
+        }
+    }
+
+    private _validateItemsDoNotConflict(elems: Iterable<KeyedThing<T, TN>>): void {
+        const pending = new Map(Utils.select<keyof TN, [keyof TN|null, Set<string>]>(this._options.alternateKeys, (key: keyof TN): [keyof TN, Set<string>] => {
+            return [key, new Set<string>()];
+        }));
+        pending.set(null, new Set<string>());
+
+        for (const elem of elems) {
+            this._validateItemDoesNotConflict(elem);
+
+            let set = pending.get(null);
+            if (set.has(elem.key)) {
+                throw new Error(`Range to be addded has duplicate entries for key "${elem.key}".`);
+            }
+            set.add(elem.key);
+
+            if (this._options.alternateKeys) {
+                this._options.alternateKeys.forEach((k: keyof TN): void => {
+                    const v = elem.normalized[k];
+                    if (v && (typeof v === "string")) {
+                        set = pending.get(k);
+                        if (set.has(v)) {
+                            throw new Error(`Range to be added has duplicate entries for "${v}" of "${k}".`);
+                        }
+                        set.add(v);
+                    }
+                });
             }
         }
     }
 
-    public add(elem: KeyedThing<T, TN>): void {
+    // internal add does not validate
+    private _add(elem: KeyedThing<T, TN>): KeyedThing<T, TN> {
+        this._all.push(elem);
         this._byKey.set(elem.key, elem);
 
         if (this._options.alternateKeys) {
@@ -58,15 +100,27 @@ export class Directory<T extends TN, TN extends NamedThing> {
                 }
                 const value = elem.normalized[key];
                 if (value && (typeof value === "string")) {
-                    if (map.get(value) !== undefined) {
-                        throw new Error(`Duplicate entries for value "${value}" of "${key}".`);
-                    }
                     map.set(value, elem);
                 }
             });
         }
 
         this._search = undefined;
+        return elem;
+    }
+
+    public add(elem: KeyedThing<T, TN>): KeyedThing<T, TN> {
+        this._validateItemDoesNotConflict(elem);
+        return this._add(elem);
+    }
+
+    public addRange(elements?: Iterable<KeyedThing<T, TN>>): void {
+        if (elements) {
+            this._validateItemsDoNotConflict(elements);
+            for (let elem of elements) {
+                this._add(elem);
+            }
+        }
     }
 
     private _initSearch(): void {
@@ -100,6 +154,10 @@ export class Directory<T extends TN, TN extends NamedThing> {
         return false;
     }
 
+    public get alternateKeys(): (keyof TN)[] {
+        return this._options.alternateKeys || [];
+    }
+
     public forEach(callback: {(item: T, key?: string)}): void {
         this._all.forEach((item: KeyedThing<T, TN>): void => {
             callback(item.properties, item.key);
@@ -112,8 +170,11 @@ export class Directory<T extends TN, TN extends NamedThing> {
         });
     }
 
-    public getKeys(props: T): TN {
+    public getNormalizedValues(props: T): TN {
         const elem = this.getKeyedThing(props.name);
+        if (elem && (elem.properties !== props)) {
+            throw new Error(`Directory element "${props.name}" does not match supplied object.`);
+        }
         return (elem ? elem.normalized : undefined);
     }
 
