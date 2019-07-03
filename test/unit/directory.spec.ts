@@ -4,6 +4,7 @@ import { Names } from "../../src/names";
 import { KeyedThing } from "../../src/keyedThing";
 import { Directory, DirectoryLookupOptions, FieldSearchWeight } from "../../src/directory";
 import { FakeInit, FakeProps, FakeNormalizedProps } from "./fakeKeyedThing";
+import { Utils } from "../../src/utils";
 
 describe("Directory class", (): void => {
     const noAlternateKeyOptions: DirectoryLookupOptions<FakeProps, FakeNormalizedProps> = {
@@ -251,14 +252,90 @@ describe("Directory class", (): void => {
                 checkSearchCorrectness(dir, alternateKeyOptions.keys, init, badInit);
             });
         });
+
+        describe("if an alternate key conflicts with other values to be added", (): void => {
+            const badInit: FakeProps[] = [
+                { name: "Fourth Place", alternateName: "Top", aliases: ["Salmon", "Moose"], city: "Anchorage", state: "Alaska", isSpecial: false, externalId: "whatever" },
+                { name: "Fifth Place", alternateName: "Center", city: "St Louis", state: "Missouri", isSpecial: false, externalId: "whatever" },
+                { name: "Sixth Place", alternateName: "Bottom", aliases: ["Disneyworld"], city: "Orlando", state: "Florida", isSpecial: false },
+                { name: "Seventh Place", alternateName: "Bottom", aliases: ["Barbecue"], city: "Austin", state: "Texas", isSpecial: false, externalId: "whatever" },
+            ];
+
+            it("should throw on add", (): void => {
+                const dir = new Directory<FakeProps, FakeNormalizedProps>(alternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+                expect((): void => {
+                    dir.addRange(KeyedThing.init(badInit, FakeInit.toInit));
+                }).toThrowError(/range.*duplicate/i);
+            });
+
+            it("should not add any elements by name or any alternate key", (): void => {
+                const dir = new Directory<FakeProps, FakeNormalizedProps>(alternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+                expect((): void => {
+                    dir.addRange(KeyedThing.init(badInit, FakeInit.toInit));
+                }).toThrowError(/range.*duplicate/i);
+
+                checkKeyCorrectness(dir, init, badInit);
+            });
+
+            it("should not add any elements to the search index", (): void => {
+                const dir = new Directory<FakeProps, FakeNormalizedProps>(alternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+                expect((): void => {
+                    dir.addRange(KeyedThing.init(badInit, FakeInit.toInit));
+                }).toThrowError(/range.*duplicate/i);
+
+                checkSearchCorrectness(dir, alternateKeyOptions.keys, init, badInit);
+            });
+        });
+    });
+
+    describe("keys property", (): void => {
+        it("should include all of the keys", (): void => {
+            const dir = new Directory<FakeProps, FakeNormalizedProps>(alternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+            const keys = dir.keys;
+
+            expect(keys.length).toBe(init.length);
+            keys.forEach((k): void => {
+                let found = false;
+                init.forEach((i): void => {
+                    found = found || (Names.normalizeString(i.name) === k);
+                });
+                expect(found).toBe(true);
+            });
+
+            init.forEach((i): void => {
+                expect(keys).toContain(Names.normalizeString(i.name));
+            });
+        });
     });
 
     describe("forEachKeyedThing method", (): void => {
+        it("should enumerate all of the keyed things", (): void => {
+            const dir = new Directory<FakeProps, FakeNormalizedProps>(alternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+            const found = [];
+            dir.forEachKeyedThing((kt: KeyedThing<FakeProps, FakeNormalizedProps>): void => {
+                expect(init).toContain(kt.properties);
+                found.push(kt.properties);
+            });
 
+            init.forEach((i): void => {
+                expect(found).toContain(i);
+            });
+        });
     });
 
     describe("forEach method", (): void => {
+        it("should enumerate all of the properties", (): void => {
+            const dir = new Directory<FakeProps, FakeNormalizedProps>(alternateKeyOptions, KeyedThing.init(init, FakeInit.toInit));
+            const found = [];
+            dir.forEach((fp: FakeProps): void => {
+                expect(init).toContain(fp);
+                found.push(fp);
+            });
 
+            init.forEach((i): void => {
+                expect(found).toContain(i);
+            });
+        });
     });
 
     describe("getNormalizedValues method", (): void => {
