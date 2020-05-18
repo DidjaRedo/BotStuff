@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import { Names } from "./names";
+import { Names } from './names';
 
 export type ElementInitializer = (name: string, normalizedName: string, value: object) => object;
 export type ElementUpdater = (existing: object, name: string, value: object) => object;
@@ -22,7 +22,7 @@ export class NormalizedMap {
     private elements: object;
 
     public addOrUpdate(name: string, value: object): object {
-        let normalized = Names.normalizeString(name);
+        const normalized = Names.normalizeString(name);
         if (this.elements[normalized]) {
             if (this.replaceElement) {
                 this.elements[normalized] = this.replaceElement(this.elements[normalized], name, value);
@@ -33,7 +33,7 @@ export class NormalizedMap {
             return this.elements[normalized];
         }
 
-        let elem = (this.initElement ? this.initElement(name, normalized, value) : value);
+        const elem = (this.initElement ? this.initElement(name, normalized, value) : value);
         this.elements[normalized] = elem;
         return elem;
     }
@@ -43,13 +43,13 @@ export class NormalizedMap {
     }
 
     public lookupElements(names: string[]): LookupResults {
-        let result = {
+        const result = {
             found: [],
             unknown: [],
         };
 
         names.forEach((name): void => {
-            let elem = this.tryGetElement(name);
+            const elem = this.tryGetElement(name);
             if (elem) {
                 if (!result.found.includes(elem)) {
                     result.found.push(elem);
@@ -67,9 +67,9 @@ export class NormalizedMap {
     }
 
     public getElements(names: string[]): object[] {
-        let result = this.lookupElements(names);
+        const result = this.lookupElements(names);
         if (result.unknown.length > 0) {
-            throw new Error(`Unknown names "${result.unknown.join(", ")}".`);
+            throw new Error(`Unknown names "${result.unknown.join(', ')}".`);
         }
         return result.found;
     }
@@ -81,6 +81,7 @@ export class NormalizedMap {
 
     public forEach(func: (elem: object, key: string) => void): void {
         for (const key in this.elements) {
+            // istanbul ignore else
             if (this.elements.hasOwnProperty(key)) {
                 func(this.elements[key], key);
             }
@@ -88,14 +89,14 @@ export class NormalizedMap {
     }
 
     public containsName(name: string): boolean {
-        let normalized = Names.normalizeString(name);
+        const normalized = Names.normalizeString(name);
         return (this.elements.hasOwnProperty(normalized) && this.elements[normalized]) ? true : false;
     }
 
     public select(selectFunc: (value: object, key: string) => object): object[] {
-        let rtrn = [];
+        const rtrn = [];
         this.forEach((value, key): void => {
-            let next = selectFunc(value, key);
+            const next = selectFunc(value, key);
             if (next !== undefined) {
                 rtrn.push(undefined);
             }

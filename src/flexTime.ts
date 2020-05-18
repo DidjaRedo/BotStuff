@@ -1,7 +1,14 @@
-"use strict";
+'use strict';
 
-import TimeOfDay from "typings/TimeOfDay/TimeOfDay";
-import TimeOfDayProvider from "typings/TimeOfDayProvider/TimeOfDayProvider";
+export interface TimeOfDay {
+    hours: number;
+    minutes: number;
+}
+
+export interface TimeOfDayProvider {
+    getHours(): number;
+    getMinutes(): number;
+}
 
 // flexTimeRegex puts each component into a capture group and matches the entire line ignoring leading and trailing whitespace
 // substringRegex matches anywhere into a single capture group
@@ -30,17 +37,17 @@ function _tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDa
 
     if (match !== null) {
         let hours = Number(match[1]);
-        let minutes = Number(match[2]);
+        const minutes = Number(match[2]);
 
         if ((hours >= 0) && (hours < 24) && (minutes >= 0) && (minutes < 60)) {
             let isValid = true;
 
             // 12 hour time is unambiguous if am/pm is specified
-            const hasAmPm = (typeof match[3] === "string") && ((match[3].length === 1) || (match[3].length === 2));
+            const hasAmPm = (typeof match[3] === 'string') && ((match[3].length === 1) || (match[3].length === 2));
 
-            // 24 hour time is unambiguous if there is no am/pm and the hour is 0, greater than 12 or has an extra
+            // 24 hour time is unambiguous if there is no am/pm and the hour is 0, 12 or greater or has an extra
             // leading 0.   So "0800" is unambiguously 8 in the morning but "800" could be either morning or evening
-            const isUnambiguous24hrTime = (!hasAmPm) && ((hours === 0) || (hours > 12) || match[1][0] === "0");
+            const isUnambiguous24hrTime = (!hasAmPm) && ((hours === 0) || (hours > 12) || match[1][0] === '0');
 
             if (hasAmPm) {
                 // Make sure we aren't trying to use am/pm for unambiguous 24 hour times
@@ -48,7 +55,7 @@ function _tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDa
                 if (isValid) {
                     // get to 24 hour time. 12 am === 00:00
                     hours = (hours === 12) ? 0 : hours;
-                    if (match[3].toLowerCase()[0] === "p") {
+                    if (match[3].toLowerCase()[0] === 'p') {
                         hours = hours + 12;
                     }
                 }
@@ -92,8 +99,9 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
     public constructor(init?: string|number|TimeOfDayProvider, now?: TimeOfDayProvider) {
         now = now || new Date();
 
-        if ((init !== undefined) && (init !== "")) {
-            if ((typeof init === "string") && (init !== "")) {
+        if ((init !== undefined) && (init !== '')) {
+            /* istanbul ignore else */
+            if ((typeof init === 'string') && (init !== '')) {
                 const result = _tryGetValuesFromString(init, now);
                 if (!result) {
                     throw new Error(`Invalid time string "${init}".`);
@@ -105,7 +113,7 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
             else if ((init instanceof FlexTime) || (init instanceof Date)) {
                 now = init;
             }
-            else if (typeof init === "number") {
+            else if (typeof init === 'number') {
                 now = new Date(init);
             }
             else {
@@ -184,7 +192,7 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
      * @param {number|Date|FlexTime} [baseDate] - Optional base date, defaults to Date.now()
      */
     public toDate(fudgeFactorInMinutes?: number, baseDate?: number|Date): Date {
-        let date = ((typeof baseDate === "number" ? new Date(baseDate) : baseDate)) || new Date();
+        let date = ((typeof baseDate === 'number' ? new Date(baseDate) : baseDate)) || new Date();
         fudgeFactorInMinutes = fudgeFactorInMinutes || 0;
 
         const delta = this.getAbsoluteDeltaInMinutes(date);
@@ -204,14 +212,14 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
      * @param {string} [fmt] - Optional format to use, defaults to "hh:mm tt"
      */
     public toString(fmt?: string): string {
-        let result = fmt || "hh:mm tt";
-        result = result.replace("HH", (this._hours < 10) ? `0${this._hours}` : `${this._hours}`);
-        result = result.replace("hh", `${((this._hours % 12) || 12)}`);
+        let result = fmt || 'hh:mm tt';
+        result = result.replace('HH', (this._hours < 10) ? `0${this._hours}` : `${this._hours}`);
+        result = result.replace('hh', `${((this._hours % 12) || 12)}`);
         result = result.replace(/mm/i, `${(this._minutes < 10 ? `0${this._minutes}` : this._minutes)}`);
-        result = result.replace("TT", (this._hours < 12) ? "AM" : "PM");
-        result = result.replace("tt", (this._hours < 12) ? "am" : "pm");
-        result = result.replace("T", (this._hours < 12) ? "A" : "P");
-        result = result.replace("t", (this._hours < 12) ? "a" : "p");
+        result = result.replace('TT', (this._hours < 12) ? 'AM' : 'PM');
+        result = result.replace('tt', (this._hours < 12) ? 'am' : 'pm');
+        result = result.replace('T', (this._hours < 12) ? 'A' : 'P');
+        result = result.replace('t', (this._hours < 12) ? 'a' : 'p');
         return result;
     }
 
@@ -221,7 +229,7 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
      * @param {number|string} [deltaInMinutes] - Delta to be applied
      */
     public static getFlexTime(fromTime?: number|TimeOfDayProvider, deltaInMinutes?: number|string): FlexTime {
-        let date = ((typeof fromTime === "number" ? new Date(fromTime) : fromTime)) || new Date();
+        let date = ((typeof fromTime === 'number' ? new Date(fromTime) : fromTime)) || new Date();
         if (date instanceof FlexTime) {
             date = date.toDate();
         }
@@ -236,31 +244,31 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
     }
 
     public static formatTimeAmPm(date: TimeOfDayProvider|number): string {
-        if (typeof date === "number") {
+        if (typeof date === 'number') {
             date = new Date(date);
         }
 
         let hours = date.getHours();
-        let minutes = date.getMinutes();
-        let ampm = hours >= 12 ? "PM" : "AM";
+        const minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
 
         hours = hours % 12;
         hours = hours ? hours : 12; // the hour '0' should be '12'
         const minuteString = minutes < 10 ? `0${minutes}` : `${minutes}`;
-        let strTime = `${hours}:${minuteString} ${ampm}`;
+        const strTime = `${hours}:${minuteString} ${ampm}`;
         return strTime;
     }
 
     public static formatTime24Hours(date: TimeOfDayProvider|number): string {
-        if (typeof date === "number") {
+        if (typeof date === 'number') {
             date = new Date(date);
         }
 
-        let hour = date.getHours();
-        let minutes = date.getMinutes();
+        const hour = date.getHours();
+        const minutes = date.getMinutes();
 
-        let hourString = (hour < 10) ? `0${hour}` : `${hour}`;
-        let minuteString = (minutes < 10) ? `0${minutes}` : `${minutes}`;
+        const hourString = (hour < 10) ? `0${hour}` : `${hour}`;
+        const minuteString = (minutes < 10) ? `0${minutes}` : `${minutes}`;
         return `${hourString}${minuteString}`;
     };
 

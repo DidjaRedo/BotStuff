@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import { Names } from "../../src/names";
-import { KeyedThing } from "../../src/keyedThing";
+import { Names } from '../../src/names';
+import { KeyedThing } from '../../src/keyedThing';
 
 export interface FakeProps extends FakeNormalizedProps {
     name: string;
@@ -22,7 +22,8 @@ export interface FakeNormalizedProps {
 }
 
 export class FakeInit {
-    private constructor() {}
+    /* istanbul ignore next */
+    private constructor() {} // eslint-disable-line
 
     public static toInit(props: FakeProps): KeyedThing<FakeProps, FakeNormalizedProps> {
         const normalized: FakeNormalizedProps = {

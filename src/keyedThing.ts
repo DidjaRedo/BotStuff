@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import { NamedThing, Normalizable } from "./names";
-import { Utils } from "./utils";
+import { NamedThing, Normalizable } from './names';
+import { Utils } from './utils';
 
 export class KeyedThing<T extends TN, TN extends NamedThing> implements Normalizable<T, TN> {
     public constructor(thing: Normalizable<T, TN>) {

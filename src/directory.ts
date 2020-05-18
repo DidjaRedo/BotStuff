@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-import { NamedThing, Names } from "./names";
-import { KeyedThing } from "./keyedThing";
-import { Utils } from "./utils";
+import { NamedThing, Names } from './names';
+import { KeyedThing } from './keyedThing';
+import { Utils } from './utils';
 
-import Fuse = require("fuse.js");
+import Fuse = require('fuse.js');
 
 export interface FieldSearchWeight<T> {
     name: keyof T;
@@ -48,7 +48,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
                 const map = this._byAlternateKey.get(key);
                 if (map) {
                     const value = elem.normalized[key];
-                    if (value && (typeof value === "string") && (map.get(value) !== undefined)) {
+                    if (value && (typeof value === 'string') && (map.get(value) !== undefined)) {
                         throw new Error(`Duplicate entries for value "${value}" of "${key}".`);
                     }
                 }
@@ -74,7 +74,8 @@ export class Directory<T extends TN, TN extends NamedThing> {
             if (this._options.alternateKeys) {
                 this._options.alternateKeys.forEach((k: keyof TN): void => {
                     const v = elem.normalized[k];
-                    if (v && (typeof v === "string")) {
+                    /* istanbul ignore else */
+                    if (v && (typeof v === 'string')) {
                         set = pending.get(k);
                         if (set.has(v)) {
                             throw new Error(`Range to be added has duplicate entries for "${v}" of "${k}".`);
@@ -99,7 +100,8 @@ export class Directory<T extends TN, TN extends NamedThing> {
                     this._byAlternateKey.set(key, map);
                 }
                 const value = elem.normalized[key];
-                if (value && (typeof value === "string")) {
+                /* istanbul ignore else */
+                if (value && (typeof value === 'string')) {
                     map.set(value, elem);
                 }
             });
@@ -117,7 +119,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
     public addRange(elements?: Iterable<KeyedThing<T, TN>>): void {
         if (elements) {
             this._validateItemsDoNotConflict(elements);
-            for (let elem of elements) {
+            for (const elem of elements) {
                 this._add(elem);
             }
         }
@@ -148,10 +150,8 @@ export class Directory<T extends TN, TN extends NamedThing> {
     }
 
     public isAlternateKey(key: keyof TN): boolean {
-        if (this._options && this._options.alternateKeys) {
-            return this._options.alternateKeys.includes(key);
-        }
-        return false;
+        /* istanbul ignore next */
+        return this._options?.alternateKeys?.includes(key) ?? false;
     }
 
     public get alternateKeys(): (keyof TN)[] {
@@ -170,7 +170,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
         });
     }
 
-    public getNormalizedValues(props: T): TN {
+    public getNormalizedValues(props: T): TN|undefined {
         const elem = this.getKeyedThing(props.name);
         if (elem && (elem.properties !== props)) {
             throw new Error(`Directory element "${props.name}" does not match supplied object.`);
@@ -190,6 +190,16 @@ export class Directory<T extends TN, TN extends NamedThing> {
         return map && map.get(Names.normalizeString(name));
     }
 
+    public getKeyedThingsByAnyFieldExact(name: string): KeyedThing<T, TN>[] {
+        const wantKey = Names.normalizeString(name);
+        const altKeys = this.alternateKeys;
+        /* istanbul ignore next */
+        return [
+            this._byKey.get(wantKey),
+            ...altKeys.map((k) => this._byAlternateKey.get(k)?.get(wantKey)),
+        ].filter((t) => t !== undefined);
+    }
+
     public get(name: string): T|undefined {
         const elem = this.getKeyedThing(name);
         return (elem ? elem.properties : undefined);
@@ -200,6 +210,10 @@ export class Directory<T extends TN, TN extends NamedThing> {
         return (elem ? elem.properties : undefined);
     }
 
+    public getByAnyFieldExact(name: string): T[] {
+        return this.getKeyedThingsByAnyFieldExact(name).map((kt) => kt.properties);
+    }
+
     public lookup(name: string): LookupResult<T>[]|undefined {
         if (!this._search) {
             this._initSearch();
@@ -207,7 +221,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
 
         const matches = this._search.search(name);
         if (matches.length > 0) {
-            return Utils.select(matches, (match: Fuse.FuseResult<T>): LookupResult<T> => {
+            return Utils.select(matches, (match: Fuse.FuseResultWithScore<T>): LookupResult<T> => {
                 return {
                     item: match.item,
                     score: 1 - match.score,

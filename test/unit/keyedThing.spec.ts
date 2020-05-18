@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import { Names, Normalizable } from "../../src/names";
-import { KeyedThing } from "../../src/keyedThing";
+import { Names, Normalizable } from '../../src/names';
+import { KeyedThing } from '../../src/keyedThing';
 
-describe("KeyedThing class", (): void => {
+describe('KeyedThing class', (): void => {
     interface FakeProps {
         name: string;
         firstProp: string;
@@ -41,21 +41,21 @@ describe("KeyedThing class", (): void => {
     }
 
     const fake: FakeProps = {
-        name: "Named Thing",
-        firstProp: "FIRST PROP",
-        secondProp: "Second Prop",
-        notNormalizedProp: "This is NOT the property you are looking for",
+        name: 'Named Thing',
+        firstProp: 'FIRST PROP',
+        secondProp: 'Second Prop',
+        notNormalizedProp: 'This is NOT the property you are looking for',
     };
 
     const badFake: FakeProps = {
-        name: "  ",
-        firstProp: "FIRST PROP",
-        secondProp: "Second Prop",
-        notNormalizedProp: "This is NOT the property you are looking for",
+        name: '  ',
+        firstProp: 'FIRST PROP',
+        secondProp: 'Second Prop',
+        notNormalizedProp: 'This is NOT the property you are looking for',
     };
 
-    describe("constructor", (): void => {
-        it("should initialize with supplied properties", (): void => {
+    describe('constructor', (): void => {
+        it('should initialize with supplied properties', (): void => {
             const thing = new KeyedThing(new FakeInitializer(fake));
             expect(thing.name).toBe(fake.name);
             expect(thing.key).toBe(Names.normalizeString(fake.name));
@@ -66,8 +66,7 @@ describe("KeyedThing class", (): void => {
             expect(thing.normalized.secondProp).toBe(Names.normalizeString(fake.secondProp));
         });
 
-        it("should throw if the name is whitespace", (): void => {
-
+        it('should throw if the name is whitespace', (): void => {
             expect((): KeyedThing<FakeProps, FakeNormalizedProps> => new KeyedThing(new FakeInitializer(badFake))).toThrowError(/whitespace/i);
         });
     });

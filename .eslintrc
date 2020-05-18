@@ -507,7 +507,7 @@
 
         // Require strings to use double-quotes instead of single-quotes. Single-quotes are allowed
         // only to avoid adding escape characters for double-quotes within a string, for readability.
-        "quotes": ["error", "double", {"avoidEscape": true}],
+        "quotes": ["error", "single", {"avoidEscape": true}],
 
         // This project doesn't mandate or publish jsdoc comments.
         "require-jsdoc": "off",

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export interface CommandResult {
     found: boolean;
@@ -16,12 +16,10 @@ export interface CommandSpec {
 
 export class CommandProcessor {
     public constructor(commands?: CommandSpec[]) {
-        var self = this;
-
-        self._commands = [];
+        this._commands = [];
 
         if (commands) {
-            commands.forEach((c): void => self.addCommand(c));
+            commands.forEach((c): void => this.addCommand(c));
         }
     }
 
@@ -29,15 +27,15 @@ export class CommandProcessor {
 
     private _validateCommand(cmd: CommandSpec): void {
         if ((!cmd.name) || (!cmd.description) || (!cmd.pattern) || (!cmd.handleCommand)) {
-            throw new Error("Command must have name, description, pattern and handleCommand.");
+            throw new Error('Command must have name, description, pattern and handleCommand.');
         }
 
         if ((cmd.pattern instanceof RegExp) !== true) {
-            throw new Error("Command.pattern must be a regular expression.");
+            throw new Error('Command.pattern must be a regular expression.');
         }
 
-        if (typeof cmd.handleCommand !== "function") {
-            throw new Error("Command.handleCommand must be a function.");
+        if (typeof cmd.handleCommand !== 'function') {
+            throw new Error('Command.handleCommand must be a function.');
         }
 
         this._commands.forEach((c): void => {
@@ -53,9 +51,9 @@ export class CommandProcessor {
     }
 
     public processAll(message): object[] {
-        let results = [];
+        const results = [];
         this._commands.forEach((c): void => {
-            let params = message.match(c.pattern);
+            const params = message.match(c.pattern);
             if (params !== null) {
                 results.push(c.handleCommand(params));
             }
@@ -64,14 +62,14 @@ export class CommandProcessor {
     }
 
     public processFirst(message): CommandResult {
-        let result = {
+        const result = {
             found: false,
             result: undefined,
         };
 
         this._commands.forEach((c): object => {
             if (!result.found) {
-                let params = message.match(c.pattern);
+                const params = message.match(c.pattern);
                 if (params !== null) {
                     result.result = c.handleCommand(params);
                     result.found = true;
@@ -84,14 +82,14 @@ export class CommandProcessor {
     }
 
     public processOne(message): CommandResult {
-        let result = {
+        const result = {
             found: false,
             result: undefined,
         };
         let firstCommand = undefined;
 
         this._commands.forEach((c): void => {
-            let params = message.match(c.pattern);
+            const params = message.match(c.pattern);
             if (params !== null) {
                 if (!result.found) {
                     firstCommand = c;

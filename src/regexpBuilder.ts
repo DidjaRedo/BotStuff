@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import { Utils } from "./utils";
+import { Utils } from './utils';
 
 export interface RegExpFragment {
     value: string;
@@ -18,7 +18,7 @@ export class RegExpBuilder {
         }));
 
         if (this._fields.size < 1) {
-            throw new Error("RegExpBuilder needs at least one fragment.");
+            throw new Error('RegExpBuilder needs at least one fragment.');
         }
     }
 
@@ -35,12 +35,12 @@ export class RegExpBuilder {
     }
 
     public buildString(fields: string[]|string): string {
-        if (typeof fields === "string") {
+        if (typeof fields === 'string') {
             fields = fields.split(/\s/);
         }
 
         let separator = undefined;
-        let str = "^\\s*";
+        let str = '^\\s*';
 
         fields.forEach((raw: string): void => {
             if (separator) {
@@ -48,16 +48,16 @@ export class RegExpBuilder {
                 separator = undefined;
             }
 
-            let field = this._getField(raw);
+            const field = this._getField(raw);
             if (field.optional) {
-                str += `(?:(?:${field.value})\\s+)?`; 
+                str += `(?:(?:${field.value})\\s+)?`;
             }
             else {
                 str += field.value;
-                separator = "\\s+";
+                separator = '\\s+';
             }
         });
-        str += "\\s*$";
+        str += '\\s*$';
         return str;
     }
 
