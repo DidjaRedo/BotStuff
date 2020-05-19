@@ -1,5 +1,3 @@
-'use strict';
-
 import FlexTime from '../../src/flexTime';
 
 function makeAmbiguousTimeString(date: Date): string {

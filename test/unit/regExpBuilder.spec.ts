@@ -1,5 +1,3 @@
-'use strict';
-
 import { RegExpBuilder } from '../../src/regExpBuilder';
 
 describe('RegExpBuilder static class', (): void => {

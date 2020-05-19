@@ -1,18 +1,8 @@
-'use strict';
-
 import { Names, NamedThing } from './names';
 import { KeyedThing } from './keyedThing';
 import { Utils, GeoHelpers } from './utils';
 import { DirectoryLookupOptions } from './directory';
 
-export interface PoiInitializer {
-    name: string;
-    alternateNames?: Iterable<string>;
-    city: string;
-    zones: Iterable<string>;
-    latitude: number;
-    longitude: number;
-}
 
 export interface PoiLookupOptions {
     zones?: string[];
@@ -23,15 +13,24 @@ export interface PoiLookupOptions {
     onlyMatchingZones?: boolean;
 }
 
-export interface NormalizedPoi extends NamedThing {
+export interface PoiKeys extends NamedThing {
     name: string;
     city: string;
     zones: string[];
     alternateNames?: string[];
 }
 
-export class Poi implements NormalizedPoi {
-    public constructor(init: PoiInitializer) {
+export interface PoiProperties extends PoiKeys {
+    name: string;
+    city: string;
+    zones: string[];
+    alternateNames?: string[];
+    latitude: number;
+    longitude: number;
+}
+
+export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
+    public constructor(init: PoiProperties) {
         Poi._validateInitializer(init);
         this._name = init.name;
         this._city = init.city;
@@ -39,7 +38,7 @@ export class Poi implements NormalizedPoi {
         this._latitude = init.latitude;
         this._longitude = init.longitude;
         this._alternateNames = Utils.toArray(init.alternateNames);
-        this._normalized = this._normalize();
+        this._keys = this._normalize();
     }
 
     private _name: string;
@@ -48,8 +47,9 @@ export class Poi implements NormalizedPoi {
     private _zones: string[];
     private _latitude: number;
     private _longitude: number;
-    private _normalized: NormalizedPoi;
+    private _keys: PoiKeys;
 
+    public get primaryKey(): string { return this._keys.name; }
     public get name(): string { return this._name; }
     public get city(): string { return this._city; }
     public get zones(): string[] { return this._zones; }
@@ -72,12 +72,12 @@ export class Poi implements NormalizedPoi {
             if (!Names.isValidName(zone)) {
                 throw new Error(`Invalid zone name "${zone}".`);
             }
-            match = match || this._normalized.zones.includes(Names.normalizeString(zone));
+            match = match || this._keys.zones.includes(Names.normalizeString(zone));
         }
         return match;
     }
 
-    private _normalize(): NormalizedPoi {
+    private _normalize(): PoiKeys {
         return {
             name: Names.normalizeString(this._name),
             city: Names.normalizeString(this._city),
@@ -86,15 +86,11 @@ export class Poi implements NormalizedPoi {
         };
     }
 
-    public get normalized(): NormalizedPoi {
-        return this._normalized;
+    public get keys(): PoiKeys {
+        return this._keys;
     }
 
-    public toKeyedThing(): KeyedThing<Poi, NormalizedPoi> {
-        return new KeyedThing({ properties: this, normalized: this._normalized });
-    }
-
-    private static _validateInitializer(init: PoiInitializer): void {
+    private static _validateInitializer(init: PoiProperties): void {
         Names.validateName(init.name, 'poi name');
         Names.validateName(init.city, 'city name');
         Names.validateNames(init.zones, 'zone name', 1);
@@ -105,10 +101,10 @@ export class Poi implements NormalizedPoi {
         }
     }
 
-    public static getDirectoryLookupOptions(): DirectoryLookupOptions<Poi, NormalizedPoi> {
+    public static getDirectoryLookupOptions(): DirectoryLookupOptions<Poi, PoiProperties, PoiKeys> {
         return {
             threshold: 0.8,
-            keys: [
+            textSearchKeys: [
                 {
                     name: 'name',
                     weight: 0.7,

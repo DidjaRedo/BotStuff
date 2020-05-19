@@ -1,5 +1,3 @@
-'use strict';
-
 import { Names } from '../../src/names';
 
 describe('Names static class', (): void => {

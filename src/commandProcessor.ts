@@ -1,5 +1,3 @@
-'use strict';
-
 export interface CommandResult {
     found: boolean;
     result: true;

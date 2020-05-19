@@ -1,5 +1,3 @@
-'use strict';
-
 export class Utils {
     /* istanbul ignore next */
     private constructor() {} // eslint-disable-line

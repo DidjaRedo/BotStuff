@@ -1,16 +1,14 @@
-'use strict';
-
-import { Poi, PoiInitializer, NormalizedPoi } from '../../src/poi';
+import { Poi, PoiProperties, PoiKeys } from '../../src/poi';
 
 describe('Poi class', (): void => {
-    const good: PoiInitializer[] = [
+    const good: PoiProperties[] = [
         { name: 'A POI', city: 'Gotham', zones: ['red', 'white'], latitude: 40.123, longitude: -122.123 },
         { name: 'Another POI', alternateNames: ['elsewhere'], city: 'Metropolis', zones: ['white', 'blue'], latitude: 40.123, longitude: -122.123 },
     ];
 
     describe('constructor', (): void => {
         it('should succeed for valid initializers', (): void => {
-            good.forEach((init: PoiInitializer): void => {
+            good.forEach((init: PoiProperties): void => {
                 const poi = new Poi(init);
                 expect(poi.name).toBe(init.name);
                 expect(poi.city).toBe(init.city);
@@ -130,7 +128,7 @@ describe('Poi class', (): void => {
     describe('normalization', (): void => {
         interface NormalizedTest {
             poi: Poi;
-            expected: NormalizedPoi;
+            expected: PoiKeys;
         }
         const expected: NormalizedTest[] = [
             {
@@ -146,18 +144,7 @@ describe('Poi class', (): void => {
         describe('normalized method', (): void => {
             it('should normalize all normalizable fields', (): void => {
                 expected.forEach((test: NormalizedTest): void => {
-                    expect(test.poi.normalized).toMatchObject(test.expected);
-                });
-            });
-        });
-
-        describe('toKeyedThing method', (): void => {
-            it('should return a KeyedThing with both raw and normalized properties', (): void => {
-                expected.forEach((test: NormalizedTest): void => {
-                    expect(test.poi.toKeyedThing()).toMatchObject({
-                        properties: test.poi,
-                        normalized: test.expected,
-                    });
+                    expect(test.poi.keys).toMatchObject(test.expected);
                 });
             });
         });
@@ -166,7 +153,7 @@ describe('Poi class', (): void => {
     describe('getDirectoryLookupOptions static method', (): void => {
         it('should search by name and alternate name and index by alternate names', (): void => {
             expect(Poi.getDirectoryLookupOptions()).toMatchObject({
-                keys: [
+                textSearchKeys: [
                     { name: 'name' },
                     { name: 'alternateNames' },
                 ],

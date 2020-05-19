@@ -1,5 +1,3 @@
-'use strict';
-
 import { NamedThing, Names } from './names';
 import { KeyedThing } from './keyedThing';
 import { Utils } from './utils';
@@ -11,10 +9,10 @@ export interface FieldSearchWeight<T> {
     weight: number;
 };
 
-export interface DirectoryLookupOptions<T extends TN, TN extends NamedThing> {
+export interface DirectoryLookupOptions<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing> {
     threshold: number;
-    keys: FieldSearchWeight<T>[];
-    alternateKeys?: (keyof TN)[];
+    textSearchKeys: FieldSearchWeight<TS>[];
+    alternateKeys?: (keyof TK)[];
 }
 
 export interface LookupResult<T> {
@@ -22,42 +20,54 @@ export interface LookupResult<T> {
     item: T;
 }
 
-export class Directory<T extends TN, TN extends NamedThing> {
-    public constructor(options: DirectoryLookupOptions<T, TN>, elements?: Iterable<KeyedThing<T, TN>>) {
+// TK are the keys
+// TS are the searchable properties
+// T is the instantiated object
+export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing> {
+    public constructor(options: DirectoryLookupOptions<T, TS, TK>, elements?: Iterable<T>) {
         this._all = [];
-        this._byKey = new Map<string, KeyedThing<T, TN>>();
-        this._byAlternateKey = new Map<keyof TN, Map<string, KeyedThing<T, TN>>>();
+        this._byKey = new Map<string, T>();
+        this._byAlternateKey = new Map<keyof TK, Map<string, T>>();
         this._options = options;
         this._search = undefined;
         this.addRange(elements);
     }
 
-    private _all: KeyedThing<T, TN>[];
-    private _byKey: Map<string, KeyedThing<T, TN>>;
-    private _byAlternateKey: Map<keyof TN, Map<string, KeyedThing<T, TN>>>;
+    private _all: T[];
+    private _byKey: Map<string, T>;
+    private _byAlternateKey: Map<keyof TK, Map<string, T>>;
     private _search: Fuse<T, { includeScore: true }>;
-    private _options: DirectoryLookupOptions<T, TN>;
+    private _options: DirectoryLookupOptions<T, TS, TK>;
 
-    private _validateItemDoesNotConflict(elem: KeyedThing<T, TN>): void {
-        if (this._byKey.get(elem.key) !== undefined) {
-            throw new Error(`Duplicate entries for key ${elem.key}.`);
+    private _validateItemDoesNotConflict(elem: T): void {
+        if (this._byKey.get(elem.primaryKey) !== undefined) {
+            throw new Error(`Duplicate entries for key ${elem.primaryKey}.`);
         }
 
         if (this._options.alternateKeys) {
-            this._options.alternateKeys.forEach((key: keyof TN): void => {
+            this._options.alternateKeys.forEach((key: keyof TK): void => {
                 const map = this._byAlternateKey.get(key);
                 if (map) {
-                    const value = elem.normalized[key];
-                    if (value && (typeof value === 'string') && (map.get(value) !== undefined)) {
-                        throw new Error(`Duplicate entries for value "${value}" of "${key}".`);
+                    const altKeyValue = elem.keys[key];
+                    const values = Array.isArray(altKeyValue) ? altKeyValue : [altKeyValue];
+                    for (const v of values) {
+                        /* istanbul ignore else */
+                        if (typeof v === 'string') {
+                            if (map.get(v) !== undefined) {
+                                throw new Error(`Duplicate entries for value "${v}" of "${key}".`);
+                            }
+                        }
+                        else if (v !== undefined) {
+                            throw new Error('Key property must be string or array of strings.');
+                        }
                     }
                 }
             });
         }
     }
 
-    private _validateItemsDoNotConflict(elems: Iterable<KeyedThing<T, TN>>): void {
-        const pending = new Map(Utils.select<keyof TN, [keyof TN|null, Set<string>]>(this._options.alternateKeys, (key: keyof TN): [keyof TN, Set<string>] => {
+    private _validateItemsDoNotConflict(elems: Iterable<T>): void {
+        const pending = new Map(Utils.select<keyof TK, [keyof TK|null, Set<string>]>(this._options.alternateKeys, (key: keyof TK): [keyof TK, Set<string>] => {
             return [key, new Set<string>()];
         }));
         pending.set(null, new Set<string>());
@@ -66,21 +76,28 @@ export class Directory<T extends TN, TN extends NamedThing> {
             this._validateItemDoesNotConflict(elem);
 
             let set = pending.get(null);
-            if (set.has(elem.key)) {
-                throw new Error(`Range to be addded has duplicate entries for key "${elem.key}".`);
+            if (set.has(elem.primaryKey)) {
+                throw new Error(`Range to be addded has duplicate entries for key "${elem.primaryKey}".`);
             }
-            set.add(elem.key);
+            set.add(elem.primaryKey);
 
             if (this._options.alternateKeys) {
-                this._options.alternateKeys.forEach((k: keyof TN): void => {
-                    const v = elem.normalized[k];
-                    /* istanbul ignore else */
-                    if (v && (typeof v === 'string')) {
-                        set = pending.get(k);
-                        if (set.has(v)) {
-                            throw new Error(`Range to be added has duplicate entries for "${v}" of "${k}".`);
+                this._options.alternateKeys.forEach((k: keyof TK): void => {
+                    const altKeyValue = elem.keys[k];
+                    const values = Array.isArray(altKeyValue) ? altKeyValue : [altKeyValue];
+                    set = pending.get(k);
+
+                    for (const v of values) {
+                        /* istanbul ignore else */
+                        if (typeof v === 'string') {
+                            if (set.has(v)) {
+                                throw new Error(`Range to be added has duplicate entries for "${v}" of "${k}".`);
+                            }
+                            set.add(v);
                         }
-                        set.add(v);
+                        else if (v !== undefined) {
+                            throw new Error('Key property must be string or array of strings.');
+                        }
                     }
                 });
             }
@@ -88,21 +105,24 @@ export class Directory<T extends TN, TN extends NamedThing> {
     }
 
     // internal add does not validate
-    private _add(elem: KeyedThing<T, TN>): KeyedThing<T, TN> {
+    private _add(elem: T): T {
         this._all.push(elem);
-        this._byKey.set(elem.key, elem);
+        this._byKey.set(elem.primaryKey, elem);
 
         if (this._options.alternateKeys) {
-            this._options.alternateKeys.forEach((key: keyof TN): void => {
+            this._options.alternateKeys.forEach((key: keyof TK): void => {
                 let map = this._byAlternateKey.get(key);
                 if (!map) {
-                    map = new Map<string, KeyedThing<T, TN>>();
+                    map = new Map<string, T>();
                     this._byAlternateKey.set(key, map);
                 }
-                const value = elem.normalized[key];
-                /* istanbul ignore else */
-                if (value && (typeof value === 'string')) {
-                    map.set(value, elem);
+                const altKeyValue = elem.keys[key];
+                const values = Array.isArray(altKeyValue) ? altKeyValue : [altKeyValue];
+                for (const v of values) {
+                    /* istanbul ignore else */
+                    if (v && (typeof v === 'string')) {
+                        map.set(v, elem);
+                    }
                 }
             });
         }
@@ -111,12 +131,12 @@ export class Directory<T extends TN, TN extends NamedThing> {
         return elem;
     }
 
-    public add(elem: KeyedThing<T, TN>): KeyedThing<T, TN> {
+    public add(elem: T): T {
         this._validateItemDoesNotConflict(elem);
         return this._add(elem);
     }
 
-    public addRange(elements?: Iterable<KeyedThing<T, TN>>): void {
+    public addRange(elements?: Iterable<T>): void {
         if (elements) {
             this._validateItemsDoNotConflict(elements);
             for (const elem of elements) {
@@ -126,8 +146,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
     }
 
     private _initSearch(): void {
-        const props = Utils.select(this._all, (e: KeyedThing<T, TN>): T => e.properties);
-        this._search = new Fuse(props, {
+        this._search = new Fuse(this._all, {
             shouldSort: true,
             caseSensitive: false,
             includeMatches: true,
@@ -137,7 +156,7 @@ export class Directory<T extends TN, TN extends NamedThing> {
             distance: 0,
             maxPatternLength: 32,
             minMatchCharLength: 1,
-            keys: this._options.keys,
+            keys: this._options.textSearchKeys,
         });
     }
 
@@ -149,40 +168,34 @@ export class Directory<T extends TN, TN extends NamedThing> {
         return Utils.toArray(this._byKey.keys()).sort();
     }
 
-    public isAlternateKey(key: keyof TN): boolean {
+    public isAlternateKey(key: keyof TK): boolean {
         /* istanbul ignore next */
         return this._options?.alternateKeys?.includes(key) ?? false;
     }
 
-    public get alternateKeys(): (keyof TN)[] {
+    public get alternateKeys(): (keyof TK)[] {
         return this._options.alternateKeys || [];
     }
 
     public forEach(callback: {(item: T, key?: string)}): void {
-        this._all.forEach((item: KeyedThing<T, TN>): void => {
-            callback(item.properties, item.key);
+        this._all.forEach((item: T): void => {
+            callback(item, item.primaryKey);
         });
     }
 
-    public forEachKeyedThing(callback: {(item: KeyedThing<T, TN>, key?: string)}): void {
-        this._all.forEach((item: KeyedThing<T, TN>): void => {
-            callback(item, item.key);
-        });
-    }
-
-    public getNormalizedValues(props: T): TN|undefined {
-        const elem = this.getKeyedThing(props.name);
-        if (elem && (elem.properties !== props)) {
-            throw new Error(`Directory element "${props.name}" does not match supplied object.`);
+    public getKeys(props: T): TK|undefined {
+        const elem = this.get(props.primaryKey);
+        if (elem && (elem !== props)) {
+            throw new Error(`Directory element "${props.primaryKey}" does not match supplied object.`);
         }
-        return (elem ? elem.normalized : undefined);
+        return elem?.keys;
     }
 
-    public getKeyedThing(name: string): KeyedThing<T, TN>|undefined {
+    public get(name: string): T|undefined {
         return this._byKey.get(Names.normalizeString(name));
     }
 
-    public getKeyedThingByField(field: keyof TN, name: string): KeyedThing<T, TN>|undefined {
+    public getByField(field: keyof TK, name: string): T|undefined {
         const map = this._byAlternateKey.get(field);
         if (!this.isAlternateKey(field)) {
             throw new Error(`Field ${field} is not an alternate key.`);
@@ -190,28 +203,16 @@ export class Directory<T extends TN, TN extends NamedThing> {
         return map && map.get(Names.normalizeString(name));
     }
 
-    public getKeyedThingsByAnyFieldExact(name: string): KeyedThing<T, TN>[] {
+    public getByAnyFieldExact(name: string): T[] {
         const wantKey = Names.normalizeString(name);
         const altKeys = this.alternateKeys;
+
         /* istanbul ignore next */
-        return [
+        const rtrn = [
             this._byKey.get(wantKey),
             ...altKeys.map((k) => this._byAlternateKey.get(k)?.get(wantKey)),
         ].filter((t) => t !== undefined);
-    }
-
-    public get(name: string): T|undefined {
-        const elem = this.getKeyedThing(name);
-        return (elem ? elem.properties : undefined);
-    }
-
-    public getByField(field: keyof TN, name: string): T {
-        const elem = this.getKeyedThingByField(field, name);
-        return (elem ? elem.properties : undefined);
-    }
-
-    public getByAnyFieldExact(name: string): T[] {
-        return this.getKeyedThingsByAnyFieldExact(name).map((kt) => kt.properties);
+        return rtrn;
     }
 
     public lookup(name: string): LookupResult<T>[]|undefined {

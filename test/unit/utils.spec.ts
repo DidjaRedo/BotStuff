@@ -1,5 +1,3 @@
-'use strict';
-
 import { Utils } from '../../src/utils';
 
 describe('Utils static class', (): void => {

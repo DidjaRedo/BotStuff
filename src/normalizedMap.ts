@@ -1,5 +1,3 @@
-'use strict';
-
 import { Names } from './names';
 
 export type ElementInitializer = (name: string, normalizedName: string, value: object) => object;

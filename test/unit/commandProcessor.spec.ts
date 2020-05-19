@@ -1,5 +1,3 @@
-'use strict';
-
 import { CommandProcessor, CommandSpec } from '../../src/commandProcessor';
 
 describe('commands', (): void => {

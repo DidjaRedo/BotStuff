@@ -1,5 +1,3 @@
-'use strict';
-
 import { Names } from '../../src/names';
 import { NormalizedMap } from '../../src/normalizedMap';
 

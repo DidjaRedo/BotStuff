@@ -1,12 +1,10 @@
-'use strict';
-
 export interface NamedThing {
-    name: string;
+    readonly name: string;
 }
 
-export interface Normalizable<T extends TN, TN extends NamedThing> {
-    properties: T;
-    normalized: TN;
+export interface Normalizable<TN extends NamedThing> {
+    readonly name: string;
+    readonly normalized: TN;
 };
 
 export class Names {
