@@ -47,6 +47,10 @@ export class City implements CityProperties, KeyedThing<CityKeys> {
         };
     }
 
+    public static create(name: string): Result<City> {
+        return captureResult(() => new City(name));
+    }
+
     public get primaryKey(): string {
         return this.keys.name;
     }
@@ -57,9 +61,5 @@ export class City implements CityProperties, KeyedThing<CityKeys> {
 
     public includesPoi(poiName: string): boolean {
         return this.pois.has(poiName);
-    }
-
-    public static create(name: string): Result<City> {
-        return captureResult(() => new City(name));
     }
 }

@@ -295,7 +295,7 @@ describe('Merge module', () => {
             optionalStringField?: string;
             arrayOfStringsField?: string[];
             normalizedArrayOfStringsField?: string[];
-        };
+        }
         const fieldMergers: Merge.FieldMergers<Thing, Merge.MergeOptions> = {
             mergers: {
                 numberField: Merge.number,
@@ -364,7 +364,7 @@ describe('Merge module', () => {
 
             describe('with an incomplete set of mergers', () => {
                 const incompleteMergers: Merge.FieldMergers<Thing, Merge.MergeOptions> = {
-                    options: Merge.DefaultMergeOptions,
+                    options: Merge.defaultMergeOptions,
                     mergers: {
                         stringField: Merge.string,
                         normalizedStringField: Merge.normalizedString,
@@ -413,7 +413,7 @@ describe('Merge module', () => {
                         normalizedStringField: 'NEW STRING IN PARTIAL MERGE',
                         numberField: 42,
                     }, {
-                        ...Merge.DefaultMergeOptions,
+                        ...Merge.defaultMergeOptions,
                         onUnknownField: 'ignore',
                     });
                     const expected: Thing = {
@@ -457,7 +457,7 @@ describe('Merge module', () => {
 
             describe('with an incomplete set of mergers', () => {
                 const incompleteMergers: Merge.FieldMergers<Thing, Merge.MergeOptions> = {
-                    options: Merge.DefaultMergeOptions,
+                    options: Merge.defaultMergeOptions,
                     mergers: {
                         stringField: Merge.string,
                         normalizedStringField: Merge.normalizedString,
@@ -506,7 +506,7 @@ describe('Merge module', () => {
                         normalizedStringField: 'NEW STRING IN PARTIAL MERGE',
                         numberField: 42,
                     }, {
-                        ...Merge.DefaultMergeOptions,
+                        ...Merge.defaultMergeOptions,
                         onUnknownField: 'ignore',
                     });
                     const expected: Thing = {

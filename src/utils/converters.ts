@@ -20,7 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { fail, succeed } from './result';
+import { Range, RangeProperties } from './range';
+import { Result, fail, succeed } from './result';
 import { Converter } from './converter';
 
 type OnError = 'failOnError' | 'ignoreErrors';
@@ -135,7 +136,7 @@ export function oneOf<T>(converters: Array<Converter<T>>, onError: OnError = 'ig
                 errors.push(result.message);
             }
         }
-        return fail(`No matching decoder for ${JSON.stringify(from)}: ${errors.join('\n')}`);
+        return fail(`No matching converter for ${JSON.stringify(from)}: ${errors.join('\n')}`);
     });
 }
 
@@ -154,7 +155,7 @@ export function arrayOf<T>(converter: Converter<T>, onError: OnError = 'failOnEr
 
         const successes: T[] = [];
         const errors: string[] = [];
-        from.forEach((item) => {
+        for (const item of from) {
             const result = converter.convert(item);
             if (result.isSuccess() && result.value !== undefined) {
                 successes.push(result.value);
@@ -162,7 +163,7 @@ export function arrayOf<T>(converter: Converter<T>, onError: OnError = 'failOnEr
             else if (result.isFailure()) {
                 errors.push(result.message);
             }
-        });
+        }
 
         return (errors.length === 0) || (onError === 'ignoreErrors')
             ? succeed(successes)
@@ -215,11 +216,13 @@ export function field<T>(name: string, converter: Converter<T>): Converter<T> {
     return new Converter((from: unknown) => {
         if (typeof from === 'object' && from !== null) {
             if (name in from) {
-                return converter.convert(from[name]);
+                return converter.convert(from[name]).onFailure((message) => {
+                    return fail(`Field ${name}: ${message}`);
+                });
             }
             return fail(`Field ${name} not found in: ${JSON.stringify(from)}`);
         }
-        return fail(`Cannot convert field from non-object ${JSON.stringify(from)}`);
+        return fail(`Cannot convert field "${name}" from non-object ${JSON.stringify(from)}`);
     });
 }
 
@@ -235,15 +238,62 @@ export function optionalField<T>(name: string, converter: Converter<T>): Convert
     return new Converter((from: unknown) => {
         if (typeof from === 'object' && from !== null) {
             if (name in from) {
-                return converter.convert(from[name]);
+                const result = converter.convert(from[name]).onFailure((message) => {
+                    return fail(`Field ${name}: ${message}`);
+                });
+
+                // if conversion was successful or input was undefined we
+                // succeed with 'undefined', but we propagate actual
+                // failures.
+                if (result.isSuccess() || (from[name] !== undefined)) {
+                    return result;
+                }
             }
             return succeed(undefined);
         }
-        return fail(`Cannot convert field from non-object ${JSON.stringify(from)}`);
+        return fail(`Cannot convert field "${name}" from non-object ${JSON.stringify(from)}`);
     });
 }
 
 export type FieldConverters<T> = { [ key in keyof T ]: Converter<T[key]> };
+
+export class ObjectConverter<T> extends Converter<T> {
+    public readonly fields: FieldConverters<T>;
+    public readonly optionalFields: (keyof T)[];
+
+    public constructor(fields: FieldConverters<T>, optional?: (keyof T)[]) {
+        super((from: unknown) => {
+            const converted = {} as { [key in keyof T]: T[key] };
+            const errors: string[] = [];
+            for (const key in fields) {
+                if (fields[key]) {
+                    const isOptional = optional?.includes(key);
+                    const result = isOptional
+                        ? optionalField(key, fields[key]).convert(from)
+                        : field(key, fields[key]).convert(from);
+                    if (result.isSuccess() && (result.value !== undefined)) {
+                        converted[key] = result.value;
+                    }
+                    else if (result.isFailure()) {
+                        errors.push(result.message);
+                    }
+                }
+            }
+            return (errors.length === 0) ? succeed(converted) : fail(errors.join('\n'));
+        });
+
+        this.fields = fields;
+        this.optionalFields = optional ?? [];
+    }
+
+    public partial(optional?: (keyof T)[]): ObjectConverter<Partial<T>> {
+        return new ObjectConverter(this.fields, optional);
+    }
+
+    public addPartial(addOptionalFields: (keyof T)[]): ObjectConverter<Partial<T>> {
+        return this.partial([...this.optionalFields, ...addOptionalFields]);
+    }
+}
 
 /**
  * Helper to convert an object without changing shape. The source parameter is an object with
@@ -256,29 +306,8 @@ export type FieldConverters<T> = { [ key in keyof T ]: Converter<T[key]> };
  * fail the conversion.
  * @param fields An object containing defining the shape and converters to be applied.
  */
-export function object<T>(fields: FieldConverters<T>, optional?: (keyof T)[]): Converter<T> {
-    return new Converter((from: unknown) => {
-        const converted = {} as { [key in keyof T]: T[key] };
-        const errors: string[] = [];
-
-        for (const key in fields) {
-            if (fields[key]) {
-                const isOptional = (optional && optional.includes(key));
-                const result = isOptional
-                    ? optionalField(key, fields[key]).convert(from)
-                    : field(key, fields[key]).convert(from);
-
-                if (result.isSuccess() && (result.value !== undefined)) {
-                    converted[key] = result.value;
-                }
-                else if (result.isFailure()) {
-                    errors.push(result.message);
-                }
-            }
-        }
-
-        return (errors.length === 0) ? succeed(converted) : fail(errors.join('\n'));
-    });
+export function object<T>(fields: FieldConverters<T>, optional?: (keyof T)[]): ObjectConverter<T> {
+    return new ObjectConverter(fields, optional);
 }
 
 /**
@@ -316,3 +345,26 @@ export function transform<T>(fields: FieldConverters<T>): Converter<T> {
         return (errors.length === 0) ? succeed(converted) : fail(errors.join('\n'));
     });
 }
+
+/**
+ * A helper wrapper to convert a range of some other comparable type
+ * @param converter Converter used to convert min and max extent of the raid
+ * @param constructor Optional static constructor to instantiate the object
+ */
+export function rangeTypeOf<T, RT extends Range<T>>(converter: Converter<T>, constructor: (init: RangeProperties<T>) => Result<RT>): Converter<RT> {
+    return new Converter((from: unknown) => {
+        const result = object({
+            min: converter,
+            max: converter,
+        }, ['min', 'max']).convert(from);
+        if (result.isSuccess()) {
+            return constructor({ min: result.value.min, max: result.value.max });
+        }
+        return fail(result.message);
+    });
+}
+
+export function rangeOf<T>(converter: Converter<T>): Converter<Range<T>> {
+    return rangeTypeOf<T, Range<T>>(converter, Range.createRange);
+}
+

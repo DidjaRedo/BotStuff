@@ -228,9 +228,9 @@ describe('Poi class', (): void => {
         });
     });
 
-    describe('getDirectoryLookupOptions static method', (): void => {
+    describe('getDirectoryOptions static method', (): void => {
         it('should search by name and alternate name and index by alternate names', (): void => {
-            expect(Poi.getDirectoryLookupOptions()).toMatchObject({
+            expect(Poi.getDirectoryOptions()).toMatchObject({
                 textSearchKeys: [
                     { name: 'name' },
                     { name: 'alternateNames' },

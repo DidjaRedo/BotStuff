@@ -22,10 +22,10 @@
 
 import * as Merge from '../utils/merge';
 import { Coordinate, Region } from '../utils/geo';
-import { LookupResult } from '../names/directory';
+import { DirectoryLookupOptions, SearchResult } from '../names/directory';
 import { Poi } from './poi';
 
-export interface Properties {
+export interface Properties extends DirectoryLookupOptions {
     allowedZones: string[];
     allowedCities: string[];
     onNonAllowedZones: 'error'|'ignore';
@@ -35,11 +35,11 @@ export interface Properties {
     near?: Coordinate;
     radius: number;
     region?: Region;
-    noFuzzyLookup?: boolean;
+    noTextSearch?: boolean;
     noExactLookup?: boolean;
-};
+}
 
-export const Default: Properties = {
+export const defaultProperties: Properties = {
     allowedZones: [],
     allowedCities: [],
     onNonAllowedCities: 'ignore',
@@ -49,9 +49,9 @@ export const Default: Properties = {
     radius: 1000,
 };
 
-export const FieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = {
+export const fieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = {
     options: {
-        ...Merge.DefaultMergeOptions,
+        ...Merge.defaultMergeOptions,
         onUnknownField: 'ignore',
     },
     mergers: {
@@ -64,12 +64,12 @@ export const FieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = 
         near: Merge.item<Coordinate|undefined>(),
         radius: Merge.optionalNumber,
         region: Merge.item<Region|undefined>(),
-        noFuzzyLookup: Merge.optionalBoolean,
+        noTextSearch: Merge.optionalBoolean,
         noExactLookup: Merge.optionalBoolean,
     },
 };
 
-export const Merger = new Merge.ObjectMerger<Properties, Merge.MergeOptions>(FieldMergers);
+export const merger = new Merge.ObjectMerger<Properties, Merge.MergeOptions>(fieldMergers);
 
 export type PoiFilter<P extends Poi, PO extends Properties> = (poi: P, options: PO) => boolean;
 
@@ -87,14 +87,14 @@ export type PoiCategories<OT> = keyof CategorizedObjects<OT>;
 
 export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, options: PO, filter?: PoiFilter<P, PO>): PoiCategories<P> {
     if ((filter && !filter(poi, options))
-        || (options.near && !poi.isNear(options.near, options.radius))
-        || (options.region && !poi.isInRegion(options.region))) {
+        || (options?.near && !poi.isNear(options.near, options.radius))
+        || (options?.region && !poi.isInRegion(options.region))) {
         return 'filteredOut';
     }
 
-    if (poi.matches(options.allowedZones, options.allowedCities)) {
-        const inPreferredCity = poi.matchesCities(options.preferredCities);
-        const inPreferredZone = poi.matchesZones(options.preferredZones);
+    if (poi.matches(options?.allowedZones, options?.allowedCities)) {
+        const inPreferredCity = poi.matchesCities(options?.preferredCities);
+        const inPreferredZone = poi.matchesZones(options?.preferredZones);
 
         if (inPreferredCity) {
             return inPreferredZone ? 'matched' : 'inPreferredCity';
@@ -103,7 +103,7 @@ export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, opti
             return 'inPreferredZone';
         }
         return 'unmatched';
-    };
+    }
     return 'disallowed';
 }
 
@@ -133,12 +133,13 @@ export function categorizePois<P extends Poi, PO extends Properties>(pois: P[], 
     return categorizeObjects(pois, (p) => p, options, filter);
 }
 
-export function adjustLookupResults<P extends Poi, PO extends Properties>(
-    candidates: LookupResult<P>[],
+export function adjustObjectLookupResults<T, P extends Poi, PO extends Properties>(
+    candidates: SearchResult<T>[],
     options: PO,
+    extract: (wrapper: T) => P,
     filter?: PoiFilter<P, PO>,
-): LookupResult<P>[] {
-    const categorized = categorizeObjects(candidates, (c) => c.item, options, filter);
+): SearchResult<T>[] {
+    const categorized = categorizeObjects(candidates, (c) => extract(c.item), options, filter);
 
     let adjusted = Array.from(categorized.matched);
     if (adjusted.length < 1) {
@@ -163,4 +164,12 @@ export function adjustLookupResults<P extends Poi, PO extends Properties>(
         }
     }
     return adjusted.sort((c1, c2) => c1.score - c2.score);
+}
+
+export function adjustLookupResults<P extends Poi, PO extends Properties>(
+    candidates: SearchResult<P>[],
+    options: PO,
+    filter?: PoiFilter<P, PO>,
+): SearchResult<P>[] {
+    return adjustObjectLookupResults(candidates, options, (c) => c, filter);
 }

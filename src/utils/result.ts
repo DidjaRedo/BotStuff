@@ -25,7 +25,7 @@ export type SuccessContinuation<T> = (value: T) => Result<T> | undefined;
 export type FailureContinuation<T> = (message: string) => Result<T> | undefined;
 export type ResultContinuations<T> = { success?: SuccessContinuation<T>; failure?: FailureContinuation<T> };
 
-export interface IResult<T> { // eslint-disable-line @typescript-eslint/interface-name-prefix
+export interface IResult<T> {
     isSuccess(): this is Success<T>;
     isFailure(): this is Failure<T>;
     getValueOrThrow(): T;
@@ -66,7 +66,7 @@ export class Success<T> implements IResult<T> {
         return cb(this.value) ?? this;
     }
 
-    public onFailure(__: FailureContinuation<T>): Result<T> {
+    public onFailure(_: FailureContinuation<T>): Result<T> {
         return this;
     }
 
@@ -105,7 +105,7 @@ export class Failure<T> implements IResult<T> {
         return dflt;
     }
 
-    public onSuccess(__: SuccessContinuation<T>): Result<T> {
+    public onSuccess(_: SuccessContinuation<T>): Result<T> {
         return this;
     }
 
@@ -168,4 +168,19 @@ export function mapResults<T>(resultsIn: Iterable<Result<T>>): Result<T[]> {
         return fail(errors.join('\n'));
     }
     return succeed(elements);
+}
+
+export function allSucceed(results: Iterable<Result<unknown>>): Result<boolean> {
+    const errors: string[] = [];
+
+    for (const result of results) {
+        if (result.isFailure()) {
+            errors.push(result.message);
+        }
+    }
+
+    if (errors.length > 0) {
+        return fail(errors.join('\n'));
+    }
+    return succeed(true);
 }

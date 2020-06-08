@@ -1,26 +1,26 @@
 import * as PoiLookupOptions from '../../../src/places/poiLookupOptions';
-import { TestPoi, generateTestPoiData } from '../../helpers/placeHelpers';
-import { LookupResult } from '../../../src/names/directory';
+import { TestPoi, TestPoiGenerator } from '../../helpers/placeHelpers';
 import { Names } from '../../../src/names/names';
+import { SearchResult } from '../../../src/names/directory';
 
 describe('PoiLookupOptions module', () => {
     describe('categorizePois function', () => {
         it('should match everything if no preferences or restrictions are present', () => {
-            const testPois = generateTestPoiData([
+            const testPois = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12',
             ]).getPois();
 
-            const categorized = PoiLookupOptions.categorizePois(testPois, PoiLookupOptions.Default);
+            const categorized = PoiLookupOptions.categorizePois(testPois, PoiLookupOptions.defaultProperties);
             expect(categorized.matched).toHaveLength(testPois.length);
         });
 
         it('should ignore POIs that are not in required cities or zones, if present', () => {
-            const testPois = generateTestPoiData([
+            const testPois = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12',
             ]).getPois();
 
             let categorized = PoiLookupOptions.categorizePois(testPois, {
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 allowedCities: [
                     Names.normalizeOrThrow('City A'),
                     Names.normalizeOrThrow('City C'),
@@ -30,7 +30,7 @@ describe('PoiLookupOptions module', () => {
             expect(categorized.disallowed).toHaveLength(2);
 
             categorized = PoiLookupOptions.categorizePois(testPois, {
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 allowedZones: [
                     Names.normalizeOrThrow('zone1'),
                 ],
@@ -40,12 +40,12 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should categorize preferred cities and zones, if present', () => {
-            const testPois = generateTestPoiData([
+            const testPois = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12', 'B2',
             ]).getPois();
 
             const categorized = PoiLookupOptions.categorizePois(testPois, {
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 preferredCities: [Names.normalizeOrThrow('City A')],
                 preferredZones: [Names.normalizeOrThrow('Zone 1')],
             });
@@ -56,14 +56,14 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should apply the "near" filter if present', () => {
-            const testData = generateTestPoiData(['A0', 'A0', 'A0']);
+            const testData = TestPoiGenerator.generate(['A0', 'A0', 'A0']);
             testData.poiProperties[0].coord.longitude = 121;
             testData.poiProperties[1].coord.longitude = 121.01;
             testData.poiProperties[2].coord.longitude = 121.10;
             const testPois = testData.getPois();
 
             const categorized = PoiLookupOptions.categorizePois(testPois, {
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 near: testPois[1].coord,
             });
             expect(categorized.matched).toHaveLength(2);
@@ -71,7 +71,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should apply the region filter if present', () => {
-            const testData = generateTestPoiData(['A0', 'A0', 'A0', 'A0', 'A0']);
+            const testData = TestPoiGenerator.generate(['A0', 'A0', 'A0', 'A0', 'A0']);
             testData.poiProperties[0].coord = {
                 latitude: 42,
                 longitude: 121,
@@ -95,7 +95,7 @@ describe('PoiLookupOptions module', () => {
             const testPois = testData.getPois();
 
             const categorized = PoiLookupOptions.categorizePois(testPois, {
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 region: {
                     min: testPois[0].coord,
                     max: testPois[2].coord,
@@ -106,7 +106,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should apply a supplied filter if present', () => {
-            const testData = generateTestPoiData(['A0', 'A0', 'A0']);
+            const testData = TestPoiGenerator.generate(['A0', 'A0', 'A0']);
             testData.poiProperties[0].alternateNames = ['Alpha'];
             testData.poiProperties[1].alternateNames = ['Bravo'];
             testData.poiProperties[2].alternateNames = ['Charlie'];
@@ -114,7 +114,7 @@ describe('PoiLookupOptions module', () => {
 
             const categorized = PoiLookupOptions.categorizePois(
                 testPois,
-                PoiLookupOptions.Default,
+                PoiLookupOptions.defaultProperties,
                 (p) => !p.alternateNames.includes('Bravo'),
             );
             expect(categorized.matched).toHaveLength(2);
@@ -123,15 +123,15 @@ describe('PoiLookupOptions module', () => {
     });
 
     describe('adjustLookupResults function', () => {
-        const testPois = generateTestPoiData([
+        const testPois = TestPoiGenerator.generate([
             'A0', 'A1', 'B01', 'B1', 'C12',
         ]).getPois();
-        const testLookups: LookupResult<TestPoi>[] = testPois.map(
+        const testLookups: SearchResult<TestPoi>[] = testPois.map(
             (p) => { return { item: p, score: 1.0 }; }
         );
 
         it('should report all lookups if there are no preferences', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(testLookups, PoiLookupOptions.Default);
+            const adjusted = PoiLookupOptions.adjustLookupResults(testLookups, PoiLookupOptions.defaultProperties);
             expect(adjusted).toHaveLength(testLookups.length);
         });
 
@@ -139,7 +139,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     preferredCities: [Names.normalizeOrThrow('City A')],
                     preferredZones: [Names.normalizeOrThrow('Zone 1')],
                 }
@@ -152,7 +152,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     preferredCities: [Names.normalizeOrThrow('City A')],
                     preferredZones: [Names.normalizeOrThrow('Zone 2')],
                 }
@@ -165,7 +165,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     preferredCities: [Names.normalizeOrThrow('City A')],
                 }
             );
@@ -177,7 +177,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     preferredCities: [Names.normalizeOrThrow('City D')],
                     preferredZones: [Names.normalizeOrThrow('Zone 2')],
                 }
@@ -190,7 +190,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     preferredZones: [Names.normalizeOrThrow('Zone 2')],
                 }
             );
@@ -202,7 +202,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     preferredCities: [Names.normalizeOrThrow('City D')],
                     preferredZones: [Names.normalizeOrThrow('Zone 7')],
                 }
@@ -215,7 +215,7 @@ describe('PoiLookupOptions module', () => {
             const adjusted = PoiLookupOptions.adjustLookupResults(
                 testLookups,
                 {
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     allowedCities: [Names.normalizeOrThrow('City C')],
                     allowedZones: [Names.normalizeOrThrow('Zone 0')],
                 }

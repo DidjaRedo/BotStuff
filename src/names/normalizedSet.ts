@@ -51,4 +51,4 @@ export class NormalizedSet extends Set<string> {
         Names.throwOnInvalidName(name, this.elementDescription);
         return super.has(Names.normalizeOrThrow(name));
     }
-};
+}

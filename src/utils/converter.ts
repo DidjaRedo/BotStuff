@@ -92,6 +92,20 @@ export class Converter<T> {
     }
 
     /**
+     * Applies an additional converter to the converted value.
+     * @param mapConverter The converter to be applied to the converted value
+     */
+    public mapConvert<T2>(mapConverter: Converter<T2>): Converter<T2> {
+        return new Converter((from: unknown) => {
+            const innerResult = this._converter(from);
+            if (innerResult.isSuccess()) {
+                return mapConverter.convert(innerResult.value);
+            }
+            return fail(innerResult.message);
+        });
+    }
+
+    /**
      * Creates a converter with an optional constraint.  If the base converter
      * succeeds, calls a supplied constraint evaluation function with the
      * value and fails the conversion if the function returns either false

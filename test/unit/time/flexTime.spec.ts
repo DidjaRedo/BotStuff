@@ -32,7 +32,7 @@ interface UnambiguousParseTest {
     string: string;
     hour: number;
     minutes: number;
-};
+}
 
 describe('flexTime', function (): void {
     describe('constructor', (): void => {
@@ -75,7 +75,7 @@ describe('flexTime', function (): void {
                 morning: number;
                 evening: number;
                 minutes: number;
-            };
+            }
 
             [
                 { string: '100', morning: 13, evening: 1, minutes: 0 },

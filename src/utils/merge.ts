@@ -24,7 +24,7 @@ import { Names } from '../names/names';
 
 export interface ItemMergeOptions {
     onItemCollision: 'keepExisting'|'replace'|'error';
-};
+}
 
 export interface ArrayMergeOptions {
     onArrayCollision: 'keepExisting'|'replace'|'merge'|'error';
@@ -38,22 +38,22 @@ export interface MergeOptions extends ItemMergeOptions, ArrayMergeOptions, Field
 
 }
 
-export const DefaultItemMergeOptions: ItemMergeOptions = {
+export const defaultItemMergeOptions: ItemMergeOptions = {
     onItemCollision: 'replace',
 };
 
-export const DefaultArrayMergeOptions: ArrayMergeOptions = {
+export const defaultArrayMergeOptions: ArrayMergeOptions = {
     onArrayCollision: 'replace',
 };
 
-export const DefaultFieldMergeOptions: FieldMergeOptions = {
+export const defaultFieldMergeOptions: FieldMergeOptions = {
     onUnknownField: 'error',
 };
 
-export const DefaultMergeOptions: MergeOptions = {
-    ...DefaultItemMergeOptions,
-    ...DefaultArrayMergeOptions,
-    ...DefaultFieldMergeOptions,
+export const defaultMergeOptions: MergeOptions = {
+    ...defaultItemMergeOptions,
+    ...defaultArrayMergeOptions,
+    ...defaultFieldMergeOptions,
 };
 
 export type MergeFunction<TB, TM, TO> = (base: TB, merge?: TM, options?: TO) => Result<TB>;
@@ -77,7 +77,7 @@ export class ItemMerger<T> extends Merger<T, T, ItemMergeOptions> {
 }
 
 export function mergeItem<T>(base: T, merge?: T, options?: ItemMergeOptions): Result<T> {
-    options = options ?? DefaultItemMergeOptions;
+    options = options ?? defaultItemMergeOptions;
     if (merge !== undefined) {
         if (base !== undefined) {
             if (options.onItemCollision === 'error') {
@@ -91,7 +91,7 @@ export function mergeItem<T>(base: T, merge?: T, options?: ItemMergeOptions): Re
 }
 
 export function mergeArray<T>(base: T[]|undefined, merge?: T[], options?: ArrayMergeOptions): Result<T[]> {
-    options = options ?? DefaultArrayMergeOptions;
+    options = options ?? defaultArrayMergeOptions;
     if ((merge !== undefined) && (merge.length > 0)) {
         if ((base !== undefined) && (base.length > 0)) {
             if (options.onArrayCollision === 'error') {
@@ -249,4 +249,4 @@ export class ObjectMerger<T, OT extends MergeOptions> {
     public mergeIntoCopy(base: T, merge?: Partial<T>, options?: OT): Result<T> {
         return this._copyMerger.merge(base, merge, options ?? this._options);
     }
-};
+}

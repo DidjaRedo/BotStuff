@@ -47,6 +47,10 @@ export class Zone implements ZoneProperties, KeyedThing<ZoneKeys> {
         };
     }
 
+    public static create(name: string): Result<Zone> {
+        return captureResult(() => new Zone(name));
+    }
+
     public get primaryKey(): string {
         return this.keys.name;
     }
@@ -57,9 +61,5 @@ export class Zone implements ZoneProperties, KeyedThing<ZoneKeys> {
 
     public includesPoi(poiName: string): boolean {
         return this.pois.has(poiName);
-    }
-
-    public static create(name: string): Result<Zone> {
-        return captureResult(() => new Zone(name));
     }
 }

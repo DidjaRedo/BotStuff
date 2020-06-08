@@ -29,7 +29,7 @@ import { fail } from '../utils/result';
 const delimitedString = Converters.delimitedString('|');
 
 export const poiPropertiesFieldConverters = {
-    alternateNames: delimitedString,
+    alternateNames: Converters.oneOf([delimitedString, Converters.arrayOf(Converters.string)]),
     city: Converters.string,
     coord: GeoConverters.coordinate,
     name: Converters.string,
@@ -40,7 +40,7 @@ export const poiPropertiesFromObject = Converters.object<PoiProperties>(poiPrope
 
 export const poiPropertiesFromArray = new Converter<PoiProperties>((from: unknown) => {
     if ((!Array.isArray(from)) || (from.length !== 6)) {
-        return fail('POI Array must have six columns: zones,city,names,longitude,latitude');
+        return fail('POI Array must have six columns: zones,city,name,alternate names,latitude,longitude');
     }
 
     return poiPropertiesFromObject.convert({

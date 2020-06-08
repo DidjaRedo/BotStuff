@@ -22,21 +22,21 @@
 import { CommandProcessor, CommandSpec } from '../../../src/commands/commandProcessor';
 
 describe('commands', (): void => {
-    const goodCommands: CommandSpec[] = [
-        { name: 'Command 1', description: 'Specific command', pattern: /^This is\s(.*)\.$/, handleCommand: (matches): object => matches[1] },
-        { name: 'Command 2', description: 'Catch all command', pattern: /^.*test.*$/, handleCommand: (matches): object => matches[0] },
+    const goodCommands: CommandSpec<string>[] = [
+        { name: 'Command 1', description: 'Specific command', pattern: /^This is\s(.*)\.$/, handleCommand: (matches): string => matches[1] },
+        { name: 'Command 2', description: 'Catch all command', pattern: /^.*test.*$/, handleCommand: (matches): string => matches[0] },
     ];
     const badCommands = {
         'missing name': {
-            cmd: { description: 'Description', pattern: /^.*$/, handleCommand: (matches): object => matches },
+            cmd: { description: 'Description', pattern: /^.*$/, handleCommand: (matches): string => matches },
             error: 'Command must have name, description, pattern and handleCommand.',
         },
         'missing description': {
-            cmd: { name: 'Command', pattern: /^.*$/, handleCommand: (matches): object => matches },
+            cmd: { name: 'Command', pattern: /^.*$/, handleCommand: (matches): string => matches },
             error: 'Command must have name, description, pattern and handleCommand.',
         },
         'missing pattern': {
-            cmd: { name: 'Command', description: 'Description', handleCommand: (matches): object => matches },
+            cmd: { name: 'Command', description: 'Description', handleCommand: (matches): string => matches },
             error: 'Command must have name, description, pattern and handleCommand.',
         },
         'missing handler': {
@@ -44,7 +44,7 @@ describe('commands', (): void => {
             error: 'Command must have name, description, pattern and handleCommand.',
         },
         'non-regexp pattern': {
-            cmd: { name: 'Command', description: 'Description', pattern: '/^.*$/', handleCommand: (matches): object => matches },
+            cmd: { name: 'Command', description: 'Description', pattern: '/^.*$/', handleCommand: (matches): string => matches },
             error: 'Command.pattern must be a regular expression.',
         },
         'non-function handleCommand': {
@@ -87,10 +87,10 @@ describe('commands', (): void => {
         testCommands.forEach((test): void => {
             it(test.description, (): void => {
                 if (test.error) {
-                    expect((): CommandProcessor => new CommandProcessor(test.cmds)).toThrowError(test.error);
+                    expect(() => new CommandProcessor<string>(test.cmds)).toThrowError(test.error);
                 }
                 else {
-                    const cmds = new CommandProcessor(test.cmds);
+                    const cmds = new CommandProcessor<string>(test.cmds);
                     expect(cmds).toBeDefined();
                     expect(cmds.numCommands).toBe((test.cmds ? test.cmds.length : 0));
                 }
@@ -123,7 +123,7 @@ describe('commands', (): void => {
             const cmds = new CommandProcessor();
             for (const c in badCommands) {
                 if (badCommands.hasOwnProperty(c)) {
-                    it('should fail to add a command with ' + c, (): void => {
+                    it(`should fail to add a command with ${c}`, (): void => {
                         expect((): void => cmds.addCommand(badCommands[c].cmd)).toThrowError(badCommands[c].error);
                         expect(cmds.numCommands).toBe(0);
                     });

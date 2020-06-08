@@ -19,18 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Poi, PoiDirectory, PoiLookupOptions } from './poi';
+import * as PoiLookupOptions from './poiLookupOptions';
 import { KeyedThing } from '../names/keyedThing';
-import { LookupResult } from '../names/directory';
 import { Names } from '../names/names';
+import { Poi } from './poi';
+import { PoiDirectoryBase } from './poiDirectory';
+import { SearchResult } from '../names/directory';
 
 export interface ZonePoiDirectoryOptions {
     failForUnknownZones: boolean;
-};
+}
 
-export const DefaultZonePoiDirectoryOptions: ZonePoiDirectoryOptions = {
+export const defaultZonePoiDirectoryOptions: ZonePoiDirectoryOptions = {
     failForUnknownZones: false,
 };
+
+export interface ZonePoiLookupOptions {
+    zones?: string[];
+    cities?: string[];
+    noExactLookup?: boolean;
+    noFuzzyLookup?: boolean;
+    onlyMatchingCities?: boolean;
+    onlyMatchingZones?: boolean;
+}
 
 export interface ZonePoiDirectoryKeys {
     readonly name: string;
@@ -41,12 +52,23 @@ export interface ZonePoiDirectoryProperties extends ZonePoiDirectoryKeys {
 }
 
 export class ZonePoiDirectoryBase<P extends Poi> implements ZonePoiDirectoryProperties, KeyedThing<ZonePoiDirectoryKeys> {
+    public get name(): string { return this._name; }
+    public get options(): ZonePoiDirectoryOptions { return this._options; }
+    public get primaryKey(): string { return this._keys.name; }
+    public get keys(): ZonePoiDirectoryKeys { return this._keys; }
+    public get numPois(): number { return this._dir.size; }
+
+    private _name: string;
+    private _options: ZonePoiDirectoryOptions;
+    private _dir: PoiDirectoryBase<P, PoiLookupOptions.Properties>;
+    private _keys: ZonePoiDirectoryKeys;
+
     public constructor(name: string, options?: ZonePoiDirectoryOptions, pois?: Iterable<P>) {
         Names.throwOnInvalidName(name, 'zone name');
 
         this._name = name;
-        this._options = options || DefaultZonePoiDirectoryOptions;
-        this._dir = new PoiDirectory();
+        this._options = options || defaultZonePoiDirectoryOptions;
+        this._dir = new PoiDirectoryBase<P, PoiLookupOptions.Properties>();
         if (pois) {
             this.addPois(pois);
         }
@@ -55,29 +77,32 @@ export class ZonePoiDirectoryBase<P extends Poi> implements ZonePoiDirectoryProp
         };
     }
 
-    private _name: string;
-    private _options: ZonePoiDirectoryOptions;
-    private _dir: PoiDirectory<P>;
-    private _keys: ZonePoiDirectoryKeys;
+    protected static _adjustForCities<P extends Poi>(poiCandidates: Iterable<SearchResult<P>>, options: ZonePoiLookupOptions): SearchResult<P>[] {
+        /* istanbul ignore next */
+        if (!options.cities || (options.cities.length === 0)) {
+            return Array.from(poiCandidates);
+        }
 
-    public get name(): string {
-        return this._name;
-    }
+        const matched: SearchResult<P>[] = [];
+        const unmatched: SearchResult<P>[] = [];
+        const cities = Names.normalizeOrThrow(options.cities);
 
-    public get options(): ZonePoiDirectoryOptions {
-        return this._options;
-    }
+        for (const candidate of poiCandidates) {
+            if (cities.includes(candidate.item.keys.city)) {
+                matched.push(candidate);
+            }
+            else {
+                unmatched.push({
+                    item: candidate.item,
+                    score: candidate.score * 0.75,
+                });
+            }
+        }
 
-    public get primaryKey(): string {
-        return this._keys.name;
-    }
-
-    public get keys(): ZonePoiDirectoryKeys {
-        return this._keys;
-    }
-
-    public get numPois(): number {
-        return this._dir.size;
+        if ((matched.length === 0) && (options.onlyMatchingCities !== true)) {
+            return unmatched;
+        }
+        return matched;
     }
 
     public addPois(pois: Iterable<P>, options?: ZonePoiDirectoryOptions): void {
@@ -113,35 +138,7 @@ export class ZonePoiDirectoryBase<P extends Poi> implements ZonePoiDirectoryProp
         this._dir.add(poi);
     }
 
-    protected static adjustForCities<P extends Poi>(poiCandidates: Iterable<LookupResult<P>>, options: PoiLookupOptions): LookupResult<P>[] {
-        /* istanbul ignore next */
-        if (!options.cities || (options.cities.length === 0)) {
-            return Array.from(poiCandidates);
-        }
-
-        const matched: LookupResult<P>[] = [];
-        const unmatched: LookupResult<P>[] = [];
-        const cities = Names.normalizeOrThrow(options.cities);
-
-        for (const candidate of poiCandidates) {
-            if (cities.includes(candidate.item.keys.city)) {
-                matched.push(candidate);
-            }
-            else {
-                unmatched.push({
-                    item: candidate.item,
-                    score: candidate.score * 0.75,
-                });
-            }
-        }
-
-        if ((matched.length === 0) && (options.onlyMatchingCities !== true)) {
-            return unmatched;
-        }
-        return matched;
-    }
-
-    public tryGetPoisExact(name: string): LookupResult<P>[] {
+    public tryGetPoisExact(name: string): SearchResult<P>[] {
         return this._dir.getByAnyFieldExact(name).map((kt) => {
             return {
                 item: kt,
@@ -150,12 +147,12 @@ export class ZonePoiDirectoryBase<P extends Poi> implements ZonePoiDirectoryProp
         });
     }
 
-    public tryGetPoisFuzzy(name: string): LookupResult<P>[] {
-        return this._dir.lookup(name);
+    public tryGetPoisFuzzy(name: string): SearchResult<P>[] {
+        return this._dir.searchByTextFields(name);
     }
 
-    public tryGetPois(name: string, options?: PoiLookupOptions): LookupResult<P>[] {
-        let candidates: LookupResult<P>[] = [];
+    public tryGetPois(name: string, options?: ZonePoiLookupOptions): SearchResult<P>[] {
+        let candidates: SearchResult<P>[] = [];
         options = options ?? {};
 
         if (options.noExactLookup !== true) {
@@ -167,15 +164,15 @@ export class ZonePoiDirectoryBase<P extends Poi> implements ZonePoiDirectoryProp
         }
 
         if ((candidates.length > 1) && (options.cities && (options.cities.length > 0))) {
-            candidates = ZonePoiDirectoryBase.adjustForCities(candidates, options);
+            candidates = ZonePoiDirectoryBase._adjustForCities(candidates, options);
         }
         return candidates;
     }
-};
+}
 
 export class ZonePoiDirectory extends ZonePoiDirectoryBase<Poi> {
     public constructor(name: string, options?: ZonePoiDirectoryOptions, pois?: Iterable<Poi>) {
         super(name, options, pois);
     }
-};
+}
 

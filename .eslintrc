@@ -12,32 +12,6 @@
     },
     "extends": "plugin:@typescript-eslint/recommended",
     "rules": {
-        /**********************************************************************
-         * All available rules for our current eslint version and plugins are
-         * documented below, ordered to match the public documentation.
-         *
-         * (RECOMMENDED) rules are inherited from the eslint and plugin rulesets.
-         *
-         * (FIXABLE) rules can be corrected automatically by passing --fix to grunt eslint.
-         *
-         * (TBD) rules may be valuable to this project, but haven't yet been applied.
-         *
-         * // TODO: FEAT-906 Migrate to Airbnb style guide for Hadron Javascript
-         * Rules follow Airbnb guidelines where possible:
-         *      https://github.com/airbnb/javascript
-         *
-         * For detailed documentation of all available rules:
-         *   (our current version of eslint)
-         *      https://github.com/eslint/eslint/tree/031a35614f9353b57c072ba14aff16f930ab6520/docs/rules
-         *   (most recent version)
-         *      http://eslint.org/docs/rules
-         * The rules below are ordered to match the current version's documentation.
-         *********************************************************************/
-
-        // ******************
-        // Possible Errors
-        // ******************
-
         // Require trailing commas in multiline object and array definitions to reduce diffs when adding
         // or removing entries, e.g.
         // [
@@ -48,6 +22,7 @@
         // no-cond-assign: disallow assignment operators in conditional expressions (RECOMMENDED)
         // no-console: disallow the use of console (RECOMMENDED)
         "no-console": 0,
+    
         // no-constant-condition: disallow constant expressions in conditions (RECOMMENDED)
         // no-control-regex: disallow control characters in regular expressions (RECOMMENDED)
         // no-debugger: disallow the use of debugger (RECOMMENDED)
@@ -78,6 +53,7 @@
         // no-sparse-arrays: disallow sparse arrays (RECOMMENDED)
         // no-unexpected-multiline: disallow confusing multiline expressions (RECOMMENDED)
         // no-unreachable: disallow unreachable code after return, throw, continue, and break statements (RECOMMENDED)
+        "no-unreachable": "error",
 
         // Disallow control flow statements (e.g. throw, return) in finally blocks.
         "no-unsafe-finally": "error",
@@ -104,7 +80,6 @@
         "block-scoped-var": "error",
 
         // Limit maximum cyclomatic complexity.
-        // TODO: HAD-17886 jshint config used a complexity of 15, but eslint wouldn't pass lower than 25
         "complexity": ["error", 25],
 
         // consistent-return: require return statements to either always or never specify values (TBD)
@@ -170,7 +145,7 @@
         "no-implied-eval": "error",
 
         // This rule doesn't understand many of our common class definition and testing patterns.
-        "no-invalid-this": "off",
+        "no-invalid-this": "error",
 
         // __iterator__ does not work in all our the JS engines we run on.
         "no-iterator": "error",
@@ -341,21 +316,40 @@
         "no-unused-vars": ["error", {
             "vars": "all",
             "args": "all",
-            "argsIgnorePattern": "^__",
+            "argsIgnorePattern": "^_",
             "caughtErrors": "all",
-            "caughtErrorsIgnorePattern": "^__",
+            "caughtErrorsIgnorePattern": "^_"
         }],
 
+        // rules require parser project
+        // "@typescript-eslint/prefer-nullish-coalescing": "error",
+        // "@typescript-eslint/no-unsafe-assignment": "error",
+        // "@typescript-eslint/no-unsafe-call": "error",
+        // "@typescript-eslint/no-unsafe-member-access": "error",
+        "@typescript-eslint/no-explicit-any": "error",
+        "@typescript-eslint/prefer-optional-chain": "error",
+        "@typescript-eslint/member-ordering": "error",
+
+        "@typescript-eslint/naming-convention": ["error",
+            { "selector": "default", "format": ["camelCase"] },
+            { "selector": "memberLike", "format": ["camelCase"] },
+            { "selector": "memberLike", "modifiers": ["private"], "format": ["camelCase"], "leadingUnderscore": "require" },
+            { "selector": "memberLike", "modifiers": ["protected"], "format": ["camelCase"], "leadingUnderscore": "require" },
+            { "selector": "parameter", "format": ["camelCase"], "leadingUnderscore": "allow" },
+            { "selector": "typeLike", "format": ["PascalCase"] },
+            { "selector": "variable", "format": ["camelCase", "UPPER_CASE"] }
+        ],
+    
         "@typescript-eslint/no-unused-vars": ["error", {
             "vars": "all",
             "args": "all",
-            "argsIgnorePattern": "^__",
+            "argsIgnorePattern": "^_",
             "caughtErrors": "all",
-            "caughtErrorsIgnorePattern": "^__",
+            "caughtErrorsIgnorePattern": "^_"
         }],
 
         // no-use-before-define: disallow the use of variables before they are defined (TBD)
-
+        "no-use-before-define": "error",
 
         // ******************
         // Node.js
@@ -414,7 +408,7 @@
 
         // Enforce the consistent use of either double or single quotes in JSX attributes (FIXABLE)
         "jsx-quotes": "error",
-
+        
         // { a: 1, b: 2 }       Requires no space before the colon, and at least one space after.
         // {
         //   a:    1
@@ -556,8 +550,6 @@
         // ECMAScript 6
         // ******************
 
-        // TODO HAD-18354 Come up with plan for introducing ES6/7 across the Hadron codebase
-
         // arrow-body-style: require braces around arrow function bodies (TBD)
         // arrow-parens: require parentheses around arrow function arguments (TBD)
         // arrow-spacing: enforce consistent spacing before and after the arrow in arrow functions (FIXABLE) (TBD)
@@ -585,126 +577,22 @@
         // no-useless-constructor: disallow unnecessary constructors (TBD)
         // no-useless-rename: disallow renaming import, export, and destructured assignments to the same name (FIXABLE) (TBD)
         // no-var: require let or const instead of var (TBD)
+        "no-var": "error",
         // object-shorthand: require or disallow method and property shorthand syntax for object literals (TBD)
         // prefer-arrow-callback: require arrow functions as callbacks (TBD)
         // prefer-const: require const declarations for variables that are never reassigned after declared (TBD)
+        "prefer-const": "error",
         // prefer-reflect: require Reflect methods where applicable (TBD)
         // prefer-rest-params: require rest parameters instead of arguments (TBD)
         // prefer-spread: require spread operators instead of .apply() (TBD)
+        "prefer-spread": "error",
         // prefer-template: require template literals instead of string concatenation (TBD)
+        "prefer-template": "error",
         // require-yield: require generator functions to contain yield (TBD)
         // rest-spread-spacing: enforce spacing between rest and spread operators and their expressions (FIXABLE) (TBD)
         // sort-imports: enforce sorted import declarations within modules (TBD)
-        "sort-imports": "error",
+        "sort-imports": "error"
         // template-curly-spacing: require or disallow spacing around embedded expressions of template strings (FIXABLE) (TBD)
         // yield-star-spacing: require or disallow spacing around the * in yield* expressions (FIXABLE) (TBD)
-
-
-        // ******************
-        // Promises
-        // This version of eslint-plugin-promise is documented here:
-        //   https://github.com/HBOCodeLabs/eslint-plugin-promise/tree/hbo/master
-        // ******************
-
-        // Allow for Bluebird's cancellation argument. Also, account for 'no-unused-vars' rule enforcement.
-        "promise/param-names": ["error", ["resolve", "__resolve"], ["reject", "__reject"], "onCancel"],
-
-        // promise/always-return: require functions inside a .then() to return a result (TBD)
-        "promise/always-return": "off",
-
-        // Ensure that promises chains aren't started without considering error handling.
-        // See https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html
-        "promise/catch-or-return": ["error", { "terminationMethod": ["catch", "finally"] }],
-
-        // We include a promise library, as needed, in all of our modules for consistent behavior.
-        // Don't allow access to a global or native 'Promise' (like a built-in browser implementation) that may
-        // behave differently.
-        // "promise/no-native": "error",
-
-        // Prevent .then(success, fail) - use .catch instead. This avoids a common anti-pattern, see
-        // https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns#the-thensuccess-fail-anti-pattern
-        // "promise/no-then-fail": "error",
-
-
-        // ******************
-        // React and JSX
-        // https://github.com/yannickcr/eslint-plugin-react/tree/v6.4.1
-        // ******************
-
-        // TODO HAD-19526 turn on eslint validation for react/display-name. (RECOMMENDED)
-        "react/display-name": "off",
-
-        // react/forbid-component-props: Forbid certain props on Components (TBD)
-        // react/forbid-prop-types: Forbid certain propTypes (TBD)
-        // react/no-children-prop: Prevent passing children as props (TBD)
-        // react/no-danger: Prevent usage of dangerous JSX properties (TBD)
-        // react/no-danger-with-children: Prevent problem with children and props.dangerouslySetInnerHTML (TBD)
-
-        // react/no-deprecated: Prevent usage of deprecated methods (RECOMMENDED)
-
-        // react/no-did-mount-set-state: Prevent usage of setState in componentDidMount (TBD)
-        // react/no-did-update-set-state: Prevent usage of setState in componentDidUpdate (TBD)
-
-        // react/no-direct-mutation-state: Prevent direct mutation of this.state (RECOMMENDED)
-        // react/no-find-dom-node: Prevent usage of findDOMNode (RECOMMENDED)
-        // react/no-is-mounted: Prevent usage of isMounted (RECOMMENDED)
-
-        // react/no-multi-comp: Prevent multiple component definition per file (TBD)
-
-        // react/no-render-return-value: Prevent usage of the return value of React.render (RECOMMENDED)
-
-        // react/no-set-state: Prevent usage of setState (TBD)
-        // react/no-string-refs: Prevent using string references in ref attribute. (TBD)
-        // react/no-unescaped-entities: Prevent invalid characters from appearing in markup (TBD)
-
-        // react/no-unknown-property: Prevent usage of unknown DOM property (RECOMMENDED) (FIXABLE)
-
-        // react/no-unused-prop-types: Prevent definitions of unused prop types (TBD)
-        // react/prefer-es6-class: Enforce ES5 or ES6 class for React Components (TBD)
-        // react/prefer-stateless-function: Enforce stateless React Components to be written as a pure function (TBD)
-
-        // TODO HAD-19270 turn on eslint validation for react/prop-types (RECOMMENDED)
-        "react/prop-types": "off",
-
-        // react/react-in-jsx-scope: Prevent missing React when using JSX (RECOMMENDED)
-
-        // react/require-optimization: Enforce React components to have a shouldComponentUpdate method (TBD)
-
-        // react/require-render-return: Enforce ES5 or ES6 class for returning value in render function (RECOMMENDED)
-
-        // react/self-closing-comp: Prevent extra closing tags for components without children (FIXABLE) (TBD)
-        // react/sort-comp: Enforce component methods order (TBD)
-        // react/sort-prop-types: Enforce propTypes declarations alphabetical sorting (TBD)
-        // react/style-prop-object: Enforce style prop value being an object (TBD)
-
-        // react/jsx-boolean-value: Enforce boolean attributes notation in JSX (FIXABLE) (TBD)
-        // react/jsx-closing-bracket-location: Validate closing bracket location in JSX (FIXABLE) (TBD)
-        // react/jsx-curly-spacing: Enforce or disallow spaces inside of curly braces in JSX attributes (FIXABLE) (TBD)
-        // react/jsx-equals-spacing: Enforce or disallow spaces around equal signs in JSX attributes (FIXABLE) (TBD)
-        // react/jsx-filename-extension: Restrict file extensions that may contain JSX (TBD)
-        // react/jsx-first-prop-new-line: Enforce position of the first prop in JSX (TBD)
-        // react/jsx-handler-names: Enforce event handler naming conventions in JSX (TBD)
-        // react/jsx-indent: Validate JSX indentation (TBD)
-        // react/jsx-indent-props: Validate props indentation in JSX (FIXABLE) (TBD)
-        // react/jsx-key: Validate JSX has key prop when in array or iterator (TBD)
-        // react/jsx-max-props-per-line: Limit maximum of props on a single line in JSX (TBD)
-        // react/jsx-no-bind: Prevent usage of .bind() and arrow functions in JSX props (TBD)
-        // react/jsx-no-comment-textnodes: Prevent comments from being inserted as text nodes (TBD)
-
-        // react/jsx-no-duplicate-props: Prevent duplicate props in JSX (RECOMMENDED)
-
-        // react/jsx-no-literals: Prevent usage of unwrapped JSX strings (TBD)
-        // react/jsx-no-target-blank: Prevent usage of unsafe target='_blank' (TBD)
-
-        // react/jsx-no-undef: Disallow undeclared variables in JSX (RECOMMENDED)
-
-        // react/jsx-pascal-case: Enforce PascalCase for user-defined JSX components (TBD)
-        // react/jsx-sort-props: Enforce props alphabetical sorting (TBD)
-        // react/jsx-space-before-closing: Validate spacing before closing bracket in JSX (FIXABLE) (TBD)
-
-        // react/jsx-uses-react: Prevent React to be incorrectly marked as unused (RECOMMENDED)
-        // react/jsx-uses-vars: Prevent variables used in JSX to be incorrectly marked as unused (RECOMMENDED)
-
-        // react/jsx-wrap-multilines: Prevent missing parentheses around multilines JSX (FIXABLE) (TBD)
-    }
+   }
 }

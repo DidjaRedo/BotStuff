@@ -24,7 +24,7 @@ import { Result, fail, succeed } from './result';
 export interface Coordinate {
     latitude: number;
     longitude: number;
-};
+}
 
 export const MIN_LATITUDE = -90;
 export const MAX_LATITUDE = 90;
@@ -66,11 +66,11 @@ export function getDistanceInMeters(c1: Coordinate, c2: Coordinate): number {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c * 1000; // Distance in meters
     return d;
-};
+}
 
 export function coordinatesAreNear(c1: Coordinate, c2: Coordinate, distanceInMeters: number): boolean {
     return getDistanceInMeters(c1, c2) <= distanceInMeters;
-};
+}
 
 export function coordinateIsInRegion(c: Coordinate, r?: Region): boolean {
     if (r === undefined) {
@@ -79,9 +79,9 @@ export function coordinateIsInRegion(c: Coordinate, r?: Region): boolean {
 
     return (c.latitude >= r.min.latitude) && (c.longitude >= r.min.longitude)
         && (c.latitude <= r.max.latitude) && (c.longitude <= r.max.longitude);
-};
+}
 
 export interface Region {
     max: Coordinate;
     min: Coordinate;
-};
+}

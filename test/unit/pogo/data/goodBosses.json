@@ -1,0 +1,158 @@
+[
+    {
+        "tier": 5,
+        "status": [
+            {
+                "active": "..2020-06-16 14:00",
+                "bosses": [ "reshiram" ]
+            },
+            {
+                "active": "2020-06-16 13:00..",
+                "bosses": [ "zekrom" ]
+            }
+        ],
+        "bosses": [
+            [ "Armored Mewtwo|*Mewtwo", 150, 3, 1740, 1821, 2175, 2276, "psychic" ],
+            [ "Articuno", 144, 3, 1665, 1743, 2082, 2179, "ice|flying" ],
+            [ "Cobalion", 638, 2, 1649, 1727, 2061, 2159,  "steel|fighting" ],
+            [ "Cresselia", 488, 3, 1555, 1633, 1944, 2041, "psychic" ],
+            [ "Darkrai", 491, 3, 2048, 2136, 2560, 2671, "dark" ],
+            [ "Deoxys Attack Forme|*Deoxys", 386, 1, 1372, 1474, 1716, 1842, "psychic" ],
+            [ "Deoxys Normal Forme|*Deoxys", 386, 2, 1717, 1806, 2146, 2257, "psychic" ],
+            [ "Dialga", 483, 3, 2217, 2307, 2771, 2884, "steel|dragon" ],
+            [ "Entei", 244, 2, 1900, 1984, 2375, 2480, "fire" ],
+            [ "Giratina Altered Forme|*Giratina", 487, 2, 1848, 1931, 2310, 2414, "ghost|dragon" ],
+            [ "Giratina Origin Forme|*Giratina", 487, 2, 2018, 2105, 2523, 2631, "ghost|dragon" ],
+            [ "Groudon", 383, 2, 2260, 2351, 2825, 2939, "ground" ],
+            [ "Heatran", 485, 2, 2058, 2145, 2573, 2681, "fire|steel" ],
+            [ "Ho-oh|Hooh", 250, 3, 2119, 2207, 2649, 2759, "fire|flying" ],
+            [ "Kyogre", 382, 3, 2260, 2351, 2825, 2939, "water" ],
+            [ "Latias", 380, 3, 1921, 2006, 2402, 2507, "dragon|psychic" ],
+            [ "Latios", 381, 3, 2090, 2178, 2613, 2723, "dragon|psychic" ],
+            [ "Lugia", 249, 3, 2028, 2115, 2535, 2645, "psychic|flying" ],
+            [ "Mewtwo", 150, 2, 2294, 2387, 2868, 2984, "psychic" ],
+            [ "Moltres", 146, 2, 1896, 1980, 2370, 2475, "fire|flying" ],
+            [ "Palkia", 484, 2, 2190, 2280, 2737, 2850, "water|dragon"],
+            [ "Raikou", 243, 3, 1889, 1972, 2361, 2466, "electric" ],
+            [ "Rayquaza", 384, 2, 2102, 2191, 2627, 2739, "dragon|flying" ],
+            [ "Regice", 378, 4, 1703, 1784, 2129, 2230, "ice" ],
+            [ "Regirock", 377, 4, 1703, 1784, 2129, 2230, "rock" ],
+            [ "Registeel", 379, 3, 1326, 1398, 1658, 1748, "steel" ],
+            [ "Reshiram", 643, 2, 2217, 2307, 2772, 2884, "dragon|fire" ],
+            [ "Terrakion", 639, 2, 2026, 2113, 2533, 2641, "rock|fighting" ],
+            [ "Thundurus Incarnate Forme|*Thundurus", 642, 2, 1828, 1911, 2285, 2389, "electric|flying" ],
+            [ "Tornadus Incarnate Forme|*Tornadus", 641, 2, 1828, 1911, 2285, 2389, "flying" ],
+            [ "Virizion", 640, 2, 1649, 1727, 2061, 2159, "grass|fighting" ],
+            [ "Zapdos", 145, 3, 1930, 2015, 2413, 2519, "electric|flying" ],
+            {
+                "name": "Zekrom",
+                "pokedexNumber": 644,
+                "numRaiders": 2,
+                "cpRange": { "min": 2217, "max": 2307 },
+                "boostedCpRange": { "min": 2771, "max": 2884 },
+                "types": ["dragon", "electric"]
+            }
+        ]
+    },
+    {
+        "tier": 4,
+        "status": [
+            {
+                "active": true,
+                "bosses": [
+                    "aggron", "alolan marowak", "excadrill", "galarian weezing",
+                    "rhydon"
+                ]
+            }
+        ],
+        "bosses": [
+            ["Absol", 0, 2, 1370, 1443, 1712, 1805],
+            ["Aggron", 0, 2, 1636, 1714, 2045, 2143],
+            ["Alolan Exeggutor|*Exeggutor", 0, 2, 1643, 1722, 2055, 2153],
+            ["Alolan Marowak|*Marowak", 0, 2, 988, 1048, 1235, 1311],
+            ["Blastoise", 0, 3, 1338, 1409, 1673, 1761],
+            ["Charizard", 0, 2, 1574, 1651, 1968, 2064],
+            ["Dragonite", 0, 2, 2079, 2167, 2599, 2709],
+            ["Excadrill", 0, 2, 1770, 1853, 2212, 2317],
+            ["Galarian Weezing|*Weezing", 0, 2, 1242, 1310, 1553, 1637],
+            ["Gengar", 0, 2, 1566, 1644, 1958, 2056],
+            ["Golem", 0, 2, 1608, 1685, 2010, 2106],
+            ["Houndoom", 0, 2, 1432, 1505, 1790, 1882],
+            ["Lapras", 0, 2, 1435, 1509, 1794, 1886],
+            ["Lickitung", 0, 2, 752, 806, 940, 1008],
+            ["Metagross", 0, 2, 2078, 2166, 2598, 2708],
+            ["Poliwrath", 0, 2, 1405, 1477, 1757, 1847],
+            ["Raikou", 0, 3, 1889, 1972, 2361, 2466],
+            ["Rhydon", 0, 2, 1736, 1816, 2170, 2270],
+            ["Shiftry", 0, 1, 1263, 1333, 1579, 1666],
+            ["Snorlax", 0, 2, 1760, 1843, 2201, 2304],
+            ["Togetic", 0, 2, 917, 976, 1147, 1220],
+            ["Typhlosion", 0, 2, 1574, 1651, 1968, 2064],
+            ["Tyranitar", 0, 2, 2103, 2191, 2629, 2739],
+            ["Ursaring", 0, 2, 1604, 1682, 2006, 2103],
+            ["Venusaur", 0, 2, 1480, 1554, 1851, 1943],
+            ["Walrein", 0, 2, 1483, 1557, 1854, 1947]
+        ]
+    },
+    {
+        "tier": 3,
+        "status": [
+            {
+                "active": true,
+                "bosses": [
+                    "omastar", "kabutops", "shuckle", "donphan",
+                    "alolan raichu"
+                ]
+            }
+        ],
+        "bosses": [
+            ["Alolan Raichu|*Raichu", 0, 1, 1238, 1306, 1548, 1633],
+            ["Donphan", 0, 1, 1644, 1722 ,0 ,0],
+            ["Ferroseed", 0, 1, 493, 537, 617, 672],
+            ["Gengar", 0, 1, 1566, 1644, 1958, 2056],
+            ["Kabutops", 0, 1, 1476, 1550, 0, 0],
+            ["Omastar", 0, 1, 1517, 1592, 0, 0],
+            ["Sharpedo", 0, 1, 1174, 1246, 1468, 1558],
+            ["Shuckle", 0, 1, 189, 231, 0, 0],
+            ["Skuntank", 0, 1, 1278, 1347, 1597, 1684]
+        ]
+    },
+    {
+        "tier": 2,
+        "status": [
+            {
+                "active": true,
+                "bosses": [
+                    "gligar", "nosepass", "sableye", "mawile",
+                    "alolan exeggutor"
+                ]
+            }
+        ],
+        "bosses": [
+            ["Alolan Exeggutor|Exeggutor", 0, 1, 1643, 1722, 0, 0],
+            ["Gligar", 0, 1, 1000, 1061, 0, 0],
+            ["Mawile", 0, 1, 877, 934, 0, 0],
+            ["Nosepass", 0, 1, 521, 567, 0, 0],
+            ["Sableye", 0, 1, 789, 843, 0, 0]
+        ]
+    },
+    {
+        "tier": 1,
+        "status": [
+            {
+                "active": true,
+                "bosses": [
+                    "larvitar", "bagon", "hippopotas", "timburr",
+                    "klink"
+                ]
+            }
+        ],
+        "bosses": [
+            ["Bagon", 0, 1, 612, 660, 0, 0],
+            ["Hippopotas", 0, 1, 723, 776, 0, 0],
+            ["Klink", 0, 1, 502, 546, 0, 0],
+            ["Larvitar", 0, 1, 548, 594, 0, 0],
+            ["Timburr", 0, 1, 699, 751, 0, 0]
+        ]
+    }
+]

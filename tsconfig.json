@@ -6,6 +6,7 @@
         "sourceMap": true,
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
+        "esModuleInterop": true,
         "paths": {
             "*": [
                 "node_modules/",

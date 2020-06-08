@@ -165,7 +165,7 @@ describe('Converters module', () => {
                 const result = numFirst.convert(true);
                 expect(result.isFailure()).toBe(true);
                 if (result.isFailure()) {
-                    expect(result.message).toMatch(/no matching decoder/i);
+                    expect(result.message).toMatch(/no matching converter/i);
                 }
             });
         });
@@ -244,13 +244,13 @@ describe('Converters module', () => {
                 const result = allOptionalNumFirst.convert(true);
                 expect(result.isFailure()).toBe(true);
                 if (result.isFailure()) {
-                    expect(result.message).toMatch(/no matching decoder/i);
+                    expect(result.message).toMatch(/no matching converter/i);
                 }
             });
         });
     });
 
-    describe('array converter', () => {
+    describe('arrayOf converter', () => {
         it('should convert a valid array', () => {
             const srcArray = ['s1', 's2', 's3'];
             const result = Converters.arrayOf(Converters.string).convert(srcArray);
@@ -302,6 +302,73 @@ describe('Converters module', () => {
         });
     });
 
+
+    describe('rangeOf converter', () => {
+        const min = 0;
+        const max = 1000;
+        const converter = Converters.rangeOf(Converters.number);
+        it('should convert a range with valid or omitted min and max specificatons', () => {
+            const expected = [
+                { min, max },
+                { min },
+                { max },
+                {},
+            ];
+            const toConvert = expected.map((x) => {
+                const result: { min?: unknown, max?: unknown } = {};
+                if (x.min !== undefined) {
+                    result.min = `${x.min}`;
+                }
+                if (x.max !== undefined) {
+                    result.max = x.max.toString();
+                }
+                return result;
+            });
+
+            for (let i = 0; i < toConvert.length; i++) {
+                const conversion = converter.convert(toConvert[i]);
+                expect(conversion.isSuccess()).toBe(true);
+                if (conversion.isSuccess()) {
+                    expect(conversion.value).toEqual(expected[i]);
+                }
+            }
+        });
+
+        it('should convert and ignore extra fields', () => {
+            const expected = { min, max };
+            const conversion = converter.convert({
+                min, max, extra: 'whatever',
+            });
+            expect(conversion.isSuccess()).toBe(true);
+            if (conversion.isSuccess()) {
+                expect(conversion.value).toEqual(expected);
+            }
+        });
+
+        it('should fail if either min or max is invalid', () => {
+            const bad = [
+                { min: 'not a number' },
+                { min, max: true },
+            ];
+            for (const t of bad) {
+                const conversion = converter.convert(t);
+                expect(conversion.isFailure()).toBe(true);
+                if (conversion.isFailure()) {
+                    expect(conversion.message).toMatch(/not a number/i);
+                }
+            }
+        });
+
+        it('should fail if the range is inverted', () => {
+            const bad = { min: max, max: min };
+            const conversion = converter.convert(bad);
+            expect(conversion.isFailure()).toBe(true);
+            if (conversion.isFailure()) {
+                expect(conversion.message).toMatch(/inverted/i);
+            }
+        });
+    });
+
     describe('recordOf converter', () => {
         it('should convert a valid object', () => {
             const srcObject = {
@@ -331,12 +398,13 @@ describe('Converters module', () => {
         });
 
         it('should ignore inherited or non-enumerable properties even if onError is "fail"', () => {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             function BaseObject(): void {
                 this.p1 = 's1';
                 this.p2 = 's2';
                 this.p3 = 's3';
                 Object.defineProperty(this, 'p4', { value: 10, enumerable: false });
-            };
+            }
             BaseObject.prototype.base1 = 100;
 
             const srcObject = new BaseObject();
@@ -488,7 +556,7 @@ describe('Converters module', () => {
             numField: number;
             boolField: boolean;
             numbers?: number[];
-        };
+        }
 
         const converter = Converters.object<Want>({
             stringField: Converters.string,
@@ -601,6 +669,20 @@ describe('Converters module', () => {
                 expect(result.value).toEqual(expected);
             }
         });
+
+        describe('with partial specified', () => {
+            it('should succeed if any of the added fields are missing', () => {
+                const src = {
+                    numField: -1,
+                    boolField: true,
+                };
+                const result = converter.addPartial(['stringField']).convert(src);
+                expect(result.isSuccess()).toBe(true);
+                if (result.isSuccess()) {
+                    expect(result.value).toEqual(src);
+                }
+            });
+        });
     });
 
     describe('transform converter', () => {
@@ -610,7 +692,7 @@ describe('Converters module', () => {
             numField: number;
             boolField: boolean;
             numbers?: number[];
-        };
+        }
 
         const converter = Converters.transform<Want>({
             stringField: Converters.field('string1', Converters.string),

@@ -32,6 +32,8 @@ export interface RegExpField extends RegExpFragment {
 }
 
 export class RegExpBuilder {
+    private _fields: Map<string, RegExpFragment>;
+
     public constructor(fragments: Iterable<RegExpField>) {
         this._fields = new Map(Utils.select(fragments, (source: RegExpField): [string, RegExpFragment] => {
             return [source.name, { value: source.value, optional: (source.optional ? true : false) }];
@@ -40,18 +42,6 @@ export class RegExpBuilder {
         if (this._fields.size < 1) {
             throw new Error('RegExpBuilder needs at least one fragment.');
         }
-    }
-
-    private _getField(field: string): RegExpFragment {
-        const key = field.toLowerCase();
-        let fragment = this._fields.get(key);
-        if (!fragment) {
-            fragment = {
-                value: field,
-                optional: false,
-            };
-        }
-        return fragment;
     }
 
     public buildString(fields: string[]|string): string {
@@ -85,5 +75,15 @@ export class RegExpBuilder {
         return new RegExp(this.buildString(fields));
     }
 
-    private _fields: Map<string, RegExpFragment>;
-};
+    private _getField(field: string): RegExpFragment {
+        const key = field.toLowerCase();
+        let fragment = this._fields.get(key);
+        if (!fragment) {
+            fragment = {
+                value: field,
+                optional: false,
+            };
+        }
+        return fragment;
+    }
+}

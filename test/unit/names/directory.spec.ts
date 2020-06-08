@@ -19,41 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { DirectoryLookupOptions, FieldSearchWeight } from '../../../src/names/directory';
-import { FakeKeyedThing, FakeKeys, FakeKtDirectory, FakeProps } from '../../helpers/fakeKeyedThing';
+import { Directory, DirectoryOptions, FieldSearchWeight } from '../../../src/names/directory';
+import { FakeKeyedThing, FakeKeys, FakeKtDirectory, FakeKtLookupOptions, FakeProps } from '../../helpers/fakeKeyedThing';
 import { Names } from '../../../src/names/names';
 
 describe('Directory class', (): void => {
-    const noAlternateKeyOptions: DirectoryLookupOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
-        threshold: 0.2,
+    const noAlternateKeyOptions: DirectoryOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
+        threshold: 0.8,
         textSearchKeys: [
             { name: 'name', weight: 0.5 },
             { name: 'alternateName', weight: 0.3 },
             { name: 'aliases', weight: 0.2 },
         ],
     };
-    const uniqueAlternateNameOptions: DirectoryLookupOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
+    const uniqueAlternateNameOptions: DirectoryOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
         ...noAlternateKeyOptions,
         alternateKeys: ['alternateName'],
         enforceAlternateKeyUniqueness: ['alternateName'],
     };
-    const ambiguousAlternateNameOptions: DirectoryLookupOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
+    const ambiguousAlternateNameOptions: DirectoryOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
         ...noAlternateKeyOptions,
         alternateKeys: ['alternateName'],
     };
-    const uniqueAliasOptions: DirectoryLookupOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
+    const uniqueAliasOptions: DirectoryOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
         ...noAlternateKeyOptions,
         alternateKeys: ['aliases'],
         enforceAlternateKeyUniqueness: ['aliases'],
     };
-    const ambiguousAliasOptions: DirectoryLookupOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
+    const ambiguousAliasOptions: DirectoryOptions<FakeKeyedThing, FakeProps, FakeKeys> = {
         ...noAlternateKeyOptions,
         alternateKeys: ['aliases'],
     };
 
     const init: FakeProps[] = [
         { name: 'First Place', alternateName: 'Start', aliases: ['Hipsters', 'Coffee'], city: 'Seattle', state: 'Washington', isSpecial: true, externalId: 'Origin' },
-        { name: 'Second Place', alternateName: 'Middle', city: 'Denver', state: 'Colorado', isSpecial: true, externalId: 'MileHigh' },
+        { name: 'Second Place', alternateName: 'Middle', city: 'Denver', state: 'Colorado', isSpecial: false, externalId: 'MileHigh' },
         { name: 'Third Place', alternateName: 'End', aliases: ['Big Apple'], city: 'New York', state: 'New York', isSpecial: false },
     ];
 
@@ -74,7 +74,7 @@ describe('Directory class', (): void => {
                     }
                 });
             }
-        };
+        }
     }
 
     type ThingSearcher = (field: keyof FakeProps, value: string, weight: number, elem: FakeProps) => void;
@@ -133,7 +133,7 @@ describe('Directory class', (): void => {
 
             [elem.name, elem.alternateName].forEach((name): void => {
                 const part = name.split(' ')[0].toLowerCase();
-                const matches = dir.lookup(part);
+                const matches = dir.searchByTextFields(part);
                 expect(matches.length).toBeGreaterThan(0);
                 expect(matches[0].item).toMatchObject(elem);
             });
@@ -251,8 +251,8 @@ describe('Directory class', (): void => {
         ): void {
             expect(dir.size).toBe(present.length);
 
-            forEachSearchableString(present, keys, (__: keyof FakeKeyedThing, value: string, ___: number, elem: FakeProps): void => {
-                const results = dir.lookup(value);
+            forEachSearchableString(present, keys, (_key: keyof FakeKeyedThing, value: string, _num: number, elem: FakeProps): void => {
+                const results = dir.searchByTextFields(value);
                 expect(results.length).toBeGreaterThan(0);
                 let found = false;
                 for (const result of results) {
@@ -261,8 +261,8 @@ describe('Directory class', (): void => {
                 expect(found).toBe(true);
             });
 
-            forEachSearchableString(missing, keys, (__: keyof FakeKeyedThing, value: string, ___: number, elem: FakeProps): void => {
-                const results = dir.lookup(value);
+            forEachSearchableString(missing, keys, (_key: keyof FakeKeyedThing, value: string, _num: number, elem: FakeProps): void => {
+                const results = dir.searchByTextFields(value);
                 // no results is a pass
                 if (results && (results.length > 0)) {
                     for (const result of results) {
@@ -603,12 +603,12 @@ describe('Directory class', (): void => {
         });
     });
 
-    describe('lookup method', (): void => {
+    describe('searchTextFields method', (): void => {
         const dir = new FakeKtDirectory(noAlternateKeyOptions, initThings);
         it('should get a scored list of possible matches based on name', (): void => {
             init.forEach((i): void => {
                 const partialName = i.name.split(' ');
-                const result = dir.lookup(partialName[0]);
+                const result = dir.searchByTextFields(partialName[0]);
                 expect(result.length).toBeGreaterThan(0);
                 expect(result[0].item).toMatchObject(i);
             });
@@ -618,7 +618,7 @@ describe('Directory class', (): void => {
             init.forEach((i): void => {
                 if (i.alternateName) {
                     const partialName = i.alternateName.split(' ');
-                    const result = dir.lookup(partialName[0]);
+                    const result = dir.searchByTextFields(partialName[0]);
                     expect(result.length).toBeGreaterThan(0);
                     expect(result[0].item).toMatchObject(i);
                 }
@@ -626,7 +626,7 @@ describe('Directory class', (): void => {
                 if (i.aliases) {
                     i.aliases.forEach((a): void => {
                         const partialName = a.split(' ');
-                        const result = dir.lookup(partialName[0]);
+                        const result = dir.searchByTextFields(partialName[0]);
                         expect(result.length).toBeGreaterThan(0);
                         expect(result[0].item).toMatchObject(i);
                     });
@@ -635,7 +635,84 @@ describe('Directory class', (): void => {
         });
 
         it('should return an empty array when nothing matches', (): void => {
-            expect(dir.lookup('xyzzy')).toHaveLength(0);
+            expect(dir.searchByTextFields('xyzzy')).toHaveLength(0);
+        });
+    });
+
+    describe('lookup method', () => {
+        const ktInit = [
+            ...init,
+            { name: 'Second and a half Place', alternateName: 'Second Place', city: 'Denver', state: 'Colorado', isSpecial: true, externalId: 'MileHigh' },
+        ];
+        const dir = new FakeKtDirectory(uniqueAlternateNameOptions, ktInit.map((i) => new FakeKeyedThing(i)));
+
+        describe('should prefer exact but return text search matches by default', () => {
+            it('should correctly look up items by an exact normalized match on any text field', () => {
+                let things = dir.lookup('Second Place');
+                expect(things).toHaveLength(2);
+
+                things = dir.lookup('second');
+                expect(things).toHaveLength(2);
+            });
+        });
+
+        describe('with noTextSearch', () => {
+            it('should correctly look up items by an exact normalized match on any text field', () => {
+                const things = dir.lookup('Second Place', { noTextSearch: true });
+                expect(things).toHaveLength(2);
+            });
+
+            it('should not return items that match only a text search', () => {
+                const things = dir.lookup('Second', { noTextSearch: true });
+                expect(things).toHaveLength(0);
+            });
+        });
+
+        describe('with noTextSearch', () => {
+            it('should return items that match a text search', () => {
+                const things = dir.lookup('Second', { noExactLookup: true });
+                expect(things).toHaveLength(2);
+            });
+
+            it('should not look up items by an exact normalized match on any text field', () => {
+                const things = dir.lookup('secondandahalfplace', { noExactLookup: true });
+                expect(things).toHaveLength(0);
+            });
+        });
+
+        describe('with additional filters', () => {
+            it('should return only items that match the filter', () => {
+                const things = dir.lookup('Second', {
+                    noExactLookup: true,
+                    specialFilter: true,
+                });
+                expect(things).toHaveLength(1);
+                things.forEach((thing) => expect(thing.item.isSpecial).toBe(true));
+            });
+        });
+    });
+
+    describe('Default directory class', () => {
+        const ktInit = [
+            ...init,
+            { name: 'Second and a half Place', alternateName: 'Second Place', city: 'Denver', state: 'Colorado', isSpecial: true, externalId: 'MileHigh' },
+        ];
+
+        it('should apply a no-op filter', () => {
+            const dir = new Directory<FakeKeyedThing, FakeProps, FakeKeys>(
+                uniqueAlternateNameOptions,
+                ktInit.map((i) => new FakeKeyedThing(i))
+            );
+            const options: FakeKtLookupOptions = {
+                noExactLookup: true,
+                specialFilter: true,
+            };
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const spy = jest.spyOn<any, any>(dir, '_adjustLookupResults');
+            // filter parameter ignored by the default filter
+            const things = dir.lookup('Second', options);
+            expect(things).toHaveLength(2);
+            expect(spy).toHaveBeenCalled();
         });
     });
 });

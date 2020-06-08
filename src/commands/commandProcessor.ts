@@ -20,22 +20,24 @@
  * SOFTWARE.
  */
 
-export interface CommandResult {
+export interface CommandResult<T> {
     found: boolean;
-    result: true;
+    result: T|undefined;
 }
 
-export type CommandHandler = (params: object) => object;
+export type CommandHandler<T> = (params: RegExpMatchArray) => T;
 
-export interface CommandSpec {
+export interface CommandSpec<T> {
     name: string;
     description: string;
     pattern: RegExp;
-    handleCommand: CommandHandler;
+    handleCommand: CommandHandler<T>;
 }
 
-export class CommandProcessor {
-    public constructor(commands?: CommandSpec[]) {
+export class CommandProcessor<T> {
+    private _commands: CommandSpec<T>[];
+
+    public constructor(commands?: CommandSpec<T>[]) {
         this._commands = [];
 
         if (commands) {
@@ -43,9 +45,69 @@ export class CommandProcessor {
         }
     }
 
-    private _commands: CommandSpec[];
+    public addCommand(cmd: CommandSpec<T>): void {
+        this._validateCommand(cmd);
+        this._commands.push(cmd);
+    }
 
-    private _validateCommand(cmd: CommandSpec): void {
+    public processAll(message: string): T[] {
+        const results = [];
+        for (const c of this._commands) {
+            const params = message.match(c.pattern);
+            if (params !== null) {
+                results.push(c.handleCommand(params));
+            }
+        }
+        return results;
+    }
+
+    public processFirst(message: string): CommandResult<T> {
+        const result: CommandResult<T> = {
+            found: false,
+            result: undefined,
+        };
+
+        for (const c of this._commands) {
+            const params = message.match(c.pattern);
+            if (params !== null) {
+                result.result = c.handleCommand(params);
+                result.found = true;
+                return result;
+            }
+        }
+
+        return result;
+    }
+
+    public processOne(message: string): CommandResult<T> {
+        const result: CommandResult<T> = {
+            found: false,
+            result: undefined,
+        };
+
+        let firstCommand = undefined;
+        for (const c of this._commands) {
+            const params = message.match(c.pattern);
+            if (params !== null) {
+                if (!result.found) {
+                    firstCommand = c;
+                    result.result = c.handleCommand(params);
+                    result.found = true;
+                }
+                else {
+                    throw new Error(`Ambiguous command "${message}" could be "${firstCommand.name}" or "${c.name}".`);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public get numCommands(): number {
+        return this._commands.length;
+    }
+
+    private _validateCommand(cmd: CommandSpec<T>): void {
         if ((!cmd.name) || (!cmd.description) || (!cmd.pattern) || (!cmd.handleCommand)) {
             throw new Error('Command must have name, description, pattern and handleCommand.');
         }
@@ -63,69 +125,5 @@ export class CommandProcessor {
                 throw new Error(`Duplicate command name "${c.name}".`);
             }
         });
-    }
-
-    public addCommand(cmd: CommandSpec): void {
-        this._validateCommand(cmd);
-        this._commands.push(cmd);
-    }
-
-    public processAll(message): object[] {
-        const results = [];
-        this._commands.forEach((c): void => {
-            const params = message.match(c.pattern);
-            if (params !== null) {
-                results.push(c.handleCommand(params));
-            }
-        });
-        return results;
-    }
-
-    public processFirst(message): CommandResult {
-        const result = {
-            found: false,
-            result: undefined,
-        };
-
-        this._commands.forEach((c): object => {
-            if (!result.found) {
-                const params = message.match(c.pattern);
-                if (params !== null) {
-                    result.result = c.handleCommand(params);
-                    result.found = true;
-                }
-            }
-            return result;
-        });
-
-        return result;
-    }
-
-    public processOne(message): CommandResult {
-        const result = {
-            found: false,
-            result: undefined,
-        };
-        let firstCommand = undefined;
-
-        this._commands.forEach((c): void => {
-            const params = message.match(c.pattern);
-            if (params !== null) {
-                if (!result.found) {
-                    firstCommand = c;
-                    result.result = c.handleCommand(params);
-                    result.found = true;
-                }
-                else {
-                    throw new Error(`Ambiguous command "${message}" could be "${firstCommand.name}" or "${c.name}".`);
-                }
-            }
-        });
-
-        return result;
-    }
-
-    public get numCommands(): number {
-        return this._commands.length;
     }
 }

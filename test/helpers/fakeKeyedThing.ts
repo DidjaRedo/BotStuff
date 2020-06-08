@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Directory, DirectoryLookupOptions } from '../../src/names/directory';
+import { DirectoryBase, DirectoryLookupOptions, DirectoryOptions, SearchResult } from '../../src/names/directory';
 import { KeyedThing } from '../../src/names/keyedThing';
 import { Names } from '../../src/names/names';
 
@@ -39,7 +39,7 @@ export interface FakeProps extends FakeKeys {
     state: string;
     isSpecial?: boolean;
     externalId?: string;
-};
+}
 
 export class FakeKeyedThing implements FakeProps, KeyedThing<FakeKeys> {
     public readonly name: string;
@@ -70,10 +70,21 @@ export class FakeKeyedThing implements FakeProps, KeyedThing<FakeKeys> {
     }
 }
 
-export class FakeKtDirectory extends Directory<FakeKeyedThing, FakeProps, FakeKeys> {
+export interface FakeKtLookupOptions extends DirectoryLookupOptions {
+    specialFilter?: boolean;
+}
+
+export class FakeKtDirectory extends DirectoryBase<FakeKeyedThing, FakeProps, FakeKeys, FakeKtLookupOptions> {
     constructor(
-        options: DirectoryLookupOptions<FakeKeyedThing, FakeProps, FakeKeys>,
+        options: DirectoryOptions<FakeKeyedThing, FakeProps, FakeKeys>,
         elements?: Iterable<FakeKeyedThing>) {
         super(options, elements);
+    }
+
+    protected _adjustLookupResults(results: SearchResult<FakeKeyedThing>[], options?: FakeKtLookupOptions): SearchResult<FakeKeyedThing>[] {
+        if (options?.specialFilter !== undefined) {
+            return results.filter((r) => r.item.isSpecial === options.specialFilter);
+        }
+        return results;
     }
 }

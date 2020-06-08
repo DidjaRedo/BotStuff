@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { DefaultZonePoiDirectoryOptions, ZonePoiDirectory } from '../../../src/places/zonePoiDirectory';
-import { Poi, PoiLookupOptions, PoiProperties } from '../../../src/places/poi';
+import { Poi, PoiProperties } from '../../../src/places/poi';
+import { ZonePoiDirectory, ZonePoiLookupOptions, defaultZonePoiDirectoryOptions } from '../../../src/places/zonePoiDirectory';
 import { Names } from '../../../src/names/names';
 
 describe('ZonePoiDirectory class', (): void => {
@@ -98,7 +98,7 @@ describe('ZonePoiDirectory class', (): void => {
             expect(zone.name).toEqual(zoneName);
             expect(zone.primaryKey).toEqual(Names.normalizeOrThrow(zoneName));
             expect(zone.keys.name).toEqual(Names.normalizeOrThrow(zoneName));
-            expect(zone.options).toEqual(DefaultZonePoiDirectoryOptions);
+            expect(zone.options).toEqual(defaultZonePoiDirectoryOptions);
         });
 
         it('should construct a zone with options', () => {
@@ -368,7 +368,7 @@ describe('ZonePoiDirectory class', (): void => {
                 ];
 
                 for (const t of tests) {
-                    const options: PoiLookupOptions = { cities: ['ruby'] };
+                    const options: ZonePoiLookupOptions = { cities: ['ruby'] };
                     const poiResults = zone.tryGetPois(t.text, options);
                     expect(poiResults).toHaveLength(t.expect);
                     for (const r of poiResults) {

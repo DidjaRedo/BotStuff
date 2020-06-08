@@ -21,44 +21,26 @@
  */
 
 import * as PoiLookupOptions from './poiLookupOptions';
-import { Poi, PoiDirectory } from './poi';
 import { City } from './city';
-import { LookupResult } from '../names/directory';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
+import { Poi } from './poi';
+import { PoiDirectoryBase } from './poiDirectory';
+import { SearchResult } from '../names/directory';
 import { Zone } from './zone';
 
 export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookupOptions.Properties> {
-    public readonly pois = new PoiDirectory<P>();
+    public readonly pois = new PoiDirectoryBase<P, PO>();
     public readonly zones = new NormalizedMap<Zone>();
     public readonly cities = new NormalizedMap<City>();
 
     public readonly options: PO;
 
     public constructor(options?: Partial<PO>, pois?: Iterable<P>) {
-        this.options = this.getEffectiveOptions(options);
+        this.options = this._getEffectiveOptions(options);
 
         for (const poi of pois ?? []) {
             this.add(poi);
-        }
-    }
-
-    protected abstract getEffectiveOptions(user: Partial<PO>): PO;
-    protected filterPoi(__poi: P, __options: PO): boolean {
-        return true;
-    }
-
-    private updateZonesAndCities(poi: P): void {
-        const city = this.cities.getOrAdd(poi.city, City.create).getValueOrThrow();
-        city.zones.addRange(poi.zones);
-        city.pois.add(poi.name);
-
-        for (const name of poi.zones) {
-            if (Names.isListedOrDefault(this.options.allowedZones, name)) {
-                const zone = this.zones.getOrAdd(name, Zone.create).getValueOrThrow();
-                zone.cities.add(city.name);
-                zone.pois.add(poi.name);
-            }
         }
     }
 
@@ -78,44 +60,50 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
         }
 
         this.pois.add(poi);
-        this.updateZonesAndCities(poi);
+        this._updateZonesAndCities(poi);
     }
 
-    public tryGetPoisExact(name: string): LookupResult<P>[] {
+    public lookupExact(name: string): SearchResult<P>[] {
         return this.pois.getByAnyFieldExact(name).map((p) => {
             return { item: p, score: 1 };
         });
     }
 
-    public tryGetPoisFuzzy(name: string): LookupResult<P>[] {
-        return this.pois.lookup(name);
+    public lookupFuzzy(name: string): SearchResult<P>[] {
+        return this.pois.searchByTextFields(name);
     }
 
-    public tryGetPois(name: string, userOptions?: Partial<PO>): LookupResult<P>[] {
-        const options = this.getEffectiveOptions(userOptions);
-        let candidates: LookupResult<P>[] = [];
-
-        if (options.noExactLookup !== true) {
-            candidates = this.tryGetPoisExact(name);
-        }
-
-        if ((candidates.length < 1) && (options.noFuzzyLookup !== true)) {
-            candidates = this.tryGetPoisFuzzy(name);
-        }
-
-        if (candidates.length > 0) {
-            candidates = PoiLookupOptions.adjustLookupResults(candidates, options, this.filterPoi);
-        }
-
-        return candidates;
+    public lookup(name: string, userOptions?: Partial<PO>): SearchResult<P>[] {
+        const options = this._getEffectiveOptions(userOptions);
+        return this.pois.lookup(name, options, this._filterPoi);
     }
+
+    protected _filterPoi(_poi: P, _options: PO): boolean {
+        return true;
+    }
+
+    private _updateZonesAndCities(poi: P): void {
+        const city = this.cities.getOrAdd(poi.city, City.create).getValueOrThrow();
+        city.zones.addRange(poi.zones);
+        city.pois.add(poi.name);
+
+        for (const name of poi.zones) {
+            if (Names.isListedOrDefault(this.options.allowedZones, name)) {
+                const zone = this.zones.getOrAdd(name, Zone.create).getValueOrThrow();
+                zone.cities.add(city.name);
+                zone.pois.add(poi.name);
+            }
+        }
+    }
+
+    protected abstract _getEffectiveOptions(user: Partial<PO>): PO;
 }
 
 export class GlobalPoiDirectory<P extends Poi> extends GlobalPoiDirectoryBase<P, PoiLookupOptions.Properties> {
-    protected getEffectiveOptions(user: Partial<PoiLookupOptions.Properties>): PoiLookupOptions.Properties {
-        const base = this.options ?? PoiLookupOptions.Default;
+    protected _getEffectiveOptions(user: Partial<PoiLookupOptions.Properties>): PoiLookupOptions.Properties {
+        const base = this.options ?? PoiLookupOptions.defaultProperties;
         if (user) {
-            return PoiLookupOptions.Merger.mergeIntoCopy(base, user).getValueOrThrow();
+            return PoiLookupOptions.merger.mergeIntoCopy(base, user).getValueOrThrow();
         }
         return base;
     }

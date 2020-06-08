@@ -20,20 +20,11 @@
  * SOFTWARE.
  */
 import * as Geo from '../utils/geo';
-import { Directory, DirectoryLookupOptions } from '../names/directory';
 import { NamedThing, Names } from '../names/names';
 import { validateLatitude, validateLongitude } from '../utils/geo';
+import { DirectoryOptions } from '../names/directory';
 import { KeyedThing } from '../names/keyedThing';
 import { Utils } from '../utils/utils';
-
-export interface PoiLookupOptions {
-    zones?: string[];
-    cities?: string[];
-    noExactLookup?: boolean;
-    noFuzzyLookup?: boolean;
-    onlyMatchingCities?: boolean;
-    onlyMatchingZones?: boolean;
-}
 
 export interface PoiKeys extends NamedThing {
     name: string;
@@ -51,23 +42,12 @@ export interface PoiProperties extends PoiKeys {
 }
 
 export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
-    public constructor(init: PoiProperties) {
-        Poi._validateInitializer(init);
-        this._name = init.name;
-        this._city = init.city;
-        this._zones = Utils.toArray(init.zones);
-        this._coord = init.coord;
-        this._alternateNames = Utils.toArray(init.alternateNames);
-        this._keys = this._normalize();
-    }
-
     private _name: string;
     private _alternateNames?: string[];
     private _city: string;
     private _zones: string[];
     private _coord: Geo.Coordinate;
     private _keys: PoiKeys;
-
     public get primaryKey(): string { return this._keys.name; }
     public get name(): string { return this._name; }
     public get city(): string { return this._city; }
@@ -78,6 +58,44 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
     /* istanbul ignore next */
     public get numAlternateNames(): number { return this._alternateNames ? this._alternateNames.length : 0; }
     public get alternateNames(): string[] { return this._alternateNames; }
+
+    public constructor(init: PoiProperties) {
+        Poi._validateInitializer(init);
+        this._name = init.name;
+        this._city = init.city;
+        this._zones = Utils.toArray(init.zones);
+        this._coord = init.coord;
+        this._alternateNames = Utils.toArray(init.alternateNames);
+        this._keys = this._normalize();
+    }
+
+    public static getDirectoryOptions(): DirectoryOptions<Poi, PoiProperties, PoiKeys> {
+        return {
+            threshold: 0.8,
+            textSearchKeys: [
+                {
+                    name: 'name',
+                    weight: 3,
+                },
+                {
+                    name: 'alternateNames',
+                    weight: 2,
+                },
+            ],
+            alternateKeys: ['alternateNames'],
+        };
+    }
+
+    private static _validateInitializer(init: PoiProperties): void {
+        Names.throwOnInvalidName(init.name, 'poi name');
+        Names.throwOnInvalidName(init.city, 'city name');
+        Names.throwOnInvalidName(init.zones, 'zone name', 1);
+        validateLatitude(init.coord.latitude).getValueOrThrow();
+        validateLongitude(init.coord.longitude).getValueOrThrow();
+        if (init.alternateNames) {
+            Names.throwOnInvalidName(init.alternateNames, 'alternate name');
+        }
+    }
 
     public belongsToZone(zones: string|Iterable<string>): boolean {
         if (!zones) {
@@ -116,7 +134,11 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
         return Geo.coordinateIsInRegion(this.coord, region);
     }
 
-    private _normalize(): PoiKeys {
+    public get keys(): PoiKeys {
+        return this._keys;
+    }
+
+    protected _normalize(): PoiKeys {
         return {
             name: Names.normalizeOrThrow(this._name),
             city: Names.normalizeOrThrow(this._city),
@@ -124,43 +146,4 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
             alternateNames: Names.normalizeOrThrow(this._alternateNames),
         };
     }
-
-    public get keys(): PoiKeys {
-        return this._keys;
-    }
-
-    private static _validateInitializer(init: PoiProperties): void {
-        Names.throwOnInvalidName(init.name, 'poi name');
-        Names.throwOnInvalidName(init.city, 'city name');
-        Names.throwOnInvalidName(init.zones, 'zone name', 1);
-        validateLatitude(init.coord.latitude).getValueOrThrow();
-        validateLongitude(init.coord.longitude).getValueOrThrow();
-        if (init.alternateNames) {
-            Names.throwOnInvalidName(init.alternateNames, 'alternate name');
-        }
-    }
-
-    public static getDirectoryLookupOptions(): DirectoryLookupOptions<Poi, PoiProperties, PoiKeys> {
-        return {
-            threshold: 0.8,
-            textSearchKeys: [
-                {
-                    name: 'name',
-                    weight: 0.7,
-                },
-                {
-                    name: 'alternateNames',
-                    weight: 0.3,
-                },
-            ],
-            alternateKeys: ['alternateNames'],
-        };
-    }
-};
-
-export class PoiDirectory<P extends Poi> extends Directory<P, PoiProperties, PoiKeys> {
-    public constructor(pois?: Iterable<P>) {
-        super(Poi.getDirectoryLookupOptions(), pois);
-    }
-};
-
+}

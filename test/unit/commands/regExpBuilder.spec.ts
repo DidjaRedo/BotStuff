@@ -79,11 +79,11 @@ describe('RegExpBuilder static class', (): void => {
                 input: string;
                 isMatch: boolean;
                 matches?: (string|undefined)[];
-            };
+            }
             interface RegExpBuilderTest {
                 source: string[]|string;
                 cases: RegExpBuilderTestCase[];
-            };
+            }
             [
                 {
                     source: '!place [words] @ [words]',

@@ -1,7 +1,7 @@
 import * as PoiLookupOptions from '../../../src/places/poiLookupOptions';
 import { GlobalPoiDirectory } from '../../../src/places/globalPoiDirectory';
 import { Poi } from '../../../src/places/poi';
-import { generateTestPoiData } from '../../helpers/placeHelpers';
+import { TestPoiGenerator } from '../../helpers/placeHelpers';
 /*
  * Copyright (c) 2020 Erik Fortune
  *
@@ -27,7 +27,7 @@ describe('GlobalPoiDirectory class', () => {
     describe('constructor', () => {
         it('should construct with default options', () => {
             const dir = new GlobalPoiDirectory<Poi>();
-            expect(dir.options).toEqual(PoiLookupOptions.Default);
+            expect(dir.options).toEqual(PoiLookupOptions.defaultProperties);
             expect(dir.pois.size).toBe(0);
             expect(dir.zones.size).toBe(0);
             expect(dir.cities.size).toBe(0);
@@ -36,13 +36,13 @@ describe('GlobalPoiDirectory class', () => {
         it('should construct with supplied options', () => {
             const dir = new GlobalPoiDirectory<Poi>({ allowedZones: ['Zone 1'] });
             expect(dir.options).toEqual({
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 allowedZones: ['zone1'],
             });
         });
 
         it('should construct with supplied POIs creating zones and cities as necssary', () => {
-            const testData = generateTestPoiData([
+            const testData = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
             ]);
             const testPois = testData.getPois();
@@ -54,13 +54,13 @@ describe('GlobalPoiDirectory class', () => {
         });
 
         it('should ignore disallowed cities by default', () => {
-            const testData = generateTestPoiData([
+            const testData = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
             ]);
             const testPois = testData.getPois();
 
             const dir = new GlobalPoiDirectory<Poi>({
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 allowedCities: ['City B'],
             }, testPois);
 
@@ -70,13 +70,13 @@ describe('GlobalPoiDirectory class', () => {
         });
 
         it('should ignore disallowed zones by default', () => {
-            const testData = generateTestPoiData([
+            const testData = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
             ]);
             const testPois = testData.getPois();
 
             const dir = new GlobalPoiDirectory<Poi>({
-                ...PoiLookupOptions.Default,
+                ...PoiLookupOptions.defaultProperties,
                 allowedZones: ['Zone 0', 'Zone 1'],
             }, testPois);
 
@@ -86,14 +86,14 @@ describe('GlobalPoiDirectory class', () => {
         });
 
         it('should throw for disallowed cities or zones if specified', () => {
-            const testData = generateTestPoiData([
+            const testData = TestPoiGenerator.generate([
                 'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
             ]);
             const testPois = testData.getPois();
 
             expect(() => {
                 const __ = new GlobalPoiDirectory({ // eslint-disable-line
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     onNonAllowedCities: 'error',
                     allowedCities: ['City A', 'City B', 'City D'],
                 }, testPois);
@@ -101,7 +101,7 @@ describe('GlobalPoiDirectory class', () => {
 
             expect(() => {
                 const __ = new GlobalPoiDirectory({ // eslint-disable-line
-                    ...PoiLookupOptions.Default,
+                    ...PoiLookupOptions.defaultProperties,
                     onNonAllowedZones: 'error',
                     allowedZones: ['Zone 0', 'Zone 2'],
                 }, testPois);
@@ -110,7 +110,7 @@ describe('GlobalPoiDirectory class', () => {
     });
 
     describe('tryGetPoisExact method', () => {
-        const testData = generateTestPoiData([
+        const testData = TestPoiGenerator.generate([
             'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
         ]);
         testData.poiProperties[0].alternateNames = ['First POI'];
@@ -126,10 +126,10 @@ describe('GlobalPoiDirectory class', () => {
                 'POI A0',
                 'poi   c12',
             ].forEach((name) => {
-                expect(dir.tryGetPoisExact(name)).toHaveLength(1);
+                expect(dir.lookupExact(name)).toHaveLength(1);
             });
 
-            expect(dir.tryGetPoisExact('allowed DUPLICATE')).toHaveLength(2);
+            expect(dir.lookupExact('allowed DUPLICATE')).toHaveLength(2);
         });
 
         it('should return no result for non-matching pois', () => {
@@ -137,13 +137,13 @@ describe('GlobalPoiDirectory class', () => {
                 'FirstPois',
                 'c12 poi',
             ].forEach((name) => {
-                expect(dir.tryGetPoisExact(name)).toHaveLength(0);
+                expect(dir.lookupExact(name)).toHaveLength(0);
             });
         });
     });
 
     describe('tryGetPoisFuzzy method', () => {
-        const testData = generateTestPoiData([
+        const testData = TestPoiGenerator.generate([
             'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
         ]);
         testData.poiProperties[0].alternateNames = ['First POI'];
@@ -158,10 +158,10 @@ describe('GlobalPoiDirectory class', () => {
                 'first',
                 'poi d',
             ].forEach((name) => {
-                expect(dir.tryGetPoisFuzzy(name)).toHaveLength(1);
+                expect(dir.lookupFuzzy(name)).toHaveLength(1);
             });
 
-            expect(dir.tryGetPoisFuzzy('Point the')).toHaveLength(2);
+            expect(dir.lookupFuzzy('Point the')).toHaveLength(2);
         });
 
         it('should return no result for non-matching pois', () => {
@@ -169,13 +169,13 @@ describe('GlobalPoiDirectory class', () => {
                 'FirstPois',
                 'c12 poi',
             ].forEach((name) => {
-                expect(dir.tryGetPoisFuzzy(name)).toHaveLength(0);
+                expect(dir.lookupFuzzy(name)).toHaveLength(0);
             });
         });
     });
 
     describe('tryGetPois method', () => {
-        const testData = generateTestPoiData([
+        const testData = TestPoiGenerator.generate([
             'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
         ]);
         testData.poiProperties[0].alternateNames = ['First POI'];
@@ -183,8 +183,8 @@ describe('GlobalPoiDirectory class', () => {
         testData.poiProperties[5].alternateNames = ['Point the Second', 'duplicate'];
         const testPois = testData.getPois();
 
-        describe('with noFuzzyLookup', () =>{
-            const dir = new GlobalPoiDirectory({ noFuzzyLookup: true }, testPois);
+        describe('with noTextSearch', () =>{
+            const dir = new GlobalPoiDirectory({ noTextSearch: true }, testPois);
 
             it('should correctly look up pois by an exact normalized match on name or alternate name', () => {
                 [
@@ -192,10 +192,10 @@ describe('GlobalPoiDirectory class', () => {
                     'POI A0',
                     'poi   c12',
                 ].forEach((name) => {
-                    expect(dir.tryGetPois(name)).toHaveLength(1);
+                    expect(dir.lookup(name)).toHaveLength(1);
                 });
 
-                expect(dir.tryGetPoisExact('DUPLICATE')).toHaveLength(2);
+                expect(dir.lookupExact('DUPLICATE')).toHaveLength(2);
             });
 
             it('should return no result for non-matching pois', () => {
@@ -203,7 +203,7 @@ describe('GlobalPoiDirectory class', () => {
                     'point the',
                     'first',
                 ].forEach((name) => {
-                    expect(dir.tryGetPoisExact(name)).toHaveLength(0);
+                    expect(dir.lookupExact(name)).toHaveLength(0);
                 });
             });
         });
@@ -215,10 +215,10 @@ describe('GlobalPoiDirectory class', () => {
                     'first',
                     'poi d',
                 ].forEach((name) => {
-                    expect(dir.tryGetPois(name)).toHaveLength(1);
+                    expect(dir.lookup(name)).toHaveLength(1);
                 });
 
-                expect(dir.tryGetPoisFuzzy('Point the')).toHaveLength(2);
+                expect(dir.lookupFuzzy('Point the')).toHaveLength(2);
             });
 
             it('should return no result for non-matching pois', () => {
@@ -226,7 +226,7 @@ describe('GlobalPoiDirectory class', () => {
                     'firstpoi',
                     'poi   c12',
                 ].forEach((name) => {
-                    expect(dir.tryGetPois(name)).toHaveLength(0);
+                    expect(dir.lookup(name)).toHaveLength(0);
                 });
             });
         });

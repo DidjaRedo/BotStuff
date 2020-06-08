@@ -29,7 +29,7 @@ describe('NormalizedMap class', (): void => {
         normalizedName: string;
         payload?: string;
         next?: BogusObject;
-    };
+    }
 
     function bogusInit(name: string, normalizedName: string): Result<BogusObject> {
         return succeed({ name, normalizedName });
@@ -377,7 +377,7 @@ describe('NormalizedMap class', (): void => {
     });
 
     describe('iterators', () => {
-        const map = new NormalizedMap();
+        const map = new NormalizedMap<{ name: string}>();
         const names = ['Element 1', 'second ELEMENT', 'Third Element'];
         const normalizedNames = names.map((n) => Names.normalizeOrThrow(n));
         const added = [];
@@ -388,7 +388,7 @@ describe('NormalizedMap class', (): void => {
         describe('forEach method', (): void => {
             it('should enumerate all elements passing normalized key names', (): void => {
                 const found = [];
-                map.forEach((e: object, n: string): void => {
+                map.forEach((e: { name: string }, n: string): void => {
                     found.push(e);
                     const gotName = (e as { name: string }).name;
                     expect(Names.normalizeOrThrow(gotName)).toEqual(n);
@@ -416,7 +416,7 @@ describe('NormalizedMap class', (): void => {
     });
 
     describe('select method', (): void => {
-        const map = new NormalizedMap();
+        const map = new NormalizedMap<{ name: string }>();
         const names = ['Element 1', 'second ELEMENT', 'Third Element'];
         names.forEach((n: string): void => {
             map.set(n, { name: n });
@@ -425,7 +425,7 @@ describe('NormalizedMap class', (): void => {
 
         it('should invoke the select method for each element', (): void => {
             let count = 0;
-            map.select((value: object, key: string): object => {
+            map.select((value: { name: string }, key: string) => {
                 count++;
                 expect(key).toEqual(Names.normalizeOrThrow(key));
                 return value;
@@ -434,7 +434,7 @@ describe('NormalizedMap class', (): void => {
         });
 
         it('should not include elements in the return for which the select method returns undefined', (): void => {
-            const selected = map.select((value: object, key: string): object => {
+            const selected = map.select((value: { name: string }, key: string) => {
                 if (value) {
                     expect(key).toEqual(Names.normalizeOrThrow(key));
                     return value;
@@ -445,7 +445,7 @@ describe('NormalizedMap class', (): void => {
         });
 
         it('should include elements in the return for which the select method returns a falsy value other than undefined', (): void => {
-            const selected = map.select((value: object, key: string): object => {
+            const selected = map.select((value: { name: string }, key: string) => {
                 expect(key).toEqual(Names.normalizeOrThrow(key));
                 return value;
             });
@@ -455,7 +455,7 @@ describe('NormalizedMap class', (): void => {
 
     describe('entries, keys, and values properties', (): void => {
         const map = new NormalizedMap();
-        const entries: [string, object][] = [
+        const entries: [string, { name: string }][] = [
             ['Element 1', { name: 'Element 1' }],
             ['second ELEMENT', { name: 'second ELEMENT' }],
             ['Third Element', { name: 'Third Element' }],

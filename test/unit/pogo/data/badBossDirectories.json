@@ -1,0 +1,119 @@
+[
+    {
+        "source": [
+            {
+                "tier": 5,
+                "bosses": [
+                    [
+                        "Darkrai",
+                        491
+                    ]
+                ]
+            }
+        ],
+        "expected": "no matching converter"
+    },
+    {
+        "source": [
+            {
+                "tier": 5,
+                "bosses": [ "Thundurus Incarnate Forme|Thundurus, 642, 2, 1828, 1911, 2285, 2389" ]
+            }
+        ],
+        "expected": "no matching converter"
+    },
+    {
+        "source": [
+            {
+                "tier": 5,
+                "bosses": [ 
+                    ["Thundurus Incarnate Forme|Thundurus", 642, 2, 1828, 1911, 2285, 2389],
+                    ["Thundurus Incarnate Forme|Thundurus", 642, 2, 1828, 1911, 2285, 2389]
+                ]
+            }
+        ],
+        "expected": "duplicate entries"
+    },
+    {
+        "source": [
+            {
+                "tier": 5,
+                "bosses": [ 
+                    ["Thundurus Incarnate Forme|Thundurus", 642, 2, 1828, 1911, 2285, 2389],
+                    ["Thundurus Incarnate Forme|*Thundurus|*Incarnate", 642, 2, 1828, 1911, 2285, 2389]
+                ]
+            }
+        ],
+        "expected": "display name multiply defined"
+    },
+    {
+        "source": [
+            {
+                "tier": 4,
+                "bosses": [ 
+                    {
+                        "tier": 5,
+                        "name": "Tornadus Incarnate Forme",
+                        "alternateNames": [ "Tornadus" ],
+                        "pokedexNumber": 641,
+                        "numRaiders": 2,
+                        "cpRange": { "min": 1828, "max": 1911 },
+                        "boostedCpRange": { "min": 2285, "max": 2389 }
+                    }
+                ]
+            }
+        ],
+        "expected": "conflicting tier"
+    },
+    {
+        "source": [
+            {
+                "tier": 5,
+                "status": [
+                    {
+                        "active": true,
+                        "bosses": ["thundurus"]
+                    }
+                ],
+                "bosses": [ 
+                    {
+                        "tier": 5,
+                        "name": "Tornadus Incarnate Forme",
+                        "alternateNames": [ "Tornadus" ],
+                        "pokedexNumber": 641,
+                        "numRaiders": 2,
+                        "cpRange": { "min": 1828, "max": 1911 },
+                        "boostedCpRange": { "min": 2285, "max": 2389 }
+                    }
+                ]
+            }
+        ],
+        "expected": "thundurus not found"
+    },
+    {
+        "source": [
+            {
+                "tier": 5,
+                "status": [
+                    {
+                        "active": true,
+                        "bosses": ["Tornadus Incarnate Forme"]
+                    }
+                ],
+                "bosses": [ 
+                    {
+                        "tier": 5,
+                        "name": "Tornadus Incarnate Forme",
+                        "alternateNames": [ "Tornadus" ],
+                        "pokedexNumber": 641,
+                        "numRaiders": 2,
+                        "cpRange": { "min": 1828, "max": 1911 },
+                        "boostedCpRange": { "min": 2285, "max": 2389 },
+                        "active": "2020-06-20 13:00..2020-06-20 13:05"
+                    }
+                ]
+            }
+        ],
+        "expected": "status multiply defined"
+    }
+]

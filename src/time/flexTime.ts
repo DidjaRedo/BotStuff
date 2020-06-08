@@ -51,7 +51,7 @@ function findFutureHour(now, hours, minutes): number {
     return (hours % 24);
 }
 
-function _tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay {
+function tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay {
     const match = flexTimeRegex.exec(str);
 
     if (match !== null) {
@@ -100,6 +100,7 @@ function _tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDa
  * Converts a flexible time specification into the nearest future time.
  */
 export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
+    public static substringRegex = flexTimeSubstringRegex;
     private _hours: number;
     private _minutes: number;
 
@@ -121,7 +122,7 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
         if ((init !== undefined) && (init !== '')) {
             /* istanbul ignore else */
             if ((typeof init === 'string') && (init !== '')) {
-                const result = _tryGetValuesFromString(init, now);
+                const result = tryGetValuesFromString(init, now);
                 if (!result) {
                     throw new Error(`Invalid time string "${init}".`);
                 }
@@ -142,6 +143,71 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
 
         this._hours = now.getHours();
         this._minutes = now.getMinutes();
+    }
+
+    /**
+     * Creates a FlexTime given a base time and a delta in minutes
+     * @param {number|TimeOfDayProvider} fromTime - Base time
+     * @param {number|string} [deltaInMinutes] - Delta to be applied
+     */
+    public static getFlexTime(fromTime?: number|TimeOfDayProvider, deltaInMinutes?: number|string): FlexTime {
+        let date = ((typeof fromTime === 'number' ? new Date(fromTime) : fromTime)) || new Date();
+        if (date instanceof FlexTime) {
+            date = date.toDate();
+        }
+
+        if (deltaInMinutes) {
+            const minutes = Number(deltaInMinutes);
+            const deltaInMilliseconds = minutes * 60 * 1000;
+            const timeInMillis = (date as Date).getTime() + deltaInMilliseconds;
+            date = new Date(timeInMillis);
+        }
+        return new FlexTime(undefined, date);
+    }
+
+    public static formatTimeAmPm(date: TimeOfDayProvider|number): string {
+        if (typeof date === 'number') {
+            date = new Date(date);
+        }
+
+        let hours = date.getHours();
+        const minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const minuteString = minutes < 10 ? `0${minutes}` : `${minutes}`;
+        const strTime = `${hours}:${minuteString} ${ampm}`;
+        return strTime;
+    }
+
+    public static formatTime24Hours(date: TimeOfDayProvider|number): string {
+        if (typeof date === 'number') {
+            date = new Date(date);
+        }
+
+        const hour = date.getHours();
+        const minutes = date.getMinutes();
+
+        const hourString = (hour < 10) ? `0${hour}` : `${hour}`;
+        const minuteString = (minutes < 10) ? `0${minutes}` : `${minutes}`;
+        return `${hourString}${minuteString}`;
+    }
+
+    public static dateToUnixTimestamp(date?: Date): number {
+        return Math.round(date ? date.getTime() / 1000 : 0);
+    }
+
+    public static getDeltaDate(date: Date, deltaInMinutes: number): Date {
+        return new Date(date.getTime() + (deltaInMinutes * 60 * 1000));
+    }
+
+    public static getDeltaFromNow(deltaInMinutes: number): Date {
+        return new Date(Date.now() + (deltaInMinutes * 60 * 1000));
+    }
+
+    public static getDeltaInMinutes(date1: Date, date2: Date): number {
+        return (date1.getTime() - date2.getTime()) / (60 * 1000);
     }
 
     /**
@@ -241,71 +307,4 @@ export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
         result = result.replace('t', (this._hours < 12) ? 'a' : 'p');
         return result;
     }
-
-    /**
-     * Creates a FlexTime given a base time and a delta in minutes
-     * @param {number|TimeOfDayProvider} fromTime - Base time
-     * @param {number|string} [deltaInMinutes] - Delta to be applied
-     */
-    public static getFlexTime(fromTime?: number|TimeOfDayProvider, deltaInMinutes?: number|string): FlexTime {
-        let date = ((typeof fromTime === 'number' ? new Date(fromTime) : fromTime)) || new Date();
-        if (date instanceof FlexTime) {
-            date = date.toDate();
-        }
-
-        if (deltaInMinutes) {
-            const minutes = Number(deltaInMinutes);
-            const deltaInMilliseconds = minutes * 60 * 1000;
-            const timeInMillis = (date as Date).getTime() + deltaInMilliseconds;
-            date = new Date(timeInMillis);
-        }
-        return new FlexTime(undefined, date);
-    }
-
-    public static formatTimeAmPm(date: TimeOfDayProvider|number): string {
-        if (typeof date === 'number') {
-            date = new Date(date);
-        }
-
-        let hours = date.getHours();
-        const minutes = date.getMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-
-        hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
-        const minuteString = minutes < 10 ? `0${minutes}` : `${minutes}`;
-        const strTime = `${hours}:${minuteString} ${ampm}`;
-        return strTime;
-    }
-
-    public static formatTime24Hours(date: TimeOfDayProvider|number): string {
-        if (typeof date === 'number') {
-            date = new Date(date);
-        }
-
-        const hour = date.getHours();
-        const minutes = date.getMinutes();
-
-        const hourString = (hour < 10) ? `0${hour}` : `${hour}`;
-        const minuteString = (minutes < 10) ? `0${minutes}` : `${minutes}`;
-        return `${hourString}${minuteString}`;
-    };
-
-    public static dateToUnixTimestamp(date?: Date): number {
-        return Math.round(date ? date.getTime() / 1000 : 0);
-    }
-
-    public static getDeltaDate(date: Date, deltaInMinutes: number): Date {
-        return new Date(date.getTime() + (deltaInMinutes * 60 * 1000));
-    }
-
-    public static getDeltaFromNow(deltaInMinutes: number): Date {
-        return new Date(Date.now() + (deltaInMinutes * 60 * 1000));
-    }
-
-    public static getDeltaInMinutes(date1: Date, date2: Date): number {
-        return (date1.getTime() - date2.getTime()) / (60 * 1000);
-    }
-
-    public static substringRegex = flexTimeSubstringRegex;
 }

@@ -181,5 +181,5 @@ export class NormalizedMap<T> extends Map<string, T> {
         });
         return rtrn;
     }
-};
+}
 

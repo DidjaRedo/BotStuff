@@ -21,32 +21,55 @@
  */
 
 import { NamedThing, Names } from './names';
+import Fuse from 'fuse.js';
 import { KeyedThing } from './keyedThing';
 
-import Fuse = require('fuse.js');
 
 export interface FieldSearchWeight<T> {
     name: keyof T;
     weight: number;
-};
+}
 
-export interface DirectoryLookupOptions<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing> {
+function toFuseKeys<T>(fsws: FieldSearchWeight<T>[]): Fuse.FuseOptionKeyObject[] {
+    return fsws.map((f): Fuse.FuseOptionKeyObject => {
+        return {
+            name: f.name.toString(),
+            weight: f.weight,
+        };
+    });
+}
+
+export interface DirectoryOptions<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing> {
     threshold: number;
     textSearchKeys: FieldSearchWeight<TS>[];
     alternateKeys?: (keyof TK)[];
     enforceAlternateKeyUniqueness?: (keyof TK)[];
 }
 
-export interface LookupResult<T> {
+export interface DirectoryLookupOptions {
+    noTextSearch?: boolean;
+    noExactLookup?: boolean;
+}
+
+export interface SearchResult<T> {
     score: number;
     item: T;
 }
 
+export type DirectoryFilter<T, TO> = (item: T, options: TO) => boolean;
+
 // TK are the keys
 // TS are the searchable properties
 // T is the instantiated object
-export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing> {
-    public constructor(options: DirectoryLookupOptions<T, TS, TK>, elements?: Iterable<T>) {
+// TLO is lookup options
+export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing, TLO extends DirectoryLookupOptions> {
+    private _all: T[];
+    private _byKey: Map<string, T>;
+    private _byAlternateKey: Map<keyof TK, Map<string, T|T[]>>;
+    private _search: Fuse<T, { includeScore: true }>;
+    private _options: DirectoryOptions<T, TS, TK>;
+
+    public constructor(options: DirectoryOptions<T, TS, TK>, elements?: Iterable<T>) {
         this._all = [];
         this._byKey = new Map<string, T>();
         this._byAlternateKey = new Map<keyof TK, Map<string, T|T[]>>();
@@ -55,19 +78,124 @@ export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends 
         this.addRange(elements);
     }
 
-    private _all: T[];
-    private _byKey: Map<string, T>;
-    private _byAlternateKey: Map<keyof TK, Map<string, T|T[]>>;
-    private _search: Fuse<T, { includeScore: true }>;
-    private _options: DirectoryLookupOptions<T, TS, TK>;
+    public add(elem: T): T {
+        this._validateItemDoesNotConflict(elem);
+        return this._add(elem);
+    }
 
-    private isUniqueKey(key: keyof TK): boolean {
+    public addRange(elements?: Iterable<T>): void {
+        if (elements) {
+            this._validateItemsDoNotConflict(elements);
+            for (const elem of elements) {
+                this._add(elem);
+            }
+        }
+    }
+
+    public isAlternateKey(key: keyof TK): boolean {
+        /* istanbul ignore next */
+        return this._options?.alternateKeys?.includes(key) ?? false;
+    }
+
+    public get alternateKeys(): (keyof TK)[] {
+        return this._options.alternateKeys || [];
+    }
+
+    public forEach(callback: {(item: T, key?: string)}): void {
+        this._all.forEach((item: T): void => {
+            callback(item, item.primaryKey);
+        });
+    }
+
+    public getKeys(props: T): TK|undefined {
+        const elem = this.get(props.primaryKey);
+        if (elem && (elem !== props)) {
+            throw new Error(`Directory element "${props.primaryKey}" does not match supplied object.`);
+        }
+        return elem?.keys;
+    }
+
+    public get(name: string): T|undefined {
+        return this._byKey.get(Names.normalizeOrThrow(name));
+    }
+
+    public getByFieldExact(field: keyof TK, name: string): T[] {
+        if (!this.isAlternateKey(field)) {
+            throw new Error(`Field ${field} is not an alternate key.`);
+        }
+
+        const map = this._byAlternateKey.get(field);
+        const result = map?.get(Names.normalizeOrThrow(name));
+        if (result === undefined) {
+            return [];
+        }
+        else if (!Array.isArray(result)) {
+            return [result];
+        }
+        return result;
+    }
+
+    public getByAnyFieldExact(name: string): T[] {
+        const wantKey = Names.normalizeOrThrow(name);
+        const altKeys = this.alternateKeys;
+
+        const raw = [
+            [this._byKey.get(wantKey)],
+            ...altKeys.map((k) => {
+                const got = this._byAlternateKey.get(k)?.get(wantKey);
+                return Array.isArray(got) ? got : [got];
+            }),
+        ].filter((t)=> t[0] !== undefined);
+        const merged = raw.reduce((a, c) => a.concat(c), []);
+        return merged;
+    }
+
+    public searchByTextFields(name: string): SearchResult<T>[] {
+        if (!this._search) {
+            this._initSearch();
+        }
+
+        const matches = this._search.search(name);
+        if (matches.length > 0) {
+            return matches.map((match: Fuse.FuseResult<T>): SearchResult<T> => {
+                return {
+                    item: match.item,
+                    score: 1 - match.score,
+                };
+            });
+        }
+
+        return [];
+    }
+
+    public lookup(name: string, options?: TLO, filter?: DirectoryFilter<T, TLO>): SearchResult<T>[] {
+        const effectiveOptions: DirectoryLookupOptions = options ?? {};
+        let candidates: SearchResult<T>[] = [];
+
+        if (effectiveOptions.noExactLookup !== true) {
+            candidates = this.getByAnyFieldExact(name).map((v) => {
+                return { item: v, score: 1 };
+            });
+        }
+
+        if ((candidates.length < 1) && (effectiveOptions.noTextSearch !== true)) {
+            candidates = this.searchByTextFields(name);
+        }
+
+        if (candidates.length > 0) {
+            candidates = this._adjustLookupResults(candidates, options, filter);
+        }
+
+        return candidates;
+    }
+
+    private _isUniqueKey(key: keyof TK): boolean {
         /* istanbul ignore next */
         return (this._options.alternateKeys?.includes(key) === true)
             && (this._options.enforceAlternateKeyUniqueness?.includes(key) === true);
     }
 
-    private hasUniqueKeys(): boolean {
+    private _hasUniqueKeys(): boolean {
         return (this._options.alternateKeys?.length > 0) && (this._options.enforceAlternateKeyUniqueness?.length > 0);
     }
 
@@ -76,10 +204,10 @@ export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends 
             throw new Error(`Duplicate entries for key ${elem.primaryKey}.`);
         }
 
-        if (this.hasUniqueKeys()) {
+        if (this._hasUniqueKeys()) {
             for (const key of this._options.alternateKeys) {
                 /* istanbul ignore next */
-                if (this.isUniqueKey(key)) {
+                if (this._isUniqueKey(key)) {
                     const map = this._byAlternateKey.get(key);
                     if (map) {
                         const altKeyValue = elem.keys[key];
@@ -116,10 +244,10 @@ export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends 
             }
             set.add(elem.primaryKey);
 
-            if (this.hasUniqueKeys()) {
+            if (this._hasUniqueKeys()) {
                 for (const k of this._options.alternateKeys) {
                     /* istanbul ignore next */
-                    if (this.isUniqueKey(k)) {
+                    if (this._isUniqueKey(k)) {
                         const altKeyValue = elem.keys[k];
                         const values = Array.isArray(altKeyValue) ? altKeyValue : [altKeyValue];
                         set = pending.get(k);
@@ -184,32 +312,17 @@ export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends 
         return elem;
     }
 
-    public add(elem: T): T {
-        this._validateItemDoesNotConflict(elem);
-        return this._add(elem);
-    }
-
-    public addRange(elements?: Iterable<T>): void {
-        if (elements) {
-            this._validateItemsDoNotConflict(elements);
-            for (const elem of elements) {
-                this._add(elem);
-            }
-        }
-    }
-
     private _initSearch(): void {
-        this._search = new Fuse(this._all, {
+        this._search = new Fuse<T, Fuse.IFuseOptions<T>>(this._all, {
             shouldSort: true,
-            caseSensitive: false,
+            isCaseSensitive: false,
             includeMatches: true,
             includeScore: true,
             threshold: 1 - this._options.threshold,
             location: 0,
             distance: 0,
-            maxPatternLength: 32,
             minMatchCharLength: 1,
-            keys: this._options.textSearchKeys,
+            keys: toFuseKeys(this._options.textSearchKeys),
         });
     }
 
@@ -221,79 +334,27 @@ export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends 
         return Array.from(this._byKey.keys());
     }
 
-    public isAlternateKey(key: keyof TK): boolean {
-        /* istanbul ignore next */
-        return this._options?.alternateKeys?.includes(key) ?? false;
+    protected abstract _adjustLookupResults(
+        results: SearchResult<T>[],
+        options?: TLO,
+        filter?: DirectoryFilter<T, TLO>,
+    ): SearchResult<T>[];
+}
+
+export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends NamedThing> extends DirectoryBase<T, TS, TK, DirectoryLookupOptions> {
+    public constructor(options: DirectoryOptions<T, TS, TK>, elements?: Iterable<T>) {
+        super(options, elements);
     }
 
-    public get alternateKeys(): (keyof TK)[] {
-        return this._options.alternateKeys || [];
-    }
-
-    public forEach(callback: {(item: T, key?: string)}): void {
-        this._all.forEach((item: T): void => {
-            callback(item, item.primaryKey);
-        });
-    }
-
-    public getKeys(props: T): TK|undefined {
-        const elem = this.get(props.primaryKey);
-        if (elem && (elem !== props)) {
-            throw new Error(`Directory element "${props.primaryKey}" does not match supplied object.`);
+    protected _adjustLookupResults(
+        results: SearchResult<T>[],
+        options?: DirectoryLookupOptions,
+        filter?: DirectoryFilter<T, DirectoryLookupOptions>,
+    ): SearchResult<T>[] {
+        // istanbul ignore next
+        if (filter) {
+            return results.filter((item) => filter(item.item, options));
         }
-        return elem?.keys;
+        return results;
     }
-
-    public get(name: string): T|undefined {
-        return this._byKey.get(Names.normalizeOrThrow(name));
-    }
-
-    public getByFieldExact(field: keyof TK, name: string): T[] {
-        if (!this.isAlternateKey(field)) {
-            throw new Error(`Field ${field} is not an alternate key.`);
-        }
-
-        const map = this._byAlternateKey.get(field);
-        const result = map?.get(Names.normalizeOrThrow(name));
-        if (result === undefined) {
-            return [];
-        }
-        else if (!Array.isArray(result)) {
-            return [result];
-        }
-        return result;
-    }
-
-    public getByAnyFieldExact(name: string): T[] {
-        const wantKey = Names.normalizeOrThrow(name);
-        const altKeys = this.alternateKeys;
-
-        const raw = [
-            [this._byKey.get(wantKey)],
-            ...altKeys.map((k) => {
-                const got = this._byAlternateKey.get(k)?.get(wantKey);
-                return Array.isArray(got) ? got : [got];
-            }),
-        ].filter((t)=> t[0] !== undefined);
-        const merged = raw.reduce((a, c) => a.concat(c), []);
-        return merged;
-    }
-
-    public lookup(name: string): LookupResult<T>[] {
-        if (!this._search) {
-            this._initSearch();
-        }
-
-        const matches = this._search.search(name);
-        if (matches.length > 0) {
-            return matches.map((match: Fuse.FuseResultWithScore<T>): LookupResult<T> => {
-                return {
-                    item: match.item,
-                    score: 1 - match.score,
-                };
-            });
-        }
-
-        return [];
-    }
-};
+}

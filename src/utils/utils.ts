@@ -47,4 +47,4 @@ export class Utils {
     public static toArray<T>(source: Iterable<T>): T[] {
         return Utils.select(source, (elem: T): T => elem);
     }
-};
+}
