@@ -81,7 +81,18 @@ export class FakeKtDirectory extends DirectoryBase<FakeKeyedThing, FakeProps, Fa
         super(options, elements);
     }
 
-    protected _adjustLookupResults(results: SearchResult<FakeKeyedThing>[], options?: FakeKtLookupOptions): SearchResult<FakeKeyedThing>[] {
+    public static filterKt(thing: FakeKeyedThing, options?: Partial<FakeKtLookupOptions>): boolean {
+        return (options?.specialFilter === undefined)  || (options.specialFilter === thing.isSpecial);
+    }
+
+    protected _filterItems(items: FakeKeyedThing[], options?: Partial<FakeKtLookupOptions>): FakeKeyedThing[] {
+        if (options === undefined) {
+            return items;
+        }
+        return items.filter((i) => FakeKtDirectory.filterKt(i, options));
+    }
+
+    protected _adjustSearchResults(results: SearchResult<FakeKeyedThing>[], options?: FakeKtLookupOptions): SearchResult<FakeKeyedThing>[] {
         if (options?.specialFilter !== undefined) {
             return results.filter((r) => r.item.isSpecial === options.specialFilter);
         }

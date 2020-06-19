@@ -21,18 +21,16 @@
  */
 
 export type Result<T> = Success<T> | Failure<T>;
-export type SuccessContinuation<T> = (value: T) => Result<T> | undefined;
-export type FailureContinuation<T> = (message: string) => Result<T> | undefined;
-export type ResultContinuations<T> = { success?: SuccessContinuation<T>; failure?: FailureContinuation<T> };
+export type SuccessContinuation<T, TN> = (value: T) => Result<TN>;
+export type FailureContinuation<T> = (message: string) => Result<T>;
 
 export interface IResult<T> {
     isSuccess(): this is Success<T>;
     isFailure(): this is Failure<T>;
     getValueOrThrow(): T;
     getValueOrDefault(dflt?: T): T|undefined;
-    onSuccess(cb: SuccessContinuation<T>): IResult<T>;
-    onFailure(cb: FailureContinuation<T>): IResult<T>;
-    on(cbs: ResultContinuations<T>): IResult<T>;
+    onSuccess<TN>(cb: SuccessContinuation<T, TN>): Result<TN>;
+    onFailure(cb: FailureContinuation<T>): Result<T>;
 }
 
 export class Success<T> implements IResult<T> {
@@ -62,18 +60,11 @@ export class Success<T> implements IResult<T> {
         return this._value ?? dflt;
     }
 
-    public onSuccess(cb: SuccessContinuation<T>): Result<T> {
-        return cb(this.value) ?? this;
+    public onSuccess<TN>(cb: SuccessContinuation<T, TN>): Result<TN> {
+        return cb(this.value);
     }
 
-    public onFailure(_: FailureContinuation<T>): Result<T> {
-        return this;
-    }
-
-    public on(cbs: ResultContinuations<T>): Result<T> {
-        if (cbs.success) {
-            return cbs.success(this.value) ?? this;
-        }
+    public onFailure<TN>(_: FailureContinuation<T>): Result<T> {
         return this;
     }
 }
@@ -105,19 +96,12 @@ export class Failure<T> implements IResult<T> {
         return dflt;
     }
 
-    public onSuccess(_: SuccessContinuation<T>): Result<T> {
-        return this;
+    public onSuccess<TN>(_: SuccessContinuation<T, TN>): Result<TN> {
+        return new Failure(this.message);
     }
 
     public onFailure(cb: FailureContinuation<T>): Result<T> {
-        return cb(this.message) ?? this;
-    }
-
-    public on(cbs: ResultContinuations<T>): Result<T> {
-        if (cbs.failure) {
-            return cbs.failure(this.message) ?? this;
-        }
-        return this;
+        return cb(this.message);
     }
 }
 
@@ -151,6 +135,12 @@ export function captureResult<T>(func: () => T): Result<T> {
     }
 }
 
+/**
+ * Maps an Array of Result<T> to an array of <T>, if all results are
+ * successful.  If any results fail, returns failure with a concatenated
+ * summary of all failure messages.
+ * @param resultsIn The results to be mapped.
+ */
 export function mapResults<T>(resultsIn: Iterable<Result<T>>): Result<T[]> {
     const errors: string[] = [];
     const elements: T[] = [];
@@ -170,6 +160,11 @@ export function mapResults<T>(resultsIn: Iterable<Result<T>>): Result<T[]> {
     return succeed(elements);
 }
 
+/**
+ * Returns success with true if all results are successful.  If any are unsuccessful,
+ * returns failure with a concatenade summary of all failure messages.
+ * @param results The results to be tested.
+ */
 export function allSucceed(results: Iterable<Result<unknown>>): Result<boolean> {
     const errors: string[] = [];
 
@@ -183,4 +178,36 @@ export function allSucceed(results: Iterable<Result<unknown>>): Result<boolean> 
         return fail(errors.join('\n'));
     }
     return succeed(true);
+}
+
+export type FieldInitializers<T> = { [ key in keyof T ]: (state: Partial<T>) => Result<T[key]> };
+
+/**
+ * Populates an an object based on a prototype full of field initializers that return Result<T[key]>.
+ * Returns success with the populated object if all initializers succeed, or failure with a
+ * concatenated list of all failure messages.
+ * @param initializers An object with the shape of the target but with initializer functions for
+ * each property.
+ */
+export function populateObject<T>(initializers: FieldInitializers<T>): Result<T> {
+    const state = {} as { [key in keyof T]: T[key] };
+    const errors: string[] = [];
+
+    for (const key in initializers) {
+        // istanbul ignore else
+        if (initializers[key]) {
+            const result = initializers[key](state);
+            if (result.isSuccess()) {
+                state[key] = result.value;
+            }
+            else {
+                errors.push(result.message);
+            }
+        }
+    }
+
+    if (errors.length > 0) {
+        return fail(errors.join('\n'));
+    }
+    return succeed(state as T);
 }

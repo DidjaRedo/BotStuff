@@ -19,28 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import * as PoiLookupOptions from './poiLookupOptions';
-import { DirectoryBase, DirectoryFilter, SearchResult } from '../names/directory';
-import { Poi, PoiKeys, PoiProperties } from './poi';
 
-export class PoiDirectoryBase<P extends Poi, O extends PoiLookupOptions.Properties> extends DirectoryBase<P, PoiProperties, PoiKeys, PoiLookupOptions.Properties> {
-    public constructor(pois?: Iterable<P>) {
-        super(Poi.getDirectoryOptions(), pois);
+import { Success, succeed } from '../../src/utils/result';
+import { LoggerBase } from '../../src/utils/logger';
+
+export class ConsoleLogger extends LoggerBase {
+    protected _innerLog(message: string): Success<string> {
+        console.log(message);
+        return succeed(message);
     }
 
-    protected _filterItems(pois: P[], options?: Partial<O>): P[] {
-        // istanbul ignore next
-        if (options === undefined) {
-            return pois;
-        }
-        return pois.filter((p) => PoiLookupOptions.filterPoi(p, options));
-    }
-
-    protected _adjustSearchResults(
-        results: SearchResult<P>[],
-        options?: Partial<O>,
-        filter?: DirectoryFilter<P, O>,
-    ): SearchResult<P>[] {
-        return PoiLookupOptions.adjustSearchResults(results, options, filter);
+    protected _innerSilent(message: string): Success<string> {
+        console.error(message);
+        return succeed(undefined);
     }
 }
+

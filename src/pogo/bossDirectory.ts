@@ -31,6 +31,7 @@ import { Converter } from '../utils/converter';
 import { DateRange } from '../time/dateRange';
 import { NormalizedMap } from '../names/normalizedMap';
 import { RaidTier } from './pogo';
+import { loadJsonFile } from '../utils/jsonHelpers';
 
 export interface BossNamesByStatus {
     active: boolean|DateRange;
@@ -51,6 +52,11 @@ export interface BossLookupOptions extends DirectoryLookupOptions {
 export class BossDirectory extends DirectoryBase<Boss, BossProperties, BossKeys, BossLookupOptions> {
     public constructor(bosses?: Iterable<Boss>) {
         super(Boss.getDirectoryOptions(), bosses);
+    }
+
+    public static filterForOptions(boss: Boss, options?: Partial<BossLookupOptions>): boolean {
+        return ((options?.isActive === undefined) || (options.isActive === boss.isActive()))
+            && ((options?.tier === undefined) || (options.tier === boss.tier));
     }
 
     public addTier(tier: BossPropertiesByTier): Boss[] {
@@ -89,19 +95,26 @@ export class BossDirectory extends DirectoryBase<Boss, BossProperties, BossKeys,
         return toAdd;
     }
 
-    protected _adjustLookupResults(
+    protected _filterItems(
+        bosses: Boss[],
+        options?: Partial<BossLookupOptions>,
+    ): Boss[] {
+        if (options === undefined) {
+            return bosses;
+        }
+        return bosses.filter((b) => BossDirectory.filterForOptions(b, options));
+    }
+
+    protected _adjustSearchResults(
         results: SearchResult<Boss>[],
-        options?: BossLookupOptions,
+        options?: Partial<BossLookupOptions>,
         filter?: DirectoryFilter<Boss, BossLookupOptions>,
     ): SearchResult<Boss>[] {
         if (filter) {
             results = results.filter((r) => filter(r.item, options));
         }
         if (options) {
-            results = results.filter((r) => {
-                return ((options.isActive === undefined) || (options.isActive === r.item.isActive()))
-                    && ((options.tier === undefined) || (options.tier === r.item.tier));
-            });
+            results = results.filter((r) => BossDirectory.filterForOptions(r.item, options));
         }
         return results;
     }
@@ -145,3 +158,9 @@ export const bossDirectory = new Converter((from: unknown): Result<BossDirectory
 
     return succeed(dir);
 });
+
+export function loadBossDirectorySync(path: string): Result<BossDirectory> {
+    return loadJsonFile(path).onSuccess((json) => {
+        return bossDirectory.convert(json);
+    });
+}

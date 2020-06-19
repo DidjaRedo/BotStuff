@@ -21,12 +21,12 @@
  */
 
 import * as PoiLookupOptions from './poiLookupOptions';
+import { ItemArray, ResultArray } from '../names/directory';
 import { City } from './city';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
 import { Poi } from './poi';
 import { PoiDirectoryBase } from './poiDirectory';
-import { SearchResult } from '../names/directory';
 import { Zone } from './zone';
 
 export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookupOptions.Properties> {
@@ -63,23 +63,28 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
         this._updateZonesAndCities(poi);
     }
 
-    public lookupExact(name: string): SearchResult<P>[] {
-        return this.pois.getByAnyFieldExact(name).map((p) => {
-            return { item: p, score: 1 };
-        });
+    public getAll(options?: Partial<PO>): ItemArray<P> {
+        const effectiveOptions = this._getEffectiveOptions(options);
+        return this.pois.getAll(effectiveOptions);
     }
 
-    public lookupFuzzy(name: string): SearchResult<P>[] {
+    public lookupExact(name: string): ResultArray<P> {
+        return new ResultArray(name, ...this.pois.getByAnyFieldExact(name).map((p) => {
+            return { item: p, score: 1 };
+        }));
+    }
+
+    public lookupFuzzy(name: string): ResultArray<P> {
         return this.pois.searchByTextFields(name);
     }
 
-    public lookup(name: string, userOptions?: Partial<PO>): SearchResult<P>[] {
+    public lookup(name: string, userOptions?: Partial<PO>): ResultArray<P> {
         const options = this._getEffectiveOptions(userOptions);
         return this.pois.lookup(name, options, this._filterPoi);
     }
 
-    protected _filterPoi(_poi: P, _options: PO): boolean {
-        return true;
+    protected _filterPoi(poi: P, options: Partial<PO>): boolean {
+        return PoiLookupOptions.filterPoi(poi, options);
     }
 
     private _updateZonesAndCities(poi: P): void {

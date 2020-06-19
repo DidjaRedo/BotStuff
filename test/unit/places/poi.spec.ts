@@ -155,6 +155,27 @@ describe('Poi class', (): void => {
             });
         });
 
+        describe('isNear method', () => {
+            const poi = new Poi({
+                name: 'A POI',
+                city: 'Gotham',
+                zones: ['Red', 'Bright Blue'],
+                coord: { latitude: 40, longitude: -122 },
+            });
+            it('should return true if within the supplied distance from the specified point', () => {
+                // at latitude 40, one degree of longitude is ~85km
+                // so .1 is 8.5 km.
+                expect(poi.isNear({ latitude: 40, longitude: -121.99 }, 1000)).toBe(true);
+                expect(poi.isNear({ latitude: 40, longitude: -121.9 }, 1000)).toBe(false);
+                expect(poi.isNear({ latitude: 40, longitude: -121.9 }, 10000)).toBe(true);
+            });
+
+            it('should have a default raidius if radius is undefined', () => {
+                expect(poi.isNear({ latitude: 40, longitude: -121.99 })).toBe(true);
+                expect(poi.isNear({ latitude: 40, longitude: -121.9 })).toBe(false);
+            });
+        });
+
         describe('when passed multiple zones', (): void => {
             it('should return true if the Poi belongs any of the listed zones, using normalized names', (): void => {
                 [
@@ -236,6 +257,41 @@ describe('Poi class', (): void => {
                     { name: 'alternateNames' },
                 ],
                 alternateKeys: ['alternateNames'],
+            });
+        });
+    });
+
+    describe('toString method', () => {
+        it('should return the primaryKey of the POI', () => {
+            good.forEach((prop) => {
+                const poi = new Poi(prop);
+                expect(poi.toString()).toMatch(poi.primaryKey);
+            });
+        });
+    });
+
+    describe('toJson method', () => {
+        it('should construct a well-formed json object', () => {
+            good.forEach((prop) => {
+                const poi = new Poi(prop);
+                expect(poi.toJson()).toEqual(
+                    expect.objectContaining(prop),
+                );
+            });
+        });
+    });
+
+    describe('toArray method', () => {
+        it('should construct a well-formed array', () => {
+            good.forEach((prop) => {
+                const poi = new Poi(prop);
+                const asArray = poi.toArray();
+                expect(asArray).toHaveLength(5);
+                expect(asArray[0]).toEqual(poi.zones.join('|'));
+                expect(asArray[1]).toEqual(poi.city);
+                expect(asArray[2]).toEqual([poi.name, ...poi.alternateNames].join('|'));
+                expect(asArray[3]).toEqual(poi.coord.latitude);
+                expect(asArray[4]).toEqual(poi.coord.longitude);
             });
         });
     });

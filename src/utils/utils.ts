@@ -47,4 +47,14 @@ export class Utils {
     public static toArray<T>(source: Iterable<T>): T[] {
         return Utils.select(source, (elem: T): T => elem);
     }
+
+    public static ensureArray<T>(items?: T|T[]): T[] {
+        if (items === undefined) {
+            return [];
+        }
+        else if (!Array.isArray(items)) {
+            return [items];
+        }
+        return items;
+    }
 }

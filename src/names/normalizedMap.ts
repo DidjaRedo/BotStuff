@@ -38,12 +38,12 @@ export class NormalizedMap<T> extends Map<string, T> {
         this._updater = updater;
     }
 
-    public getStrict(name: string): T {
+    public getStrict(name: string): Result<T> {
         const existing = this.tryGet(name);
         if (existing === undefined) {
-            throw new Error(`Element ${name} does not exist.`);
+            return fail(`Element ${name} does not exist.`);
         }
-        return existing;
+        return succeed(existing);
     }
 
     public tryGet(name: string): T|undefined {
@@ -70,11 +70,12 @@ export class NormalizedMap<T> extends Map<string, T> {
         return this;
     }
 
-    public setStrict(name: string, value: T): this {
+    public setStrict(name: string, value: T): Result<T> {
         if (this.tryGet(name)) {
-            throw new Error(`Element ${name} already exists.`);
+            return fail(`Element ${name} already exists.`);
         }
-        return this.set(name, value);
+        this.set(name, value);
+        return succeed(value);
     }
 
     public trySet(name: string, value: T): Result<T> {
@@ -102,36 +103,8 @@ export class NormalizedMap<T> extends Map<string, T> {
         return super.has(Names.normalizeOrThrow(name));
     }
 
-    public clear(): void {
-        super.clear();
-    }
-
     public delete(name: string): boolean {
         return super.delete(Names.normalizeOrThrow(name));
-    }
-
-    public entries(): IterableIterator<[string, T]> {
-        return super.entries();
-    }
-
-    public keys(): IterableIterator<string> {
-        return super.keys();
-    }
-
-    public values(): IterableIterator<T> {
-        return super.values();
-    }
-
-    public get size(): number {
-        return super.size;
-    }
-
-    public [Symbol.iterator](): IterableIterator<[string, T]> {
-        return super[Symbol.iterator]();
-    }
-
-    public forEach(func: (elem: T, key: string, map: Map<string, T>) => void): void {
-        super.forEach(func);
     }
 
     public lookupElements(names: string[]): LookupResults<T> {
@@ -166,20 +139,8 @@ export class NormalizedMap<T> extends Map<string, T> {
         return result.found;
     }
 
-
     public tryGetElements(names: string[]): T[] {
         return this.lookupElements(names).found;
-    }
-
-    public select<T2>(selectFunc: (value: T, key: string) => T2): T2[] {
-        const rtrn = [];
-        this.forEach((value, key): void => {
-            const next = selectFunc(value, key);
-            if (next !== undefined) {
-                rtrn.push(undefined);
-            }
-        });
-        return rtrn;
     }
 }
 

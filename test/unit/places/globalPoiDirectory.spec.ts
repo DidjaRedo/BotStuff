@@ -1,3 +1,4 @@
+import '../../helpers/jestHelpers';
 import * as PoiLookupOptions from '../../../src/places/poiLookupOptions';
 import { GlobalPoiDirectory } from '../../../src/places/globalPoiDirectory';
 import { Poi } from '../../../src/places/poi';
@@ -155,10 +156,12 @@ describe('GlobalPoiDirectory class', () => {
 
         it('should correctly look up pois by fuzzy match on name or alternate name', () => {
             [
-                'first',
-                'poi d',
-            ].forEach((name) => {
-                expect(dir.lookupFuzzy(name)).toHaveLength(1);
+                { term: 'first', length: 1, best: testPois[0] },
+                { term: 'poi d', length: 6, best: testPois[5] },
+            ].forEach((test) => {
+                const found = dir.lookupFuzzy(test.term);
+                expect(found).toHaveLength(test.length);
+                expect(found.bestItem()).toSucceedWith(test.best);
             });
 
             expect(dir.lookupFuzzy('Point the')).toHaveLength(2);
@@ -166,10 +169,11 @@ describe('GlobalPoiDirectory class', () => {
 
         it('should return no result for non-matching pois', () => {
             [
-                'FirstPois',
+                'The FirstPois',
                 'c12 poi',
             ].forEach((name) => {
-                expect(dir.lookupFuzzy(name)).toHaveLength(0);
+                const found = dir.lookupFuzzy(name);
+                expect(found).toHaveLength(0);
             });
         });
     });
@@ -212,10 +216,12 @@ describe('GlobalPoiDirectory class', () => {
             const dir = new GlobalPoiDirectory({ noExactLookup: true }, testPois);
             it('should correctly look up pois by fuzzy match on name or alternate name', () => {
                 [
-                    'first',
-                    'poi d',
-                ].forEach((name) => {
-                    expect(dir.lookup(name)).toHaveLength(1);
+                    { term: 'first', length: 1, best: testPois[0] },
+                    { term: 'poi d', length: 6, best: testPois[5] },
+                ].forEach((test) => {
+                    const found = dir.lookup(test.term);
+                    expect(found).toHaveLength(test.length);
+                    expect(found.bestItem()).toSucceedWith(test.best);
                 });
 
                 expect(dir.lookupFuzzy('Point the')).toHaveLength(2);
@@ -223,10 +229,11 @@ describe('GlobalPoiDirectory class', () => {
 
             it('should return no result for non-matching pois', () => {
                 [
-                    'firstpoi',
-                    'poi   c12',
+                    'fir stpoint',
+                    'point   c12',
                 ].forEach((name) => {
-                    expect(dir.lookup(name)).toHaveLength(0);
+                    const found = dir.lookup(name);
+                    expect(found).toHaveLength(0);
                 });
             });
         });

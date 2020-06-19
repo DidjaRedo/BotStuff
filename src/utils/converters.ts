@@ -267,7 +267,7 @@ export class ObjectConverter<T> extends Converter<T> {
             const errors: string[] = [];
             for (const key in fields) {
                 if (fields[key]) {
-                    const isOptional = optional?.includes(key);
+                    const isOptional = optional?.includes(key) ?? false;
                     const result = isOptional
                         ? optionalField(key, fields[key]).convert(from)
                         : field(key, fields[key]).convert(from);

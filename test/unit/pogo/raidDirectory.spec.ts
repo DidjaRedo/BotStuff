@@ -22,21 +22,27 @@
 
 import '../../helpers/jestHelpers';
 import * as PoiLookupOptions from '../../../src/places/poiLookupOptions';
-import { RaidDirectory } from '../../../src/pogo/raidDirectory';
+import { Raid, RaidJson } from '../../../src/pogo/raid';
+import { RaidDirectory, loadRaidDirectorySync } from '../../../src/pogo/raidDirectory';
 import { TestRaidGenerator } from '../../helpers/pogoHelpers';
+import fs from 'fs';
+import { loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
+import { loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
+import moment from 'moment';
 
 describe('RaidDirectory module', () => {
+    const testRaids = TestRaidGenerator.generate([
+        'A12|ex|future|3',
+        'A23|nonex|egg|4',
+        'B34|ex|hatched|5|boss',
+        'B23|nonex',
+        'A3|nonex|hatched|2|boss',
+        'B4|ex|expired|3',
+        'B23|ex|expired|4|boss',
+    ]);
+
     describe('RaidDirectory class', () => {
         const defaultOptions = PoiLookupOptions.defaultProperties;
-        const testRaids = TestRaidGenerator.generate([
-            'A12|ex|future|3',
-            'A23|nonex|egg|4',
-            'B34|ex|hatched|5|boss',
-            'B23|nonex',
-            'A3|nonex|hatched|2|boss',
-            'B4|ex|expired|3',
-            'B23|ex|expired|4|boss',
-        ]);
 
         describe('constructor', () => {
             it('should constructe with default options', () => {
@@ -45,43 +51,43 @@ describe('RaidDirectory module', () => {
             });
 
             it('should construct with the supplied raids', () => {
-                const actualRaids = testRaids.getActualRaids();
-                const dir = new RaidDirectory(actualRaids);
-                expect(dir.size).toBe(actualRaids.length);
+                const raids = testRaids.getRaids();
+                const dir = new RaidDirectory(raids);
+                expect(dir.size).toBe(raids.length);
             });
         });
 
         describe('lookup method', () => {
-            const actualRaids = testRaids.getActualRaids();
-            const dir = new RaidDirectory(actualRaids);
+            const allRaids = testRaids.getRaids();
+            const dir = new RaidDirectory(allRaids);
 
             it('should return all raids if no filter is specified', () => {
-                const raids = dir.lookup('POI');
-                expect(raids).toHaveLength(actualRaids.length);
+                const foundRaids = dir.lookup('POI');
+                expect(foundRaids).toHaveLength(allRaids.length);
             });
 
             it('should return raids matching the lookup string', () => {
-                const raids = dir.lookup('POI A');
-                expect(raids).toHaveLength(3);
+                const foundRaids = dir.lookup('POI A');
+                expect(foundRaids).toHaveLength(3);
             });
 
             it('should respect the tier filters if specified', () => {
-                const raids = dir.lookup('POI', {
+                const foundRaids = dir.lookup('POI', {
                     ...defaultOptions,
                     minTier: 2,
                     maxTier: 3,
                 });
-                expect(raids).toHaveLength(3);
-                raids.forEach((r) => expect(r.item.tier).toBeInRange(2, 3));
+                expect(foundRaids).toHaveLength(3);
+                foundRaids.forEach((r) => expect(r.item.tier).toBeInRange(2, 3));
             });
 
             it('should respect the state filter if specified', () => {
-                const raids = dir.lookup('POI', {
+                const foundRaids = dir.lookup('POI', {
                     ...defaultOptions,
                     stateFilter: ['hatched', 'egg'],
                 });
-                expect(raids).toHaveLength(3);
-                raids.forEach((r) => expect(r.item.state).toBeOneOf(['hatched', 'egg']));
+                expect(foundRaids).toHaveLength(3);
+                foundRaids.forEach((r) => expect(r.item.state).toBeOneOf(['hatched', 'egg']));
             });
 
             it('should respect the EX filter if specified', () => {
@@ -103,13 +109,44 @@ describe('RaidDirectory module', () => {
             it('should respect a supplied filter function', () => {
                 const alwaysFilter = jest.fn(() => true);
                 const always = dir.lookup('POI', undefined, alwaysFilter);
-                expect(always).toHaveLength(actualRaids.length);
-                expect(alwaysFilter).toHaveBeenCalledTimes(actualRaids.length);
+                expect(always).toHaveLength(allRaids.length);
+                expect(alwaysFilter).toHaveBeenCalledTimes(allRaids.length);
 
                 const neverFilter = jest.fn(() => false);
                 const never = dir.lookup('POI', undefined, neverFilter);
                 expect(never).toHaveLength(0);
-                expect(neverFilter).toHaveBeenCalledTimes(actualRaids.length);
+                expect(neverFilter).toHaveBeenCalledTimes(allRaids.length);
+            });
+        });
+    });
+
+    describe('converters', () => {
+        const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json').getValueOrDefault();
+        const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrDefault();
+        const past = moment().subtract(10, 'minutes').toDate();
+        const future = moment().add(10, 'minutes').toDate();
+        const raids = [
+            { hatch: past.toISOString(), boss: 'lugiat5', gym: 'mysterioushatch', type: 'normal' },
+            { hatch: future.toISOString(), tier: 3, gym: 'paintedparkinglot', type: 'raid-hour' },
+        ].map((json) => {
+            return Raid.createFromJson(json as RaidJson, gyms, bosses).getValueOrDefault();
+        });
+        let nextIsArray = false;
+        const testData = raids.map((r) => {
+            nextIsArray = !nextIsArray;
+            return nextIsArray ? r.toArray() : r.toJson();
+        });
+        const testBlob = JSON.stringify(testData);
+
+        it('should load either arrays or objects', () => {
+            const path = 'path/to/some/file.json';
+            jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+                return testBlob;
+            });
+
+            const loadResult = loadRaidDirectorySync(path, gyms, bosses);
+            expect(loadResult).toSucceedWithCallback((dir: RaidDirectory) => {
+                expect(dir.getAll()).toEqual(expect.arrayContaining(raids));
             });
         });
     });

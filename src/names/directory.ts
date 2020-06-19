@@ -21,9 +21,10 @@
  */
 
 import { NamedThing, Names } from './names';
+import { Result, fail, succeed } from '../utils/result';
 import Fuse from 'fuse.js';
 import { KeyedThing } from './keyedThing';
-
+import { Utils } from '../utils/utils';
 
 export interface FieldSearchWeight<T> {
     name: keyof T;
@@ -56,7 +57,54 @@ export interface SearchResult<T> {
     item: T;
 }
 
-export type DirectoryFilter<T, TO> = (item: T, options: TO) => boolean;
+export class ItemArray<T> extends Array<T> {
+    protected readonly _key: string;
+    public constructor(key: string, ...items: T[]) {
+        super(...items);
+        this._key = key;
+    }
+
+    public single(): Result<T> {
+        if (this.length === 1) {
+            return succeed(this[0]);
+        }
+        if (this.length === 0) {
+            return fail(`${this._key} not found`);
+        }
+        return fail(`${this._key} matches ${this.length} items`);
+    }
+
+    public best(): Result<T> {
+        if (this.length > 0) {
+            return succeed(this[0]);
+        }
+        return fail(`${this._key} not found`);
+    }
+
+    public all(): T[] {
+        return Array.from(this);
+    }
+}
+
+export class ResultArray<T> extends ItemArray<SearchResult<T>> {
+    public constructor(key: string, ...items: SearchResult<T>[]) {
+        super(key, ...items);
+    }
+
+    public singleItem(): Result<T> {
+        return this.single().onSuccess((sr) => succeed(sr.item));
+    }
+
+    public bestItem(): Result<T> {
+        return this.best().onSuccess((sr) => succeed(sr.item));
+    }
+
+    public allItems(): T[] {
+        return Array.from(this.map((sr) => sr.item));
+    }
+}
+
+export type DirectoryFilter<T, TO> = (item: T, options: Partial<TO>) => boolean;
 
 // TK are the keys
 // TS are the searchable properties
@@ -107,6 +155,10 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         });
     }
 
+    public getAll(options?: Partial<TLO>): ItemArray<T> {
+        return new ItemArray('any', ...this._filterItems(Array.from(this._all), options));
+    }
+
     public getKeys(props: T): TK|undefined {
         const elem = this.get(props.primaryKey);
         if (elem && (elem !== props)) {
@@ -119,23 +171,18 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return this._byKey.get(Names.normalizeOrThrow(name));
     }
 
-    public getByFieldExact(field: keyof TK, name: string): T[] {
+    public getByFieldExact(field: keyof TK, name: string, options?: Partial<TLO>): ItemArray<T> {
         if (!this.isAlternateKey(field)) {
             throw new Error(`Field ${field} is not an alternate key.`);
         }
 
         const map = this._byAlternateKey.get(field);
         const result = map?.get(Names.normalizeOrThrow(name));
-        if (result === undefined) {
-            return [];
-        }
-        else if (!Array.isArray(result)) {
-            return [result];
-        }
-        return result;
+        const filtered = this._filterItems(Utils.ensureArray(result), options);
+        return new ItemArray(name, ...filtered);
     }
 
-    public getByAnyFieldExact(name: string): T[] {
+    public getByAnyFieldExact(name: string, options?: Partial<TLO>): ItemArray<T> {
         const wantKey = Names.normalizeOrThrow(name);
         const altKeys = this.alternateKeys;
 
@@ -147,28 +194,36 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
             }),
         ].filter((t)=> t[0] !== undefined);
         const merged = raw.reduce((a, c) => a.concat(c), []);
-        return merged;
+        const filtered = this._filterItems(merged, options);
+        return new ItemArray<T>(name, ...filtered);
     }
 
-    public searchByTextFields(name: string): SearchResult<T>[] {
+    public searchByTextFields(name: string, options?: Partial<TLO>): ResultArray<T> {
         if (!this._search) {
             this._initSearch();
         }
 
         const matches = this._search.search(name);
         if (matches.length > 0) {
-            return matches.map((match: Fuse.FuseResult<T>): SearchResult<T> => {
-                return {
-                    item: match.item,
-                    score: 1 - match.score,
-                };
-            });
+            const searchResults = this._adjustSearchResults(
+                matches.map((match: Fuse.FuseResult<T>): SearchResult<T> => {
+                    return {
+                        item: match.item,
+                        score: 1 - match.score,
+                    };
+                }),
+                options,
+            );
+            if (searchResults.length > 1) {
+                searchResults.sort((r1, r2) => r2.score - r1.score);
+            }
+            return new ResultArray(name, ...searchResults);
         }
 
-        return [];
+        return new ResultArray(name, ...[]);
     }
 
-    public lookup(name: string, options?: TLO, filter?: DirectoryFilter<T, TLO>): SearchResult<T>[] {
+    public lookup(name: string, options?: TLO, filter?: DirectoryFilter<T, TLO>): ResultArray<T> {
         const effectiveOptions: DirectoryLookupOptions = options ?? {};
         let candidates: SearchResult<T>[] = [];
 
@@ -183,10 +238,13 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         }
 
         if (candidates.length > 0) {
-            candidates = this._adjustLookupResults(candidates, options, filter);
+            candidates = this._adjustSearchResults(candidates, options, filter);
+            if (candidates.length > 2) {
+                candidates.sort((c1, c2) => c2.score - c1.score);
+            }
         }
 
-        return candidates;
+        return new ResultArray(name, ...candidates);
     }
 
     private _isUniqueKey(key: keyof TK): boolean {
@@ -334,9 +392,14 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return Array.from(this._byKey.keys());
     }
 
-    protected abstract _adjustLookupResults(
+    protected abstract _filterItems(
+        items: T[],
+        options?: Partial<TLO>,
+    ): T[];
+
+    protected abstract _adjustSearchResults(
         results: SearchResult<T>[],
-        options?: TLO,
+        options?: Partial<TLO>,
         filter?: DirectoryFilter<T, TLO>,
     ): SearchResult<T>[];
 }
@@ -346,9 +409,16 @@ export class Directory<T extends KeyedThing<TK> & TS, TS extends TK, TK extends 
         super(options, elements);
     }
 
-    protected _adjustLookupResults(
+    protected _filterItems(
+        results: T[],
+        _options?: Partial<DirectoryLookupOptions>,
+    ): T[] {
+        return results;
+    }
+
+    protected _adjustSearchResults(
         results: SearchResult<T>[],
-        options?: DirectoryLookupOptions,
+        options?: Partial<DirectoryLookupOptions>,
         filter?: DirectoryFilter<T, DirectoryLookupOptions>,
     ): SearchResult<T>[] {
         // istanbul ignore next

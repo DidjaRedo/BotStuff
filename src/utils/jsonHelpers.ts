@@ -19,28 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import * as PoiLookupOptions from './poiLookupOptions';
-import { DirectoryBase, DirectoryFilter, SearchResult } from '../names/directory';
-import { Poi, PoiKeys, PoiProperties } from './poi';
 
-export class PoiDirectoryBase<P extends Poi, O extends PoiLookupOptions.Properties> extends DirectoryBase<P, PoiProperties, PoiKeys, PoiLookupOptions.Properties> {
-    public constructor(pois?: Iterable<P>) {
-        super(Poi.getDirectoryOptions(), pois);
-    }
+import * as fs from 'fs';
+import * as path from 'path';
+import { Result, captureResult } from './result';
 
-    protected _filterItems(pois: P[], options?: Partial<O>): P[] {
-        // istanbul ignore next
-        if (options === undefined) {
-            return pois;
-        }
-        return pois.filter((p) => PoiLookupOptions.filterPoi(p, options));
-    }
+export type JsonPrimitive = boolean | number | string | null | undefined;
+export interface JsonObject { [key: string]: JsonValue }
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface JsonArray extends Array<JsonValue> {}
 
-    protected _adjustSearchResults(
-        results: SearchResult<P>[],
-        options?: Partial<O>,
-        filter?: DirectoryFilter<P, O>,
-    ): SearchResult<P>[] {
-        return PoiLookupOptions.adjustSearchResults(results, options, filter);
-    }
+export function loadJsonFile(srcPath: string): Result<JsonValue> {
+    return captureResult(() => {
+        const fullPath = path.resolve(srcPath);
+        const body = fs.readFileSync(fullPath, 'utf8').toString();
+        return JSON.parse(body) as JsonValue;
+    });
+}
+
+export function saveJsonFile(srcPath: string, value: JsonValue): Result<boolean> {
+    return captureResult(() => {
+        const fullPath = path.resolve(srcPath);
+        fs.writeFileSync(fullPath, JSON.stringify(value, undefined, 2));
+        return true;
+    });
 }

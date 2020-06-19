@@ -20,11 +20,101 @@
  * SOFTWARE.
  */
 
-import * as fs from 'fs';
 import * as path from 'path';
+import fs from 'fs';
 
 export function loadJson(srcPath: string): unknown {
     const fullPath = path.resolve(srcPath);
     const body = fs.readFileSync(fullPath).toString();
     return (body ? JSON.parse(body) : undefined);
+}
+
+export interface MockFileConfig {
+    path: string;
+    backingFile?: string;
+    writable?: boolean;
+}
+
+export class ReadWriteSpies {
+    public readonly read: jest.SpyInstance;
+    public readonly write: jest.SpyInstance;
+
+    public constructor(read: jest.SpyInstance, write: jest.SpyInstance) {
+        this.read = read;
+        this.write = write;
+    }
+
+    public clear(): void {
+        this.read.mockClear();
+        this.write.mockClear();
+    }
+
+    public restore(): void {
+        this.read.mockRestore();
+        this.write.mockRestore();
+    }
+}
+
+export class MockFileSystem {
+    protected readonly _config: Map<string, MockFileConfig>;
+    protected readonly _data: Map<string, string>;
+    protected _readMock;
+    protected _writeMock;
+
+    public constructor(configs: Iterable<MockFileConfig>) {
+        this._config = new Map<string, MockFileConfig>();
+        this._data = new Map<string, string>();
+
+        for (const config of configs) {
+            const fullPath = path.resolve(config.path);
+            this._config.set(fullPath, config);
+            if (config.backingFile) {
+                this.readMockFileSync(fullPath);
+            }
+        }
+    }
+
+    public readMockFileSync(wanted: string): string {
+        const fullPathWanted = path.resolve(wanted);
+        if (!this._data.has(fullPathWanted)) {
+            const config = this._config.get(fullPathWanted);
+            if (config?.backingFile === undefined) {
+                throw new Error(`Mock file not found: ${wanted}`);
+            }
+            const fullBackingPath = path.resolve(config.backingFile);
+            const body = fs.readFileSync(fullBackingPath).toString();
+            this._data.set(fullPathWanted, body);
+        }
+        return this._data.get(fullPathWanted);
+    }
+
+    public writeMockFileSync(wanted: string, body: string): void {
+        const fullPathWanted = path.resolve(wanted);
+        const config = this._config.get(fullPathWanted);
+        if (config === undefined) {
+            throw new Error(`Mock path not found: ${wanted}`);
+        }
+        if (config.writable !== true) {
+            throw new Error(`Mock permission denied: ${wanted}`);
+        }
+        this._data.set(fullPathWanted, body);
+    }
+
+    public reset(): void {
+        const writable = Array.from(this._config.values()).filter((c) => c.writable === true);
+        for (const config of writable) {
+            this._data.delete(path.resolve(config.path));
+        }
+    }
+
+    public startSpies(): ReadWriteSpies {
+        return new ReadWriteSpies(
+            jest.spyOn(fs, 'readFileSync').mockImplementation((wanted: string) => {
+                return this.readMockFileSync(wanted);
+            }),
+            jest.spyOn(fs, 'writeFileSync').mockImplementation((wanted: string, payload: string) => {
+                return this.writeMockFileSync(wanted, payload);
+            }),
+        );
+    }
 }

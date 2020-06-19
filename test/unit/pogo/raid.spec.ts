@@ -20,13 +20,17 @@
  * SOFTWARE.
  */
 import '../../helpers/jestHelpers';
-import { Raid, RaidState, RaidType } from '../../../src/pogo/raid';
+import { Raid, RaidJson, RaidState, RaidType, raid } from '../../../src/pogo/raid';
 import { TestBoss, TestRaid } from '../../helpers/pogoHelpers';
 import { DateRange } from '../../../src/time/dateRange';
 import { Gym } from '../../../src/pogo/gym';
+import { loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
+import { loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
 import moment from 'moment';
 
 describe('Raid class', () => {
+    const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json').getValueOrDefault();
+    const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrDefault();
     const gym = new Gym({
         name: 'Gym',
         city: 'City',
@@ -37,7 +41,7 @@ describe('Raid class', () => {
 
     describe('protected constructor', () => {
         it('should fail to create a raid with a mismatched tier and boss tier', () => {
-            const raidTimes = TestRaid.times.hatched;
+            const raidTimes = TestRaid.getTime('hatched');
             const tier = 3;
             const boss = TestBoss.bosses[4];
             expect(TestRaid.create({ tier, gym, raidTimes, boss })).toFailWith(/mismatched tier/i);
@@ -182,7 +186,7 @@ describe('Raid class', () => {
         });
     });
 
-    describe('createActive static method', () => {
+    describe('createActiveRaid static method', () => {
         it('should succeed for a timer less than 45 minutes', () => {
             const timeLeft = 30;
             const boss = TestBoss.bosses[5];
@@ -226,13 +230,125 @@ describe('Raid class', () => {
         });
     });
 
+    describe('createFromJson method', () => {
+        it('should succeed for valid json objects, ignoring extra fields', () => {
+            [
+                {
+                    hatch: moment().toISOString(),
+                    gym: 'northstarpark',
+                    boss: 'lugiat5',
+                    tier: 5,
+                    type: 'normal',
+                },
+                {
+                    hatch: moment().toISOString(),
+                    gym: 'northstarpark',
+                    boss: 'lugiat5',
+                    type: 'normal',
+                    expectedTier: 5,
+                },
+                {
+                    hatch: moment().add(10, 'minutes').toISOString(),
+                    gym: 'northstarpark',
+                    tier: 5,
+                    type: 'raid-hour',
+                    extra: 'bogus extra field',
+                },
+            ].forEach((test) => {
+                expect(Raid.createFromJson(test as RaidJson, gyms, bosses)).toSucceedWith(
+                    expect.objectContaining({
+                        tier: test.tier ?? test.expectedTier,
+                        gym: expect.objectContaining({
+                            primaryKey: test.gym,
+                        }),
+                    })
+                );
+            });
+        });
+
+        it('should fail for invalid json objects', () => {
+            [
+                {
+                    src: {
+                        hatch: moment().toISOString(),
+                        gym: 'northstarpark',
+                        boss: 'lugiat5',
+                        tier: 4,
+                        type: 'normal',
+                    },
+                    expected: /mismatched tier/i,
+                },
+                {
+                    src: {
+                        hatch: moment().toISOString(),
+                        gym: 'northstarpark',
+                        boss: 'giratina',
+                        tier: 5,
+                        type: 'normal',
+                    },
+                    expected: /giratina matches 2 items/i,
+                },
+                {
+                    src: {
+                        hatch: moment().toISOString(),
+                        gym: 'northstarpark',
+                        boss: 'lugialicious',
+                        tier: 5,
+                        type: 'normal',
+                    },
+                    expected: /lugialicious not found/i,
+                },
+                {
+                    src: {
+                        hatch: moment().add(10, 'minutes').toISOString(),
+                        gym: 'notagym',
+                        tier: 5,
+                        type: 'raid-hour',
+                    },
+                    expected: /notagym not found/i,
+                },
+                {
+                    src: {
+                        hatch: moment().add(10, 'minutes').toISOString(),
+                        gym: 'northstarpark',
+                        tier: 10,
+                        type: 'normal',
+                    },
+                    expected: /invalid raid tier/i,
+                },
+                {
+                    src: {
+                        hatch: moment().add(10, 'minutes').toISOString(),
+                        gym: 'northstarpark',
+                        tier: 2,
+                        type: 'abnormal',
+                    },
+                    expected: /invalid raid type/i,
+                },
+                {
+                    src: {
+                        hatch: moment().add(10, 'minutes').toISOString(),
+                        gym: 'northstarpark',
+                        tier: 2,
+                        type: 7,
+                    },
+                    expected: /invalid raid type/i,
+                },
+            ].forEach((test) => {
+                expect(Raid.createFromJson(test.src as RaidJson, gyms, bosses))
+                    .toFailWith(test.expected);
+            });
+        });
+    });
+
     describe('update method', () => {
         it('should update the tier of a raid in any state with no boss', () => {
-            for (const state of ['future', 'egg', 'hatched', 'expired']) {
+            const states: RaidState[] = ['future', 'egg', 'hatched', 'expired'];
+            for (const state of states) {
                 const raid = new TestRaid({
                     tier: 1,
                     gym: gym,
-                    raidTimes: TestRaid.times[state],
+                    raidTimes: TestRaid.getTime(state),
                 });
                 expect(raid.state).toBe(state);
                 expect(raid.update(2)).toSucceedWith(1);
@@ -240,8 +356,9 @@ describe('Raid class', () => {
         });
 
         it('should fail to update the tier of a raid that already has a boss', () => {
-            for (const state of ['hatched', 'expired']) {
-                const raidTimes = TestRaid.times[state];
+            const states: RaidState[] = ['hatched', 'expired'];
+            for (const state of states) {
+                const raidTimes = TestRaid.getTime(state);
                 const tier = 5;
                 const raid = new TestRaid({ tier, gym, raidTimes, boss: TestBoss.bosses[tier] });
                 expect(raid.state).toBe(state);
@@ -250,8 +367,9 @@ describe('Raid class', () => {
         });
 
         it('should add or update a boss for a hatched or expired raid', () => {
-            for (const state of ['hatched', 'expired']) {
-                const raidTimes = TestRaid.times[state];
+            const states: RaidState[] = ['hatched', 'expired'];
+            for (const state of states) {
+                const raidTimes = TestRaid.getTime(state);
                 const tier = 4;
                 const raid = new TestRaid({ tier, gym, raidTimes });
                 expect(raid.state).toBe(state);
@@ -267,8 +385,9 @@ describe('Raid class', () => {
         });
 
         it('should fail to add a boss for a raid in the future', () => {
-            for (const state of ['future', 'egg']) {
-                const raidTimes = TestRaid.times[state];
+            const states: RaidState[] = ['future', 'egg'];
+            for (const state of states) {
+                const raidTimes = TestRaid.getTime(state);
                 const tier = 3;
                 const raid = new TestRaid({ tier, gym, raidTimes });
                 expect(raid.state).toBe(state);
@@ -279,8 +398,9 @@ describe('Raid class', () => {
 
     describe('refreshState', () => {
         it('should update to the correct state for a supplied or current time', () => {
-            for (const state of ['future', 'egg', 'hatched', 'expired']) {
-                const raidTimes = TestRaid.times[state];
+            const states: RaidState[] = ['future', 'egg', 'hatched', 'expired'];
+            for (const state of states) {
+                const raidTimes = TestRaid.getTime(state);
                 const midPoint = moment(raidTimes.start).add(20, 'minutes').toDate();
                 const tier = 4;
                 const raid = new TestRaid({ tier, gym, raidTimes });
@@ -340,6 +460,162 @@ describe('Raid class', () => {
             for (const state of ['Hutched', '_egg', 0, 7, true, () => 'hatched']) {
                 expect(Raid.validateRaidState(state)).toFailWith(/invalid raid state/i);
             }
+        });
+    });
+
+    describe('toString method', () => {
+        it('should match the primaryKey', () => {
+            expect(Raid.createFutureRaid(10, gym, 5))
+                .toSucceedWithCallback<Raid>((raid) => {
+                    expect(raid.toString()).toEqual(raid.primaryKey);
+                });
+        });
+    });
+
+    describe('toJson method', () => {
+        it('should convert a raid to valid json', () => {
+            const tier = 4;
+            const start = moment().add(10, 'minutes').toDate();
+            const raid = Raid.createFutureRaid(start, gym, tier).getValueOrDefault();
+            expect(raid.toJson()).toEqual(
+                expect.objectContaining({
+                    boss: undefined,
+                    gym: gym.primaryKey,
+                    hatch: start.toISOString(),
+                    tier: tier,
+                    type: 'normal',
+                }),
+            );
+        });
+
+        it('should include the boss if present', () => {
+            const boss = TestBoss.bosses[5];
+            const raid = Raid.createActiveRaid(20, gym, boss).getValueOrDefault();
+            expect(raid.toJson()).toEqual(
+                expect.objectContaining({
+                    boss: boss.primaryKey,
+                    gym: gym.primaryKey,
+                    hatch: raid.raidTimes.start.toISOString(),
+                    tier: boss.tier,
+                    type: 'normal',
+                }),
+            );
+        });
+    });
+
+    describe('toArray method', () => {
+        it('should include the boss for any raid with a boss', () => {
+            const tier = 4;
+            const raid = Raid.createActiveRaid(20, gym, TestBoss.bosses[tier]).getValueOrDefault();
+            expect(raid.toArray()).toEqual([
+                raid.raidTimes.start.toISOString(),
+                gym.primaryKey,
+                TestBoss.bosses[tier].primaryKey,
+                raid.raidType,
+            ]);
+        });
+
+        it('should include tier for any raid without a boss', () => {
+            const start = moment().add(10, 'minutes').toDate();
+            const tier = 3;
+            const raid = Raid.createFutureRaid(start, gym, tier).getValueOrDefault();
+            expect(raid.toArray()).toEqual([
+                start.toISOString(),
+                gym.primaryKey,
+                tier,
+                raid.raidType,
+            ]);
+        });
+    });
+
+    describe('converters', () => {
+        describe('raid converter', () => {
+            it('should convert valid raid arrays or objects with or without bosses', () => {
+                const past = moment().subtract(20, 'minutes').toDate();
+                const future = moment().add(20, 'minutes').toDate();
+                const gym = gyms.lookupExact('northstarpark').single().getValueOrDefault()?.item;
+                const boss = bosses.lookup('lugiat5').single().getValueOrDefault()?.item;
+                const tests = [
+                    {
+                        src: [past.toISOString(), gym.primaryKey, boss.primaryKey, 'normal'],
+                        expected: expect.objectContaining({
+                            tier: 5,
+                            gym: gym,
+                            boss: boss,
+                            raidTimes: expect.objectContaining({
+                                min: past,
+                            }),
+                            raidType: 'normal',
+                        }),
+                    },
+                    {
+                        src: [future.toISOString(), gym.primaryKey, 4, 'raid-hour'],
+                        expected: expect.objectContaining({
+                            tier: 4,
+                            gym: gym,
+                            boss: undefined,
+                            raidTimes: expect.objectContaining({
+                                min: future,
+                            }),
+                            raidType: 'raid-hour',
+                        }),
+                    },
+                    {
+                        src: {
+                            gym: gym.primaryKey,
+                            boss: boss.primaryKey,
+                            hatch: past.toISOString(),
+                            type: 'raid-hour',
+                        },
+                        expected: expect.objectContaining({
+                            tier: 5,
+                            gym: gym,
+                            boss: boss,
+                            raidTimes: expect.objectContaining({
+                                min: past,
+                            }),
+                            raidType: 'raid-hour',
+                        }),
+                    },
+                ];
+
+                for (const test of tests) {
+                    expect(
+                        raid(gyms, bosses).convert(test.src)
+                    ).toSucceedWith(test.expected);
+                }
+            });
+
+            it('should fail for an invalid array or object', () => {
+                const past = moment().subtract(20, 'minutes').toDate();
+                const future = moment().add(20, 'minutes').toDate();
+                const tests = [
+                    {
+                        src: [past.toISOString(), 'northstarpark', 'lugiat5', 'normal', 'extra'],
+                        expected: /invalid raid properties/i,
+                    },
+                    {
+                        src: [future.toISOString(), 'northstarpark', true, 'raid-hour'],
+                        expected: /invalid raid tier/i,
+                    },
+                    {
+                        src: {
+                            gym: 'northstarpark',
+                            boss: 'lugiat5',
+                            hatch: past.toISOString(),
+                            type: 'normal',
+                            tier: 11,
+                        },
+                        expected: /invalid raid tier/i,
+                    },
+                ];
+
+                for (const test of tests) {
+                    expect(
+                        raid(gyms, bosses).convert(test.src)
+                    ).toFailWith(test.expected);
+                }
+            });
         });
     });
 });

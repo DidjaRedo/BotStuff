@@ -20,12 +20,19 @@
  * SOFTWARE.
  */
 
+import * as Converters from '../utils/converters';
+import * as PogoConverters from '../pogo/pogoConverters';
+import * as TimeConverters from '../time/timeConverters';
 import { RaidTier, validateRaidTier } from './pogo';
-import { Result, allSucceed, captureResult, fail, succeed } from '../utils/result';
+import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
 import { Boss } from './boss';
+import { BossDirectory } from './bossDirectory';
+import { Converter } from '../utils/converter';
 import { DateRange } from '../time/dateRange';
 import { DirectoryOptions } from '../names/directory';
+import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
+import { JsonObject } from '../utils/jsonHelpers';
 import { KeyedThing } from '../names/keyedThing';
 import { Names } from '../names/names';
 import moment from 'moment';
@@ -43,6 +50,24 @@ export const MAX_NORMAL_RAID_ACTIVE_TIME = 45;
 export const MAX_RAID_HOUR_RAID_ACTIVE_TIME = 60;
 export const RAID_TIME_FORMAT = 'h:mm A';
 
+export function isValidRaidType(type: string): type is RaidType {
+    return (type === 'normal') || (type === 'raid-hour');
+}
+
+export function validateRaidType(value: unknown): Result<RaidType> {
+    if (typeof value === 'string') {
+        const type = value.trim().toLowerCase();
+        if (isValidRaidType(type)) {
+            return succeed(type);
+        }
+    }
+    return fail(`Invalid raid type "${JSON.stringify(value)}" (normal/raid-hour)`);
+}
+
+export interface RaidOptions {
+    force?: true,
+}
+
 export interface RaidInitializer {
     tier: RaidTier;
     gym: Gym;
@@ -52,6 +77,14 @@ export interface RaidInitializer {
 }
 
 export interface RaidProperties extends RaidKeys, RaidInitializer {
+}
+
+export interface RaidJson {
+    boss?: string;
+    gym: string;
+    hatch: string;
+    tier?: RaidTier;
+    type: RaidType;
 }
 
 export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
@@ -194,16 +227,35 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         };
     }
 
-    protected static _getRaidTimesFromStartTime(hatchTime: Date, raidType?: RaidType): Result<DateRange> {
+    public static createFromJson(json: RaidJson, gyms: GlobalGymDirectory, bosses: BossDirectory): Result<Raid> {
+        return populateObject<RaidInitializer>({
+            gym: () => gyms.lookupExact(json.gym).single().onSuccess((sr) => succeed(sr.item)),
+            boss: () => json.boss ? bosses.getByAnyFieldExact(json.boss).single() : succeed(undefined),
+            raidTimes: () => {
+                return TimeConverters.date.convert(json.hatch).onSuccess((hatch) => {
+                    return this._getRaidTimesFromStartTime(hatch, json.type, { force: true });
+                });
+            },
+            tier: (state) => validateRaidTier(json.tier ?? state.boss?.tier),
+            raidType: () => validateRaidType(json.type),
+
+        }).onSuccess((init: RaidInitializer) => {
+            return captureResult(() => new Raid(init));
+        });
+    }
+
+    protected static _getRaidTimesFromStartTime(hatchTime: Date, raidType?: RaidType, options?: RaidOptions): Result<DateRange> {
         const hatch = moment(hatchTime);
         const delta = hatch.diff(moment(), 'minutes');
 
-        if (delta > MAX_EGG_HATCH_TIME) {
-            return fail(`Requested hatch time ${hatch.format(RAID_TIME_FORMAT)} is too far in the future (max ${MAX_EGG_HATCH_TIME} minutes).`);
-        }
-        else if (delta < -1) {
-            // a little fudge factor for people adding a raid right at hatch
-            return fail(`Requested hatch time ${hatch.format(RAID_TIME_FORMAT)} is in the past.`);
+        if (options?.force !== true) {
+            if (delta > MAX_EGG_HATCH_TIME) {
+                return fail(`Requested hatch time ${hatch.format(RAID_TIME_FORMAT)} is too far in the future (max ${MAX_EGG_HATCH_TIME} minutes).`);
+            }
+            else if (delta < -1) {
+                // a little fudge factor for people adding a raid right at hatch
+                return fail(`Requested hatch time ${hatch.format(RAID_TIME_FORMAT)} is in the past.`);
+            }
         }
 
         return DateRange.createDateRange({
@@ -287,4 +339,60 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         this._state = stateResult.value;
         return succeed(oldState);
     }
+
+    public toString(): string {
+        return this.primaryKey;
+    }
+
+    public toJson(): JsonObject {
+        return {
+            boss: this.boss?.primaryKey,
+            gym: this.gym.primaryKey,
+            hatch: this.raidTimes.start.toISOString(),
+            tier: this.tier,
+            type: this.raidType,
+        };
+    }
+
+    public toArray(): (string|number)[] {
+        return [
+            this.raidTimes.start.toISOString(),
+            this.gym.primaryKey,
+            this.boss?.primaryKey ?? this.tier,
+            this.raidType,
+        ];
+    }
+}
+
+export const raidType = new Converter(validateRaidType);
+
+export function raidFromObject(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
+    return Converters.object<RaidJson>({
+        boss: Converters.string,
+        gym: Converters.string,
+        hatch: Converters.string,
+        tier: PogoConverters.raidTier,
+        type: raidType,
+    }, ['boss', 'tier']).map((json) => {
+        return Raid.createFromJson(json, gyms, bosses);
+    });
+}
+
+export function raidFromArray(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
+    return new Converter((from: unknown) => {
+        if (Array.isArray(from) && (from.length === 4)) {
+            return raidFromObject(gyms, bosses).convert({
+                hatch: from[0],
+                gym: from[1],
+                boss: (typeof from[2] === 'string') ? from[2] : undefined,
+                tier: (typeof from[2] === 'number') ? from[2] : undefined,
+                type: from[3],
+            });
+        }
+        return fail(`Invalid raid properties array ${JSON.stringify(from)}`);
+    });
+}
+
+export function raid(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
+    return Converters.oneOf([raidFromArray(gyms, bosses), raidFromObject(gyms, bosses)]);
 }

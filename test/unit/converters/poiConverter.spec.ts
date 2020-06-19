@@ -19,75 +19,89 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import '../../helpers/jestHelpers';
 import * as PoiConverter from '../../../src/converters/poiConverter';
 
 describe('PoiConverters module', () => {
     describe('poiPropertiesFromArray converter', () => {
+        const tests = [
+            {
+                source: ['Zone 1', 'City 1', 'A POI|First POI', '43.210', '-123.456'],
+                expect: {
+                    alternateNames: ['First POI'],
+                    city: 'City 1',
+                    coord: {
+                        latitude: 43.21,
+                        longitude: -123.456,
+                    },
+                    name: 'A POI',
+                    zones: ['Zone 1'],
+                },
+            },
+            {
+                source: ['Zone 1|Zone 2', 'City 1', 'A POI|First POI|POI the first', '43.210', '-123.456'],
+                expect: {
+                    alternateNames: ['First POI', 'POI the first'],
+                    city: 'City 1',
+                    coord: {
+                        latitude: 43.21,
+                        longitude: -123.456,
+                    },
+                    name: 'A POI',
+                    zones: ['Zone 1', 'Zone 2'],
+                },
+            },
+            {
+                source: ['Zone 1|Zone 2', 'City 1', 'A POI', '43.210', '-123.456'],
+                expect: {
+                    alternateNames: [],
+                    city: 'City 1',
+                    coord: {
+                        latitude: 43.21,
+                        longitude: -123.456,
+                    },
+                    name: 'A POI',
+                    zones: ['Zone 1', 'Zone 2'],
+                },
+            },
+        ];
+
         it('should convert valid arrays', () => {
-            [
-                {
-                    source: ['Zone 1', 'City 1', 'A POI', 'First POI', '43.210', '-123.456'],
-                    expect: {
-                        alternateNames: ['First POI'],
-                        city: 'City 1',
-                        coord: {
-                            latitude: 43.21,
-                            longitude: -123.456,
-                        },
-                        name: 'A POI',
-                        zones: ['Zone 1'],
-                    },
-                },
-                {
-                    source: ['Zone 1|Zone 2', 'City 1', 'A POI', 'First POI|POI the first', '43.210', '-123.456'],
-                    expect: {
-                        alternateNames: ['First POI', 'POI the first'],
-                        city: 'City 1',
-                        coord: {
-                            latitude: 43.21,
-                            longitude: -123.456,
-                        },
-                        name: 'A POI',
-                        zones: ['Zone 1', 'Zone 2'],
-                    },
-                },
-                {
-                    source: ['Zone 1|Zone 2', 'City 1', 'A POI', '', '43.210', '-123.456'],
-                    expect: {
-                        alternateNames: [],
-                        city: 'City 1',
-                        coord: {
-                            latitude: 43.21,
-                            longitude: -123.456,
-                        },
-                        name: 'A POI',
-                        zones: ['Zone 1', 'Zone 2'],
-                    },
-                },
-            ].forEach((test) => {
-                const result = PoiConverter.poiPropertiesFromArray.convert(test.source);
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toEqual(test.expect);
-                }
+            tests.forEach((test) => {
+                expect(PoiConverter.poiPropertiesFromArray.convert(test.source))
+                    .toSucceedWith(test.expect);
+            });
+        });
+
+        it('should round-trip through "toArray"', () => {
+            tests.forEach((test) => {
+                const poi = PoiConverter.poiFromArray.convert(test.source).getValueOrDefault();
+                const poi2 = PoiConverter.poiFromArray.convert(poi.toArray()).getValueOrDefault();
+                expect(poi).toEqual(poi2);
+            });
+        });
+
+        it('should round-trip through "toJson"', () => {
+            tests.forEach((test) => {
+                const poi = PoiConverter.poiFromArray.convert(test.source).getValueOrDefault();
+                const json = poi.toJson();
+                const poi2 = PoiConverter.poiFromObject.convert(json).getValueOrDefault();
+                expect(poi2).toEqual(poi);
             });
         });
     });
 
     it('should fail for an invalid array or non-array', () => {
         [
-            { source: ['A too short array'], expect: /must have six columns/i },
-            { source: ['An', 'array', 'that', 'is', '2', '2', 'long'], expect: /must have six columns/i },
+            { source: ['A too short array'], expect: /must have five columns/i },
+            { source: ['An', 'array', 'that', 'is', '2', '2', 'long'], expect: /must have five columns/i },
             {
-                source: ['zone', 'city', 'name', 'alternate name', 'latitude', 'longitude'],
+                source: ['zone', 'city', 'names', 'latitude', 'longitude'],
                 expect: /not a number/i,
             },
         ].forEach((test) => {
-            const result = PoiConverter.poiPropertiesFromArray.convert(test.source);
-            expect(result.isFailure()).toBe(true);
-            if (result.isFailure()) {
-                expect(result.message).toMatch(test.expect);
-            }
+            expect(PoiConverter.poiPropertiesFromArray.convert(test.source))
+                .toFailWith(test.expect);
         });
     });
 });

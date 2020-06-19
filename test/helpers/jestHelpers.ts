@@ -52,7 +52,7 @@ expect.extend({
             };
         }
     },
-    toFailWith<T>(received: Result<T>, message: string|RegExp) {
+    toFailWith<T>(received: Result<T>, message: string|RegExp|undefined) {
         if (!received.isFailure()) {
             return {
                 message: () => 'expected to fail',
@@ -60,7 +60,15 @@ expect.extend({
             };
         }
         if (this.isNot) {
-            expect(received.message).not.toEqual(expect.stringMatching(message));
+            if (message === undefined) {
+                expect(received.message).not.toBeUndefined();
+            }
+            else {
+                expect(received.message).not.toEqual(expect.stringMatching(message));
+            }
+        }
+        else if (message === undefined) {
+            expect(received.message).toBeUndefined();
         }
         else {
             expect(received.message).toEqual(expect.stringMatching(message));
@@ -71,20 +79,37 @@ expect.extend({
         };
     },
     toSucceed<T>(received: Result<T>) {
+        const options = {
+            comment: 'Result.is success',
+            isNot: this.isNot,
+            promise: this.promise,
+        };
+
+        const header = `${this.utils.matcherHint('toSucceed', undefined, undefined, options)}\n\n`;
         if (received.isSuccess()) {
             return {
-                message: () => 'expected not to succeed',
+                message: () =>
+                    `${header}Expected: not to succeed\nReceived: success with ${this.utils.stringify(received.value)}`,
                 pass: true,
             };
         }
         else {
             return {
-                message: () => 'expected to succeed',
+                message: () =>
+                    `${header}Expected: success\nReceived: failure with ${this.utils.stringify(received.message)}`,
                 pass: false,
             };
         }
     },
     toSucceedWith<T>(received: Result<T>, match: unknown) {
+        const options = {
+            // comment: 'Result.is success with',
+            isNot: this.isNot,
+            promise: this.promise,
+        };
+
+        const header = `${this.utils.matcherHint('toSucceedWith', undefined, undefined, options)}\n\n`;
+        const expected = `Expected: ${this.isNot ? ' not ' : ''} success with ${this.utils.stringify(match)}`;
         if (received.isSuccess()) {
             if (this.isNot) {
                 expect(received.value).not.toEqual(match);
@@ -92,26 +117,39 @@ expect.extend({
             else {
                 expect(received.value).toEqual(match);
             }
-            return { message: () => 'expected not to succeed', pass: !this.isNot };
+            return {
+                message: () =>
+                    `${header}${expected}\nReceived: success with ${this.utils.stringify(received.value)}`,
+                pass: !this.isNot,
+            };
         }
         else {
             return {
-                message: () => 'expected to succeed',
+                message: () =>
+                    `${header}${expected}\nReceived: failure with '${received.message}'`,
                 pass: false,
             };
         }
     },
     toSucceedWithCallback<T>(received: Result<T>, cb: (value: T) => void) {
+        const options = {
+            // comment: 'Result.is success with callback',
+            isNot: this.isNot,
+            promise: this.promise,
+        };
+        const header = `${this.utils.matcherHint('toSucceedWith', undefined, undefined, options)}\n\n`;
+        const expected = `Expected: ${this.isNot ? ' not ' : ''} to succeed with a callback`;
         if (received.isSuccess()) {
             cb(received.value);
             return {
-                message: () => 'expected not to succeed',
-                pass: true,
+                message: () =>
+                    `${header}${expected}\nReceived: success with ${this.utils.stringify(received.value)}`,
+                pass: !this.isNot,
             };
         }
         else {
             return {
-                message: () => 'expected to succeed',
+                message: () => `${header}${expected}\nReceived: failure with '${received.message}'`,
                 pass: false,
             };
         }

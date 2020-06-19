@@ -25,6 +25,8 @@ import { Coordinate, Region } from '../utils/geo';
 import { DirectoryLookupOptions, SearchResult } from '../names/directory';
 import { Poi } from './poi';
 
+export const DEFAULT_RADIUS = 1000;
+
 export interface Properties extends DirectoryLookupOptions {
     allowedZones: string[];
     allowedCities: string[];
@@ -46,7 +48,7 @@ export const defaultProperties: Properties = {
     onNonAllowedZones: 'ignore',
     preferredCities: [],
     preferredZones: [],
-    radius: 1000,
+    radius: DEFAULT_RADIUS,
 };
 
 export const fieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = {
@@ -71,7 +73,7 @@ export const fieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = 
 
 export const merger = new Merge.ObjectMerger<Properties, Merge.MergeOptions>(fieldMergers);
 
-export type PoiFilter<P extends Poi, PO extends Properties> = (poi: P, options: PO) => boolean;
+export type PoiFilter<P extends Poi, PO extends Properties> = (poi: P, options: Partial<PO>) => boolean;
 
 export interface CategorizedObjects<OT> {
     matched: OT[];
@@ -85,10 +87,13 @@ export interface CategorizedObjects<OT> {
 export type CategorizedPois<P extends Poi> = CategorizedObjects<P>;
 export type PoiCategories<OT> = keyof CategorizedObjects<OT>;
 
-export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, options: PO, filter?: PoiFilter<P, PO>): PoiCategories<P> {
-    if ((filter && !filter(poi, options))
-        || (options?.near && !poi.isNear(options.near, options.radius))
-        || (options?.region && !poi.isInRegion(options.region))) {
+export function filterPoi<P extends Poi, PO extends Properties>(poi: P, options?: Partial<PO>): boolean {
+    return ((options?.near === undefined) || poi.isNear(options.near, options.radius))
+        && ((options?.region === undefined) || poi.isInRegion(options.region));
+}
+
+export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, options: Partial<PO>, filter?: PoiFilter<P, PO>): PoiCategories<P> {
+    if ((filter && !filter(poi, options)) || !filterPoi(poi, options)) {
         return 'filteredOut';
     }
 
@@ -110,7 +115,7 @@ export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, opti
 export function categorizeObjects<OT, P extends Poi, PO extends Properties>(
     objects: OT[],
     getPoi: (from: OT) => P,
-    options: PO,
+    options: Partial<PO>,
     filter?: PoiFilter<P, PO>
 ): CategorizedObjects<OT> {
     const categorized: CategorizedObjects<OT> = {
@@ -133,9 +138,9 @@ export function categorizePois<P extends Poi, PO extends Properties>(pois: P[], 
     return categorizeObjects(pois, (p) => p, options, filter);
 }
 
-export function adjustObjectLookupResults<T, P extends Poi, PO extends Properties>(
+export function adjustObjectSearchResults<T, P extends Poi, PO extends Properties>(
     candidates: SearchResult<T>[],
-    options: PO,
+    options: Partial<PO>,
     extract: (wrapper: T) => P,
     filter?: PoiFilter<P, PO>,
 ): SearchResult<T>[] {
@@ -163,13 +168,13 @@ export function adjustObjectLookupResults<T, P extends Poi, PO extends Propertie
             adjusted = fallback.map((c) => { return { item: c.item, score: c.score * multiplier }; });
         }
     }
-    return adjusted.sort((c1, c2) => c1.score - c2.score);
+    return adjusted.sort((c1, c2) => c2.score - c1.score);
 }
 
-export function adjustLookupResults<P extends Poi, PO extends Properties>(
+export function adjustSearchResults<P extends Poi, PO extends Properties>(
     candidates: SearchResult<P>[],
-    options: PO,
+    options: Partial<PO>,
     filter?: PoiFilter<P, PO>,
 ): SearchResult<P>[] {
-    return adjustObjectLookupResults(candidates, options, (c) => c, filter);
+    return adjustObjectSearchResults(candidates, options, (c) => c, filter);
 }

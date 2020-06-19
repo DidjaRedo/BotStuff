@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+import * as Converters from '../utils/converters';
 import * as Merge from '../utils/merge';
 import * as PoiLookupOptions from '../places/poiLookupOptions';
 import { DirectoryBase, DirectoryFilter, SearchResult } from '../names/directory';
@@ -28,8 +29,12 @@ import {
     GymLookupOptionsProperties,
     optionsFieldMergers as gymLookupOptionsFieldMergers,
 } from './gymDirectory';
-import { Raid, RaidKeys, RaidProperties, RaidState } from './raid';
+import { Raid, RaidKeys, RaidProperties, RaidState, raid } from './raid';
+import { Result, captureResult } from '../utils/result';
+import { BossDirectory } from './bossDirectory';
+import { Converter } from '../utils/converter';
 import { RaidTier } from './pogo';
+import { loadJsonFile } from '../utils/jsonHelpers';
 
 export interface RaidLookupOptions extends GymLookupOptionsProperties {
     minTier?: RaidTier;
@@ -57,14 +62,25 @@ export class RaidDirectory extends DirectoryBase<Raid, RaidProperties, RaidKeys,
         super(Raid.getDirectoryOptions(), raids);
     }
 
-    public static filter(raid: Raid, options: RaidLookupOptions): boolean {
-        return ((options.minTier === undefined) || (options.minTier <= raid.tier))
-        && ((options.maxTier === undefined) || (options.maxTier >= raid.tier))
-        && ((options.stateFilter === undefined) || (options.stateFilter.includes(raid.state)))
+    public static create(raids?: Iterable<Raid>): Result<RaidDirectory> {
+        return captureResult(() => new RaidDirectory(raids));
+    }
+
+    public static filter(raid: Raid, options?: Partial<RaidLookupOptions>): boolean {
+        return ((options?.minTier === undefined) || (options.minTier <= raid.tier))
+        && ((options?.maxTier === undefined) || (options.maxTier >= raid.tier))
+        && ((options?.stateFilter === undefined) || (options.stateFilter.includes(raid.state)))
         && GlobalGymDirectory.filter(raid.gym, options);
     }
 
-    protected _adjustLookupResults(
+    protected _filterItems(
+        raids: Raid[],
+        options?: Partial<RaidLookupOptions>,
+    ): Raid[] {
+        return raids.filter((r) => RaidDirectory.filter(r, options));
+    }
+
+    protected _adjustSearchResults(
         results: SearchResult<Raid>[],
         options?: RaidLookupOptions,
         filter?: DirectoryFilter<Raid, RaidLookupOptions>,
@@ -76,8 +92,17 @@ export class RaidDirectory extends DirectoryBase<Raid, RaidProperties, RaidKeys,
             results = results.filter((r) => RaidDirectory.filter(r.item, options));
         }
 
-        results = PoiLookupOptions.adjustObjectLookupResults(results, options, (r) => r.gym);
+        results = PoiLookupOptions.adjustObjectSearchResults(results, options, (r) => r.gym);
         return results;
     }
 }
 
+export function raidDirectory(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<RaidDirectory> {
+    return Converters.arrayOf(raid(gyms, bosses)).map(RaidDirectory.create);
+}
+
+export function loadRaidDirectorySync(path: string, gyms: GlobalGymDirectory, bosses: BossDirectory): Result<RaidDirectory> {
+    return loadJsonFile(path).onSuccess((json) => {
+        return raidDirectory(gyms, bosses).convert(json);
+    });
+}

@@ -27,6 +27,7 @@
             [ "Heatran", 485, 2, 2058, 2145, 2573, 2681, "fire|steel" ],
             [ "Ho-oh|Hooh", 250, 3, 2119, 2207, 2649, 2759, "fire|flying" ],
             [ "Kyogre", 382, 3, 2260, 2351, 2825, 2939, "water" ],
+            [ "Landorus Incarnate Forme|*Landorus", 643, 2, 1965, 2050, 2456, 2563, "ground|flying"],
             [ "Latias", 380, 3, 1921, 2006, 2402, 2507, "dragon|psychic" ],
             [ "Latios", 381, 3, 2090, 2178, 2613, 2723, "dragon|psychic" ],
             [ "Lugia", 249, 3, 2028, 2115, 2535, 2645, "psychic|flying" ],

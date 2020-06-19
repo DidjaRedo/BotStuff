@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import '../../helpers/jestHelpers';
 import { Directory, DirectoryOptions, FieldSearchWeight } from '../../../src/names/directory';
 import { FakeKeyedThing, FakeKeys, FakeKtDirectory, FakeKtLookupOptions, FakeProps } from '../../helpers/fakeKeyedThing';
 import { Names } from '../../../src/names/names';
@@ -566,8 +567,18 @@ describe('Directory class', (): void => {
                 alternateKeys: ['alternateName', 'aliases'],
             }, noAliasInit.map((i) => new FakeKeyedThing(i)));
 
-            expect(dir.getByFieldExact('alternateName', 'Not a name')).toEqual([]);
-            expect(dir.getByFieldExact('aliases', 'Not an alias')).toEqual([]);
+            expect(dir.getByFieldExact('alternateName', 'Not a name')).toHaveLength(0);
+            expect(dir.getByFieldExact('aliases', 'Not an alias')).toHaveLength(0);
+        });
+
+        it('should return a result array with all exact matches', () => {
+            const ktInit = [
+                ...init,
+                { name: 'Fourth Place', alternateName: 'Appendix', aliases: ['Hipsters'], city: 'New York', state: 'New York' },
+            ];
+            const dir = new FakeKtDirectory(ambiguousAliasOptions, ktInit.map((i) => new FakeKeyedThing(i)));
+            expect(dir.getByFieldExact('aliases', 'hipsters')).toHaveLength(2);
+            expect(dir.getByFieldExact('aliases', 'coffee')).toHaveLength(1);
         });
     });
 
@@ -599,7 +610,7 @@ describe('Directory class', (): void => {
                 alternateKeys: ['alternateName', 'aliases'],
             }, noAliasInit.map((i) => new FakeKeyedThing(i)));
 
-            expect(dir.getByAnyFieldExact('Not a name')).toEqual([]);
+            expect(dir.getByAnyFieldExact('Not a name')).toHaveLength(0);
         });
     });
 
@@ -692,6 +703,64 @@ describe('Directory class', (): void => {
         });
     });
 
+    describe('ResultArray class', () => {
+        const ktInit = [
+            ...init,
+            { name: 'Fourth Place', alternateName: 'Appendix', aliases: ['Hipsters'], city: 'New York', state: 'New York' },
+        ];
+        const dir = new FakeKtDirectory(ambiguousAliasOptions, ktInit.map((i) => new FakeKeyedThing(i)));
+        const multi = dir.lookup('hipsters');
+        const single = dir.lookup('coffee');
+        const none = dir.lookup('aliens');
+        const expectedItem = expect.objectContaining({
+            aliases: expect.arrayContaining(['Hipsters']),
+        });
+        const expectedResult = expect.objectContaining({
+            item: expectedItem,
+            score: 1,
+        });
+
+        describe('single method', () => {
+            it('should succeed for a list with one result and fail for anything else', () => {
+                expect(single.single()).toSucceedWith(expectedResult);
+                expect(multi.single()).toFailWith(/matches.*items/);
+                expect(none.single()).toFailWith(/not found/i);
+            });
+        });
+
+        describe('singleItem method', () => {
+            it('should succeed with just the payload for a list with one result and fail for anything else', () => {
+                expect(single.singleItem()).toSucceedWith(expectedItem);
+                expect(multi.single()).toFailWith(/matches.*items/);
+                expect(none.single()).toFailWith(/not found/i);
+            });
+        });
+
+        describe('best method', () => {
+            it('should return the first item or fail for an empty list', () => {
+                expect(single.best()).toSucceedWith(expectedResult);
+                expect(multi.best()).toSucceedWith(expectedResult);
+                expect(none.best()).toFailWith(/not found/i);
+            });
+        });
+
+        describe('bestitem method', () => {
+            it('should return the payload of the first item or fail for an empty list', () => {
+                expect(single.bestItem()).toSucceedWith(expectedItem);
+                expect(multi.bestItem()).toSucceedWith(expectedItem);
+                expect(none.bestItem()).toFailWith(/not found/i);
+            });
+        });
+
+        describe('allItems method', () => {
+            it('should return the payload of all items for any list', () => {
+                expect(single.allItems()).toEqual(expect.arrayContaining([expectedItem]));
+                expect(multi.allItems()).toEqual(expect.arrayContaining([expectedItem, expectedItem]));
+                expect(none.allItems()).toHaveLength(0);
+            });
+        });
+    });
+
     describe('Default directory class', () => {
         const ktInit = [
             ...init,
@@ -707,12 +776,19 @@ describe('Directory class', (): void => {
                 noExactLookup: true,
                 specialFilter: true,
             };
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const spy = jest.spyOn<any, any>(dir, '_adjustLookupResults');
+            const spy = jest.spyOn<any, any>(dir, '_adjustSearchResults');
             // filter parameter ignored by the default filter
             const things = dir.lookup('Second', options);
             expect(things).toHaveLength(2);
             expect(spy).toHaveBeenCalled();
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const spy2 = jest.spyOn<any, any>(dir, '_filterItems');
+            const otherThings = dir.getAll();
+            expect(otherThings).toHaveLength(ktInit.length);
+            expect(spy2).toHaveBeenCalled();
         });
     });
 });

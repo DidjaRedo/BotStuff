@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import '../../helpers/jestHelpers';
 import { Result, fail, succeed } from '../../../src/utils/result';
 import { Names } from '../../../src/names/names';
 import { NormalizedMap } from '../../../src/names/normalizedMap';
@@ -81,8 +82,7 @@ describe('NormalizedMap class', (): void => {
                 const map = new NormalizedMap();
                 const payload = { payload: 'test' };
 
-                expect(map.setStrict('Test', payload)).toBe(map);
-                expect(map.get('TEST')).toBe(payload);
+                expect(map.setStrict('Test', payload)).toSucceedWith(payload);
             });
 
             it('should throw if there is an existing element with a matching normalized name', () => {
@@ -93,7 +93,7 @@ describe('NormalizedMap class', (): void => {
                 expect(map.set('Test', payload)).toBe(map);
                 expect(map.get('TEST')).toBe(payload);
 
-                expect(() => map.setStrict('test', payload2)).toThrowError(/already exists/i);
+                expect(map.setStrict('test', payload2)).toFailWith(/already exists/i);
                 expect(map.get('Test')).toBe(payload);
                 expect(map.get('TeSt')).not.toBe(payload2);
             });
@@ -187,20 +187,20 @@ describe('NormalizedMap class', (): void => {
             it('should return an element that exists using normalized lookup', () => {
                 expect.assertions(names.length * 4);
                 for (const name of names) {
-                    let got;
-                    expect(() => { got = map.getStrict(name); }).not.toThrow();
-                    expect(got.originalName).toBe(name);
+                    expect(map.getStrict(name)).toSucceedWith(
+                        expect.objectContaining({ originalName: name }),
+                    );
 
-                    expect(() => { got = map.getStrict(` ${name.toUpperCase()} `); }).not.toThrow();
-                    expect(got.originalName).toBe(name);
+                    expect(map.getStrict(` ${name.toUpperCase()} `)).toSucceedWith(
+                        expect.objectContaining({ originalName: name }),
+                    );
                 }
             });
 
-            it('should throw for a name that does not exist', () => {
+            it('should return an error for a name that does not exist', () => {
                 const badNames = ['name_', '0therName', 'name3'];
-                expect.assertions(badNames.length);
                 badNames.forEach((n) => {
-                    expect(() => { map.getStrict(n); }).toThrowError(/does not exist/i);
+                    expect(map.getStrict(n)).toFailWith(/does not exist/i);
                 });
             });
         });
@@ -412,44 +412,6 @@ describe('NormalizedMap class', (): void => {
                 found.forEach((f): void => { expect(added).toContain(f); });
                 added.forEach((a): void => { expect(found).toContain(a); });
             });
-        });
-    });
-
-    describe('select method', (): void => {
-        const map = new NormalizedMap<{ name: string }>();
-        const names = ['Element 1', 'second ELEMENT', 'Third Element'];
-        names.forEach((n: string): void => {
-            map.set(n, { name: n });
-        });
-        map.set('EMPTY', null);
-
-        it('should invoke the select method for each element', (): void => {
-            let count = 0;
-            map.select((value: { name: string }, key: string) => {
-                count++;
-                expect(key).toEqual(Names.normalizeOrThrow(key));
-                return value;
-            });
-            expect(count).toBe(map.size);
-        });
-
-        it('should not include elements in the return for which the select method returns undefined', (): void => {
-            const selected = map.select((value: { name: string }, key: string) => {
-                if (value) {
-                    expect(key).toEqual(Names.normalizeOrThrow(key));
-                    return value;
-                }
-                return undefined;
-            });
-            expect(selected.length).toBe(map.size - 1);
-        });
-
-        it('should include elements in the return for which the select method returns a falsy value other than undefined', (): void => {
-            const selected = map.select((value: { name: string }, key: string) => {
-                expect(key).toEqual(Names.normalizeOrThrow(key));
-                return value;
-            });
-            expect(selected.length).toBe(map.size);
         });
     });
 

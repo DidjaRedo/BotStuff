@@ -22,9 +22,11 @@
 
 import * as Converters from '../utils/converters';
 import { Poi, PoiProperties } from '../places/poi';
-import { Result, fail, succeed } from '../utils/result';
+import { Result, captureResult, fail, succeed } from '../utils/result';
 import { Converter } from '../utils/converter';
+import { JsonObject } from '../utils/jsonHelpers';
 import { Names } from '../names/names';
+import { loadCsvFile } from '../utils/csvHelpers';
 import { poiPropertiesFieldConverters } from '../converters/poiConverter';
 
 export interface GymProperties extends PoiProperties {
@@ -38,6 +40,39 @@ export class Gym extends Poi implements GymProperties {
         super(init);
         this.isExEligible = init.isExEligible;
     }
+
+    public static createGym(init: GymProperties): Result<Gym> {
+        return captureResult(() => new Gym(init));
+    }
+
+    public toString(): string {
+        return this.primaryKey;
+    }
+
+    public toArray(): (string|number)[] {
+        return [
+            this.zones.join('|'),
+            this.city,
+            [this.name, ...this.alternateNames].join('|'),
+            this.coord.latitude,
+            this.coord.longitude,
+            this.isExEligible ? 'ex' : 'nonEx',
+        ];
+    }
+
+    public toJson(): JsonObject {
+        return {
+            zones: this.zones,
+            city: this.city,
+            name: this.name,
+            alternateNames: this.alternateNames,
+            coord: {
+                latitude: this.coord.latitude,
+                longitude: this.coord.longitude,
+            },
+            isExEligible: (this.isExEligible ? 'ex' : 'nonEx'),
+        };
+    }
 }
 
 export const exStatusConverter = new Converter((from: unknown): Result<boolean> => {
@@ -45,10 +80,11 @@ export const exStatusConverter = new Converter((from: unknown): Result<boolean> 
         switch (Names.normalize(from).getValueOrDefault()) {
             case 'nonex':
                 return succeed(false);
+            case 'ex':
             case 'exeligible':
                 return succeed(true);
             default:
-                return fail(`Invalid EX status ${from} (nonEx/exEligible)`);
+                return fail(`Invalid EX status ${from} (nonEx/ex/exEligible)`);
         }
     }
     return fail(`Invalid EX status ${JSON.stringify(from)} must be string`);
@@ -62,19 +98,23 @@ export const gymPropertiesFieldConverters = {
 export const gymPropertiesFromObject = Converters.object<GymProperties>(gymPropertiesFieldConverters);
 
 export const gymPropertiesFromArray = new Converter<GymProperties>((from: unknown): Result<GymProperties> => {
-    if ((!Array.isArray(from)) || (from.length !== 7)) {
-        return fail('Gym array must have seven columns: zones, city, name, alternate names, latitude, longitude, isExEligible');
+    if ((!Array.isArray(from)) || (from.length !== 6)) {
+        return fail('Gym array must have six columns: zones, city, names, latitude, longitude, isExEligible');
     }
-    return gymPropertiesFromObject.convert({
-        zones: from[0],
-        city: from[1],
-        name: from[2],
-        alternateNames: from[3],
-        coord: {
-            latitude: from[4],
-            longitude: from[5],
-        },
-        isExEligible: from[6],
+    return Converters.delimitedString('|').convert(from[0]).onSuccess((zones: string[]) => {
+        return Converters.delimitedString('|').convert(from[2]).onSuccess((names: string[]) => {
+            return gymPropertiesFromObject.convert({
+                zones: zones,
+                city: from[1],
+                name: names.shift(),
+                alternateNames: names,
+                coord: {
+                    latitude: from[3],
+                    longitude: from[4],
+                },
+                isExEligible: from[5],
+            });
+        });
     });
 });
 
@@ -119,3 +159,19 @@ export const gymPropertiesFromLegacyArray = new Converter<GymProperties>((from: 
         isExEligible: from[7],
     });
 });
+
+export const gymProperties = Converters.oneOf([
+    gymPropertiesFromObject,
+    gymPropertiesFromArray,
+]);
+
+export const gym = gymProperties.map(Gym.createGym);
+
+export const legacyGym = gymPropertiesFromLegacyArray.map(Gym.createGym);
+export const legacyGymCsv = Converters.arrayOf(legacyGym);
+
+export function loadLegacyGymsFile(path: string): Result<Gym[]> {
+    return loadCsvFile(path).onSuccess((body) => {
+        return legacyGymCsv.convert(body);
+    });
+}

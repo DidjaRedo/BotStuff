@@ -346,7 +346,7 @@ describe('ZonePoiDirectory class', (): void => {
         });
 
         it('should respect the noExactLookup option', () => {
-            expect(zone.tryGetPois('fa rmersmar ket', { noExactLookup: true })).toHaveLength(0);
+            expect(zone.tryGetPois('fa rmsmar ket', { noExactLookup: true })).toHaveLength(0);
         });
 
         it('should get elements with a fuzzy match on any searchable text field', () => {

@@ -91,67 +91,12 @@ describe('Result module', () => {
                     expect(result.message).toBe('oops');
                 }
             });
-
-            it('should return the original result if the continuation returns undefined', () => {
-                const result = succeed('test').onSuccess(() => undefined);
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toBe('test');
-                }
-            });
         });
 
         describe('onFailure method', () => {
             it('should not call the continuation and should return the original result', () => {
                 const cb = jest.fn((_: string): Result<string> => fail('oops'));
                 const result = succeed('hello').onFailure(cb);
-                expect(cb).not.toHaveBeenCalled();
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toBe('hello');
-                }
-            });
-        });
-
-        describe('on method', () => {
-            it('should call the success continuation but not the failure continuation', () => {
-                const successCb = jest.fn();
-                const failureCb = jest.fn();
-
-                succeed('hello').on({ success: successCb, failure: failureCb });
-                expect(successCb).toHaveBeenCalled();
-                expect(failureCb).not.toHaveBeenCalled();
-            });
-
-            it('should return any result from the success continuation', () => {
-                let result = succeed('hello').on({
-                    success: () => succeed('goodbye'),
-                });
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toBe('goodbye');
-                }
-
-                result = succeed('hello').on({
-                    success: () => fail('oops'),
-                });
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toBe('oops');
-                }
-            });
-
-            it('should return the original result if the success continuation returns undefined', () => {
-                const result = succeed('test').on({ success: () => undefined });
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toBe('test');
-                }
-            });
-
-            it('should not call the failure continuation and should return the original result', () => {
-                const cb = jest.fn((_: string): Result<string> => fail('oops'));
-                const result = succeed('hello').on({ failure: cb });
                 expect(cb).not.toHaveBeenCalled();
                 expect(result.isSuccess()).toBe(true);
                 if (result.isSuccess()) {
@@ -298,67 +243,6 @@ describe('Result module', () => {
                 expect(result.isSuccess()).toBe(true);
                 if (result.isSuccess()) {
                     expect(result.value).toBe('nice save');
-                }
-            });
-
-            it('should return the original result if the continuation returns undefined', () => {
-                const result = fail('test failure').onFailure(() => undefined);
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toBe('test failure');
-                }
-            });
-        });
-
-        describe('on method', () => {
-            it('should call the failure continuation but not the success continuation', () => {
-                const successCb = jest.fn();
-                const failureCb = jest.fn();
-
-                fail('hello').on({ success: successCb, failure: failureCb });
-                expect(successCb).not.toHaveBeenCalled();
-                expect(failureCb).toHaveBeenCalled();
-            });
-
-            it('should return any result from the failure continuation', () => {
-                let result = fail('oops').on({
-                    failure: () => fail('failed'),
-                });
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toBe('failed');
-                }
-
-                result = fail('bad').on({
-                    failure: () => succeed('good'),
-                });
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toBe('good');
-                }
-            });
-
-            it('should return the original result if the failure continuation is undefined or returns undefined', () => {
-                let result = fail('test failure').on({ failure: () => undefined });
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toBe('test failure');
-                }
-
-                result = fail('failed again').on({ success: () => fail('weird') });
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toBe('failed again');
-                }
-            });
-
-            it('should not call the success continuation and should return the original result', () => {
-                const cb = jest.fn((_: string): Result<string> => fail('oops'));
-                const result = fail('boom').on({ success: cb });
-                expect(cb).not.toHaveBeenCalled();
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toBe('boom');
                 }
             });
         });

@@ -122,7 +122,7 @@ describe('PoiLookupOptions module', () => {
         });
     });
 
-    describe('adjustLookupResults function', () => {
+    describe('adjustSearchResults function', () => {
         const testPois = TestPoiGenerator.generate([
             'A0', 'A1', 'B01', 'B1', 'C12',
         ]).getPois();
@@ -131,12 +131,12 @@ describe('PoiLookupOptions module', () => {
         );
 
         it('should report all lookups if there are no preferences', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(testLookups, PoiLookupOptions.defaultProperties);
+            const adjusted = PoiLookupOptions.adjustSearchResults(testLookups, PoiLookupOptions.defaultProperties);
             expect(adjusted).toHaveLength(testLookups.length);
         });
 
         it('should report only matched lookups if there are partial matches', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,
@@ -149,7 +149,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should report only POIs from preferred cities if both cities and zones match', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,
@@ -162,7 +162,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should report only POIs from preferred cities if there are no preferred zones', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,
@@ -174,7 +174,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should report only POIs from preferred zones if no preferred cities match', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,
@@ -187,7 +187,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should report only POIs from preferred zones if there are no preferred cities', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,
@@ -199,7 +199,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should report all non-filtered POIs if no preferred cities or zones match', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,
@@ -212,7 +212,7 @@ describe('PoiLookupOptions module', () => {
         });
 
         it('should report an empty list if no POIs are in allowed cities or zones', () => {
-            const adjusted = PoiLookupOptions.adjustLookupResults(
+            const adjusted = PoiLookupOptions.adjustSearchResults(
                 testLookups,
                 {
                     ...PoiLookupOptions.defaultProperties,

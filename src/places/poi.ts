@@ -21,8 +21,10 @@
  */
 import * as Geo from '../utils/geo';
 import { NamedThing, Names } from '../names/names';
+import { Result, captureResult } from '../utils/result';
 import { validateLatitude, validateLongitude } from '../utils/geo';
 import { DirectoryOptions } from '../names/directory';
+import { JsonObject } from '../utils/jsonHelpers';
 import { KeyedThing } from '../names/keyedThing';
 import { Utils } from '../utils/utils';
 
@@ -40,6 +42,8 @@ export interface PoiProperties extends PoiKeys {
     alternateNames?: string[];
     coord: Geo.Coordinate;
 }
+
+export const DEFAULT_NEAR_RADIUS = 1000;
 
 export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
     private _name: string;
@@ -69,9 +73,13 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
         this._keys = this._normalize();
     }
 
+    public static createPoi(init: PoiProperties): Result<Poi> {
+        return captureResult(() => new Poi(init));
+    }
+
     public static getDirectoryOptions(): DirectoryOptions<Poi, PoiProperties, PoiKeys> {
         return {
-            threshold: 0.8,
+            threshold: 0.70,
             textSearchKeys: [
                 {
                     name: 'name',
@@ -126,8 +134,8 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
             && Names.isListedOrDefault(cities, this.city);
     }
 
-    public isNear(coord: Geo.Coordinate, radius: number): boolean {
-        return Geo.coordinatesAreNear(coord, this.coord, radius);
+    public isNear(coord: Geo.Coordinate, radius?: number): boolean {
+        return Geo.coordinatesAreNear(coord, this.coord, radius ?? DEFAULT_NEAR_RADIUS);
     }
 
     public isInRegion(region: Geo.Region): boolean {
@@ -136,6 +144,33 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
 
     public get keys(): PoiKeys {
         return this._keys;
+    }
+
+    public toString(): string {
+        return this.primaryKey;
+    }
+
+    public toArray(): (string|number)[] {
+        return [
+            this.zones.join('|'),
+            this.city,
+            [this.name, ...this.alternateNames].join('|'),
+            this.coord.latitude,
+            this.coord.longitude,
+        ];
+    }
+
+    public toJson(): JsonObject {
+        return {
+            zones: this.zones,
+            city: this.city,
+            name: this.name,
+            alternateNames: this.alternateNames,
+            coord: {
+                latitude: this.coord.latitude,
+                longitude: this.coord.longitude,
+            },
+        };
     }
 
     protected _normalize(): PoiKeys {

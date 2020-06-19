@@ -1,0 +1,7487 @@
+[
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "128th Ave Trail Marker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60731,
+      "longitude": -122.169556
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Ballet Arts Center",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.612126,
+      "longitude": -122.206655
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Barbara Jean Soreano Memorial Bench",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.635549,
+      "longitude": -122.201002
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "BAM",
+    "alternateNames": [
+      "Bellevue Arts Museum"
+    ],
+    "coord": {
+      "latitude": 47.615275,
+      "longitude": -122.201434
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Botanical Waterfall",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.609193,
+      "longitude": -122.178908
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Club",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.604684,
+      "longitude": -122.189208
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Fire Station",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.626079,
+      "longitude": -122.163911
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Fire Station 7",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60379,
+      "longitude": -122.181342
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.606559,
+      "longitude": -122.188308
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Post Office",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.620532,
+      "longitude": -122.202168
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Square Clock Tower",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.615674,
+      "longitude": -122.20142
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Symetra Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.617198,
+      "longitude": -122.196717
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Transit Center",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.615491,
+      "longitude": -122.193964
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Bellewood Presbyterian Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631615,
+      "longitude": -122.193937
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Broken Cube",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.61391,
+      "longitude": -122.194883
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Chace's Pancake Corral",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.596335,
+      "longitude": -122.197899
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Chihuly Art Elements",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.618393,
+      "longitude": -122.191755
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Children's Tree",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.626619,
+      "longitude": -122.206279
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Chism Beach Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.600148,
+      "longitude": -122.20865
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "City of Clyde Hill",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.635723,
+      "longitude": -122.224004
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Clyde Beach Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.614277,
+      "longitude": -122.217872
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Compass",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.613878,
+      "longitude": -122.191695
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Corner Cupcake",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.616384,
+      "longitude": -122.180788
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Crab Netting Neon",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.620172,
+      "longitude": -122.179836
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Double Inquiry",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.619585,
+      "longitude": -122.194178
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Downtown Bellevue Map",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.610114,
+      "longitude": -122.203862
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Docter Park",
+    "alternateNames": [
+      "Jack M Docter Memorial Park"
+    ],
+    "coord": {
+      "latitude": 47.623928,
+      "longitude": -122.184547
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Early Pioneer Life Was Challenging",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.589208,
+      "longitude": -122.187225
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Enatai Beach Trailhead",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.580386,
+      "longitude": -122.195008
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Enatai Neighborhood Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.587992,
+      "longitude": -122.197419
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Endless Celebration",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.61762,
+      "longitude": -122.20151
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "First Presbyterian Church of Bellevue",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.626764,
+      "longitude": -122.201897
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Forest Deity",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.617259,
+      "longitude": -122.205669
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Ghandi",
+    "alternateNames": [
+      "Gandhi Statue"
+    ],
+    "coord": {
+      "latitude": 47.619644,
+      "longitude": -122.194651
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Gnome",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.604371,
+      "longitude": -122.204325
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Grace Lutheran Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.617134,
+      "longitude": -122.211359
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Hidden Valley Sports Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.627332,
+      "longitude": -122.191121
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Impossible Balancing Rocks",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.608848,
+      "longitude": -122.18029
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "In Memory of Freeman Fike",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.630102,
+      "longitude": -122.213869
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Indian Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.632054,
+      "longitude": -122.237337
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "KA-BOOM",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.620044,
+      "longitude": -122.173486
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Killarney Glen Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.59318,
+      "longitude": -122.20122
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Lake To Lake Trail Marker (Mercer Slough)",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.58771,
+      "longitude": -122.188462
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Lincoln Square Fiori",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.616845,
+      "longitude": -122.20143
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Logging Created a Community",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.592212,
+      "longitude": -122.18871
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Magic Chandelier",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.622632,
+      "longitude": -122.162806
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Main Street Market Place Clock",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.610327,
+      "longitude": -122.195968
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "McTavish Trail Head",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60144,
+      "longitude": -122.174781
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Mercer Slough Fish Ladder",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.601414,
+      "longitude": -122.184491
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Mercer Slough Nature Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.5848,
+      "longitude": -122.189601
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Meydenbauer Bay Yacht Club",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.608864,
+      "longitude": -122.206946
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Mountains to Sound",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.580092,
+      "longitude": -122.187759
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "MOX Boarding House",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.622703,
+      "longitude": -122.162505
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Native Discovery",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.608232,
+      "longitude": -122.178345
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "NE 8th Art Wall: Brookwood",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.617139,
+      "longitude": -122.167769
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "NE 8th Art Wall: Easton Court",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.616998,
+      "longitude": -122.156061
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "North Bravern Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.617023,
+      "longitude": -122.192259
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "PACCAR Donation Bench",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.607243,
+      "longitude": -122.17795
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Ping Pong Table",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.614393,
+      "longitude": -122.196859
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Points Loop Trail (Clyde Hill Elementary)",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631847,
+      "longitude": -122.20997
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Points Loop Trail (OGCC)",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.623857,
+      "longitude": -122.233263
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Points Loop Trail Marker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.636662,
+      "longitude": -122.22666
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Rods of Damocles",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.61419,
+      "longitude": -122.201556
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Sacred Heart Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.62344,
+      "longitude": -122.212668
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Salmon Sculpture",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.600078,
+      "longitude": -122.210194
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Satellite Antenna",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.628635,
+      "longitude": -122.170642
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Sculpted Stump",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.619725,
+      "longitude": -122.173419
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Splashing Stones",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.629084,
+      "longitude": -122.190407
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "SR520: Ecology And The Environment",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.640198,
+      "longitude": -122.253746
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "St. Thomas Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.621304,
+      "longitude": -122.228739
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Stainless Stele No.1",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.613153,
+      "longitude": -122.194246
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Bellevue Starbucks",
+    "alternateNames": [
+      "Starbucks (Bellevue)"
+    ],
+    "coord": {
+      "latitude": 47.615948,
+      "longitude": -122.19653
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Evergreen Village Starbucks",
+    "alternateNames": [
+      "Starbucks (Evergreen Village)",
+      "Ezell's Starbucks"
+    ],
+    "coord": {
+      "latitude": 47.624992,
+      "longitude": -122.15459
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Stories of Autism",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.629091,
+      "longitude": -122.166247
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Surrey Downs",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60989,
+      "longitude": -122.193985
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Surrey Downs Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.603445,
+      "longitude": -122.190937
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Tennis Academy",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.623745,
+      "longitude": -122.164263
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "The Gathering",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.620427,
+      "longitude": -122.189974
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "The Lake's Receding Shoreline",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.59197,
+      "longitude": -122.183582
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "The Pumphouse",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.61773,
+      "longitude": -122.183215
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "The Ravine Bridge",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.606359,
+      "longitude": -122.177582
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "Three Metal Pillars",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.612313,
+      "longitude": -122.211021
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Water is Life",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.595985,
+      "longitude": -122.183693
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "DowntownBellevueDiscord"
+    ],
+    "city": "Bellevue",
+    "name": "WPW",
+    "alternateNames": [
+      "Water, Precious Water"
+    ],
+    "coord": {
+      "latitude": 47.612224,
+      "longitude": -122.202586
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Wilburton Hill Park Entrance",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60998,
+      "longitude": -122.174781
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "ShaperCarin"
+    ],
+    "city": "Bellevue",
+    "name": "Wilburton Trestle",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.601974,
+      "longitude": -122.180643
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Windsong",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.620546,
+      "longitude": -122.231494
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Winters House",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.591551,
+      "longitude": -122.193236
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Valley Creek",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631688,
+      "longitude": -122.152527
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bellevue",
+    "name": "Tam O Shanter Golf and Country Club",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.621517,
+      "longitude": -122.098968
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Tam O Shanter Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.624351,
+      "longitude": -122.107596
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "St Peters (8th street)",
+    "alternateNames": [
+      "St Peters United Methodist Church"
+    ],
+    "coord": {
+      "latitude": 47.6169,
+      "longitude": -122.110741
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "St Peters (Northup)",
+    "alternateNames": [
+      "St Peters United Methodist Church (Northup)"
+    ],
+    "coord": {
+      "latitude": 47.618819,
+      "longitude": -122.109827
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Ivanhoe Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.623455,
+      "longitude": -122.118297
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Ivanhoe Baseball Field Sign",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.620714,
+      "longitude": -122.117578
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Viewpoint Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631212,
+      "longitude": -122.093925
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Brae Burn",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631261,
+      "longitude": -122.098195
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Bridle Crest Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.660711,
+      "longitude": -122.16393
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Westside Park",
+    "alternateNames": [
+      "Bridle Crest Trail Sign"
+    ],
+    "coord": {
+      "latitude": 47.659676,
+      "longitude": -122.132498
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Bridle Trails",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.655404,
+      "longitude": -122.185234
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Bridle Trails Gazebo",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.646395,
+      "longitude": -122.164519
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Bridle Trails State Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.655032,
+      "longitude": -122.184187
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Bridle Trails Viewpoint Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631508,
+      "longitude": -122.162141
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Central Park Tennis Club",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.66063,
+      "longitude": -122.173313
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Cherry Crest Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.63324,
+      "longitude": -122.170354
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Conifer Species Stand",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.655895,
+      "longitude": -122.173272
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Eastside Harley Davidson",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.630599,
+      "longitude": -122.155817
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Forest Gaps Stand",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.653616,
+      "longitude": -122.172072
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Franklin Park North Trailhead",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.66361,
+      "longitude": -122.173056
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Good and Bad Stand",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.652912,
+      "longitude": -122.178266
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Horse Show Arena",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.655977,
+      "longitude": -122.184697
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Lake East Christian Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.654849,
+      "longitude": -122.185738
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Pike's Peak",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.633299,
+      "longitude": -122.179197
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Belevue",
+    "name": "Eastside Medical Center Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.628832,
+      "longitude": -122.18517
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Second Church of Christ, Scientist, Bellevue, WA",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.629974,
+      "longitude": -122.155477
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Trillium Trail Dedication Plaque",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.654776,
+      "longitude": -122.182763
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Bridle Trails",
+    "name": "Westminster \"W\"",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.632738,
+      "longitude": -122.157325
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Bellevue Masonic Center",
+    "alternateNames": [
+      "Bellevue Masonic Center's Plaque"
+    ],
+    "coord": {
+      "latitude": 47.624449,
+      "longitude": -122.122578
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Bellevue Youth Theatre",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.62277,
+      "longitude": -122.116785
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Calvary Lutheran Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.614881,
+      "longitude": -122.122409
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Xroads (Bike Rack)",
+    "alternateNames": [
+      "Coffee Cup Bike Rack"
+    ],
+    "coord": {
+      "latitude": 47.618412,
+      "longitude": -122.131228
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Xroads (Colonial Square)",
+    "alternateNames": [
+      "Colonial Square Apartment Homes"
+    ],
+    "coord": {
+      "latitude": 47.624645,
+      "longitude": -122.132236
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Cross of Christ Lutheran Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.61394,
+      "longitude": -122.133089
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Xroads (Community Center)",
+    "alternateNames": [
+      "Crossroads Community Center"
+    ],
+    "coord": {
+      "latitude": 47.619357,
+      "longitude": -122.128017
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Xroads (Cow)",
+    "alternateNames": [
+      "Crossroads Cow in Stone Garden"
+    ],
+    "coord": {
+      "latitude": 47.620334,
+      "longitude": -122.130254
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Hilaire Park (Entrance)",
+    "alternateNames": [
+      "Hilaire Park"
+    ],
+    "coord": {
+      "latitude": 47.615103,
+      "longitude": -122.129232
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Hilaire Park (Bench)",
+    "alternateNames": [
+      "P. George Brown Memorial Bench"
+    ],
+    "coord": {
+      "latitude": 47.614595,
+      "longitude": -122.128187
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Xroads (Salvation Army)",
+    "alternateNames": [
+      "The Salvation Army"
+    ],
+    "coord": {
+      "latitude": 47.618808,
+      "longitude": -122.122246
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Xroads (Woodland Mural)",
+    "alternateNames": [
+      "Woodland Mural"
+    ],
+    "coord": {
+      "latitude": 47.619303,
+      "longitude": -122.129903
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Unity Church",
+    "alternateNames": [
+      "Unity of Bellevue Church"
+    ],
+    "coord": {
+      "latitude": 47.613565,
+      "longitude": -122.122093
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "Power Shell Youth Theater",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.618804,
+      "longitude": -122.12669
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "SushiMe Wallflowers",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.621403,
+      "longitude": -122.132688
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Crossroads",
+    "name": "NE 8th Art Tiles: 153rd Ave",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.616955,
+      "longitude": -122.136086
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "Cornish",
+    "alternateNames": [
+      "Cornish Spire of Light"
+    ],
+    "coord": {
+      "latitude": 47.617861,
+      "longitude": -122.334516
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "Globe",
+    "alternateNames": [
+      "Globe Sculpture"
+    ],
+    "coord": {
+      "latitude": 47.612769,
+      "longitude": -122.333498
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "Not All Who Wander",
+    "alternateNames": [
+      "Not All Who Wander Are Lost - To Do Is To Be"
+    ],
+    "coord": {
+      "latitude": 47.618431,
+      "longitude": -122.331099
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "Seattle Times",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.619793,
+      "longitude": -122.334506
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "Servant Christ",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.618122,
+      "longitude": -122.334485
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "7th and Stewart Starbucks",
+    "alternateNames": [
+      "Starbucks (7th and Stewart)"
+    ],
+    "coord": {
+      "latitude": 47.614326,
+      "longitude": -122.33587
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Denny Triangle",
+    "name": "Spiral",
+    "alternateNames": [
+      "The Spiral"
+    ],
+    "coord": {
+      "latitude": 47.615502,
+      "longitude": -122.335601
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Downtown",
+    "name": "Fifth Avenue Theater",
+    "alternateNames": [
+      "5th Avenue Theater"
+    ],
+    "coord": {
+      "latitude": 47.609025,
+      "longitude": -122.333912
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Charbern",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.61657,
+      "longitude": -122.324572
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Bauhaus Coffee Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.615328,
+      "longitude": -122.326135
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Sun Liquor",
+    "alternateNames": [
+      "Sun Liquor Distillery"
+    ],
+    "coord": {
+      "latitude": 47.614198,
+      "longitude": -122.325029
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Chess Boss",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.622654,
+      "longitude": -122.331264
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Amli Pillar",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.623197,
+      "longitude": -122.331104
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Pig Statue",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.62213,
+      "longitude": 122.338647
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Cabin Corners",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.623358,
+      "longitude": -122.335624
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Cubic Column",
+    "alternateNames": [
+      "The Cubic Column of North and South"
+    ],
+    "coord": {
+      "latitude": 47.624641,
+      "longitude": -122.335755
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Electric",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.624866,
+      "longitude": -122.338311
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Mohai Street Clock",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.627895,
+      "longitude": -122.337041
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Flower Bench",
+    "alternateNames": [
+      "Urban Flower Bench"
+    ],
+    "coord": {
+      "latitude": 47.625923,
+      "longitude": -122.333413
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Fred Hutchinson",
+    "alternateNames": [
+      "Fred Hutchinson Cancer Research"
+    ],
+    "coord": {
+      "latitude": 47.627655,
+      "longitude": -122.330896
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "South Lake Union",
+    "name": "Belkin Presents",
+    "alternateNames": [
+      "Belkin Presents Bus Stop Mural"
+    ],
+    "coord": {
+      "latitude": 47.616909,
+      "longitude": -122.340374
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Belltown",
+    "name": "Pink Elephant",
+    "alternateNames": [
+      "Pink Elephant Car Wash"
+    ],
+    "coord": {
+      "latitude": 47.618402,
+      "longitude": -122.343426
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Belltown",
+    "name": "Popsicle",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.614448,
+      "longitude": -122.342542
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Belltown",
+    "name": "Gyro Jack",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.614505,
+      "longitude": -122.344824
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Belltown",
+    "name": "Vain Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.611588,
+      "longitude": -122.343107
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Pike Place",
+    "name": "Starbucks First Store",
+    "alternateNames": [
+      "First Starbucks"
+    ],
+    "coord": {
+      "latitude": 47.610003,
+      "longitude": -122.342659
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Pike Place",
+    "name": "Bubblegum Wall",
+    "alternateNames": [
+      "Bubble Gum Wall"
+    ],
+    "coord": {
+      "latitude": 47.608286,
+      "longitude": -122.340306
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Bike Park Stone Guardians",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.635334,
+      "longitude": -122.322528
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Melrose Weather Vane",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.624445,
+      "longitude": -122.327811
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Lookout",
+    "alternateNames": [
+      "The Lookout"
+    ],
+    "coord": {
+      "latitude": 47.626777,
+      "longitude": -122.326754
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "James Ray",
+    "alternateNames": [
+      "In Honor of James W Ray"
+    ],
+    "coord": {
+      "latitude": 47.634916,
+      "longitude": -122.320985
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "St Marks",
+    "alternateNames": [
+      "St Marks Episcopal Cathedral",
+      "St Marks Episcopal"
+    ],
+    "coord": {
+      "latitude": 47.631913,
+      "longitude": -122.321118
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Roanoke Park",
+    "name": "Roanoke Park Place",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.641662,
+      "longitude": -122.320158
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Roanoke Park",
+    "name": "Roanoke Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.643258,
+      "longitude": -122.320408
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Roanoke Park",
+    "name": "Geographic Center",
+    "alternateNames": [
+      "The Geographic Center of Seattle"
+    ],
+    "coord": {
+      "latitude": 47.643935,
+      "longitude": -122.320219
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Roanoke Park",
+    "name": "Interlocking Piece Sculpture",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.638791,
+      "longitude": -122.320193
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Roanoke Park",
+    "name": "25 Bus Shelter on Lakeview Blvd",
+    "alternateNames": [
+      "#25 Bus Shelter on Lakeview Blvd",
+      "Bus Shelter"
+    ],
+    "coord": {
+      "latitude": 47.630882,
+      "longitude": -122.324501
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Eastlake",
+    "name": "I-5 Colonade",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.633601,
+      "longitude": -122.324417
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Eastlake",
+    "name": "Rogers Field",
+    "alternateNames": [
+      "Rogers Playfield"
+    ],
+    "coord": {
+      "latitude": 47.642765,
+      "longitude": -122.324995
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Church of the Redeemer Episcopal",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.760154,
+      "longitude": -122.259747
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Crocodile Rocks Statue",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.757794,
+      "longitude": -122.247674
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Glow Tubes on Bothell Way",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.75856,
+      "longitude": -122.249959
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Herons above the Lake",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.757786,
+      "longitude": -122.264743
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "I'm the Sky Lilly Light Pads",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.755954,
+      "longitude": -122.23377
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Industry Meets Nature Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.756437,
+      "longitude": -122.239168
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Kenmore Flying Fish",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.75813,
+      "longitude": -122.249569
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Legacy of Bruce Stout",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.754358,
+      "longitude": -122.250447
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Leopard Painting",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.757143,
+      "longitude": -122.242888
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Lightsabers of Kenmore",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.757296,
+      "longitude": -122.243943
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Rhododendron Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.751958,
+      "longitude": -122.249798
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kenmore",
+    "name": "Savage Moose Sports Pub",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.759024,
+      "longitude": -122.261504
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Yarrow Point Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.651141,
+      "longitude": -122.216333
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Yarrow Bay Plaza Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.644629,
+      "longitude": -122.203049
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Lakeview Walk Trailhead",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.649874,
+      "longitude": -122.204003
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Yarrow Bay Watershed",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.646157,
+      "longitude": -122.202306
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Big Fish Anchor",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.643688,
+      "longitude": -122.200613
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Let Freedom Reign Plaque",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.645324,
+      "longitude": -122.197651
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "South Kirkland Park and Ride",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.643703,
+      "longitude": -122.19648
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Santa in the Stream",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.641089,
+      "longitude": -122.191139
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Historic Kirkland Watershed Park Reservoir",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.650033,
+      "longitude": -122.189793
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Spencer Albin Bridge",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.65188,
+      "longitude": -122.188352
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Crazy Bus Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.656133,
+      "longitude": -122.196121
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Northwest University Sign",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.658205,
+      "longitude": -122.196055
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Carillon Creek",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.656708,
+      "longitude": -122.205018
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Carillon Bells",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.656588,
+      "longitude": -122.207349
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Glassinator - Andrew Carson",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.65752,
+      "longitude": -122.207489
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Nautilus By Ulrich Pakker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.658013,
+      "longitude": -122.207121
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Houghton Beach Park - \"Spring\"",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.66092,
+      "longitude": -122.206802
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Cherub Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.663221,
+      "longitude": -122.207265
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Marsh Park - \"Leap Frog\" Bronz",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.665129,
+      "longitude": -122.207234
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Loretta Lenard Memorial",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.665643,
+      "longitude": -122.207611
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Houghton Through the Years",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.665882,
+      "longitude": -122.19643
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Moss Bay Neighborhood",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.666936,
+      "longitude": -122.201773
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Lake Street Fountains",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.668281,
+      "longitude": -122.206965
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Water Bearers - Glenna Goodacre",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.671084,
+      "longitude": -122.20584
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Google Building B",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.669195,
+      "longitude": -122.197598
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Google Kirkland",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.669411,
+      "longitude": -122.196454
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Friendship",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.670814,
+      "longitude": -122.191492
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Fish #25",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.672808,
+      "longitude": -122.195821
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Stone Tooth Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.674097,
+      "longitude": -122.200137
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "King of Kirkland",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675496,
+      "longitude": -122.199672
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "St. James Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675349,
+      "longitude": -122.201186
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Betty Lou",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675744,
+      "longitude": -122.204742
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Reasons to Believe",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675387,
+      "longitude": -122.207053
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Patination",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.678888,
+      "longitude": -122.188174
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Verne & Wells",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.679951,
+      "longitude": -122.194092
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Mother Bear and Cubs",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.68047,
+      "longitude": -122.196591
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Park Place Clock",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.67795,
+      "longitude": -122.198235
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Jessica, Jake and Annie",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.677976,
+      "longitude": -122.198784
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Bradley David Cabreros Memorial",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.677623,
+      "longitude": -122.200584
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Elmer T. White Memorial Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.677425,
+      "longitude": -122.204375
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Cow and the Coyote",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.676641,
+      "longitude": -122.207228
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Heritage Park Rock Garden",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.679478,
+      "longitude": -122.212593
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Two-Face Sculpture",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.680328,
+      "longitude": -122.209035
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Matador - Micajah Biencenu",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.682882,
+      "longitude": -122.203874
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Van Aalst Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.684835,
+      "longitude": -122.201455
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Cross Kirkland Corridor",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.685811,
+      "longitude": -122.193519
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Little Park by the Freeway",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.686067,
+      "longitude": -122.183562
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Fishin' Bench",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.687147,
+      "longitude": -122.218251
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Kiwanis Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.69092,
+      "longitude": -122.216805
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Bounding Mule Deer",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.689233,
+      "longitude": -122.210122
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Crestwoods Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.689688,
+      "longitude": -122.197139
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Cotton Hill Park Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.689743,
+      "longitude": -122.193804
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Forbes Creek Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.694527,
+      "longitude": -122.186452
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Forbes Creek Rehabilitation",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.696663,
+      "longitude": -122.191389
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "The Other Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.6976,
+      "longitude": -122.191537
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Games and Gizmos",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.70125,
+      "longitude": -122.180827
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Kollin Nielson Memorial Bridge",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.704124,
+      "longitude": -122.180102
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "405 BP Wetlands Path Trailhead",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.706919,
+      "longitude": -122.188774
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Jasper's Dog Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.707485,
+      "longitude": -122.19057
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Lake Wetlands Ecology Totem",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.710207,
+      "longitude": -122.18948
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "McAuliffe Park Windmill",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.704525,
+      "longitude": -122.196537
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "McAuliffe Totem",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.705288,
+      "longitude": -122.196249
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Big Wheels Keep on Turning",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.705838,
+      "longitude": -122.197162
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Richard L. Wegener Memorial",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.695911,
+      "longitude": -122.210914
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Old Market Street Bridge",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.697369,
+      "longitude": -122.210126
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "East Bog Walk",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.698062,
+      "longitude": -122.212135
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Wooded Wetland",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.699633,
+      "longitude": -122.210255
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Juanita Bay Steamboat Dock",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.701051,
+      "longitude": -122.210242
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Creation and Destruction",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.703813,
+      "longitude": -122.210758
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Spud Fish and Chips",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.705258,
+      "longitude": -122.21296
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Cat Tails Bridge Art",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.705465,
+      "longitude": -122.216867
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Juanita Creek",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.706198,
+      "longitude": -122.215499
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Juanita Village Starbucks",
+    "alternateNames": [
+      "Starbucks (Juanita)"
+    ],
+    "coord": {
+      "latitude": 47.706651,
+      "longitude": -122.2117863
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Kelp Bronze Sculpture",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.70701,
+      "longitude": -122.211669
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Kirkland",
+    "name": "Safe Walking Tips",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.711549,
+      "longitude": -122.203359
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Robinswood Park (Bench)",
+    "alternateNames": [
+      "The Dogs Know Amelia Gray Memorial Bench"
+    ],
+    "coord": {
+      "latitude": 47.587637,
+      "longitude": -122.138615
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Balance of Order",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.580375,
+      "longitude": -122.152227
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bellevue College Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.584392,
+      "longitude": -122.149515
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bellevue Demonstration Garden",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.597158,
+      "longitude": -122.133281
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bellevue Seventh Day Adventist Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.610102,
+      "longitude": -122.154213
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bellevue Airfield Park",
+    "alternateNames": [
+      "Bellevue Trail Post"
+    ],
+    "coord": {
+      "latitude": 47.586778,
+      "longitude": -122.128403
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Blue Bowl Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.580815,
+      "longitude": -122.133746
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Blueberry Bus Stop",
+    "alternateNames": [
+      "Blueberry Farmers at the Blueberry Bus Stop"
+    ],
+    "coord": {
+      "latitude": 47.602901,
+      "longitude": -122.136043
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bronze Bears",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.582255,
+      "longitude": -122.17196
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Catalina Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.591469,
+      "longitude": -122.163854
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Church Of Christ Lake Hills",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.597962,
+      "longitude": -122.150615
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bellevue Trail System Marker (156th)",
+    "alternateNames": [
+      "City of Bellevue Trail System Marker (156th)"
+    ],
+    "coord": {
+      "latitude": 47.585358,
+      "longitude": -122.132417
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Bellevue Trail System Marker (24th)",
+    "alternateNames": [
+      "City of Bellevue Trail System Marker (24th)"
+    ],
+    "coord": {
+      "latitude": 47.588855,
+      "longitude": -122.122642
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake Hills Park Rules",
+    "alternateNames": [
+      "Ducks And Dogs, The Rules Of Lake Hills Park"
+    ],
+    "coord": {
+      "latitude": 47.5976,
+      "longitude": -122.123532
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Enhancing the Wetland Home for Wildlife",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.606089,
+      "longitude": -122.144203
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Evergreen Park Dog Stop",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.603728,
+      "longitude": -122.128443
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Forty One Point Five Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.573847,
+      "longitude": -122.111206
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Fraser House",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.603164,
+      "longitude": -122.164045
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Freeway Fish",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.579568,
+      "longitude": -122.151614
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Larsen Lake Blueberry Farm",
+    "alternateNames": [
+      "Keep Wildlife Wild"
+    ],
+    "coord": {
+      "latitude": 47.605443,
+      "longitude": -122.137446
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Kelsey Creek Farm Trail Marker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.602041,
+      "longitude": -122.159097
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake 2 Lake Marker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.605135,
+      "longitude": -122.159091
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake Hills Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.599626,
+      "longitude": -122.12107
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake To Lake Boardwalk Bog",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60675,
+      "longitude": -122.145536
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake To Lake Trail (26th Street)",
+    "alternateNames": [
+      "Lake To Lake Trail"
+    ],
+    "coord": {
+      "latitude": 47.589022,
+      "longitude": -122.117032
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake to Lake Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.606702,
+      "longitude": -122.146841
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake to Lake Trail Marker (Kelsey Creek)",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.605854,
+      "longitude": -122.162162
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake to Lake Trail Marker North",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.608007,
+      "longitude": -122.138162
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake To Lake Trail Sign",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.595704,
+      "longitude": -122.1154
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake to Lake Trailhead (151st)",
+    "alternateNames": [
+      "Lake to Lake Trailhead, 151st Ave Entrance"
+    ],
+    "coord": {
+      "latitude": 47.59881,
+      "longitude": -122.137003
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lakt to Lake Trail Marker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.606764,
+      "longitude": -122.153603
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Sunset Village (Lil Jon Restaurant)",
+    "alternateNames": [
+      "Lil Jon Restaurant"
+    ],
+    "coord": {
+      "latitude": 47.581852,
+      "longitude": -122.138912
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Little League Federal Field",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.601973,
+      "longitude": -122.137917
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Nature Does Nothing Uselessly",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.596921,
+      "longitude": -122.13359
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Norwood Village Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.589681,
+      "longitude": -122.174414
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Sunset Village (Pergola)",
+    "alternateNames": [
+      "Pergola"
+    ],
+    "coord": {
+      "latitude": 47.581765,
+      "longitude": -122.14024
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Printed Circuits",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.587231,
+      "longitude": -122.163127
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Richards Valley Trail Head",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.592448,
+      "longitude": -122.158947
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Robinsglen Nature Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.596512,
+      "longitude": -122.121239
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Robinswood Park (Dog Park)",
+    "alternateNames": [
+      "Robinswood Dog Park"
+    ],
+    "coord": {
+      "latitude": 47.587905,
+      "longitude": -122.14243
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Robinswood Park (Trail)",
+    "alternateNames": [
+      "Robinswood Park Trail Entrance"
+    ],
+    "coord": {
+      "latitude": 47.586816,
+      "longitude": -122.142353
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Robinswood Park (Tennis Center)",
+    "alternateNames": [
+      "Robinswood Tennis Center"
+    ],
+    "coord": {
+      "latitude": 47.588971,
+      "longitude": -122.138011
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Seattle Humane Society",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.58063,
+      "longitude": -122.163057
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Skyridge Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.592375,
+      "longitude": -122.158284
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Spiritridge and Phantom Lake Trailhead",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.588893,
+      "longitude": -122.125897
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Spiritridge Park Rock",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.58096,
+      "longitude": -122.128001
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "St. Louise De Marillac Catholic Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.60848,
+      "longitude": -122.132377
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Lake Hills Starbucks",
+    "alternateNames": [
+      "Starbucks (Lake Hills)"
+    ],
+    "coord": {
+      "latitude": 47.596722,
+      "longitude": -122.148774
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Sunset Hills Memorial Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.596132,
+      "longitude": -122.150492
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Sunset Hills Memorial Park North Entrance",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.599717,
+      "longitude": -122.152831
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Sunset Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.587397,
+      "longitude": -122.155442
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "LDS (Lake Hills)",
+    "alternateNames": [
+      "The Church Of Jesus Christ Of Latter-Day Saints (Lake Hills)"
+    ],
+    "coord": {
+      "latitude": 47.584283,
+      "longitude": -122.141151
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Boys and Girls Club",
+    "alternateNames": [
+      "The Club"
+    ],
+    "coord": {
+      "latitude": 47.602973,
+      "longitude": -122.136574
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "The Other Woman",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.583665,
+      "longitude": -122.149727
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "The Ridgedale Apartment Homes",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.604362,
+      "longitude": -122.153328
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Weowna Park (Trail System Sign)",
+    "alternateNames": [
+      "Trail System Sign"
+    ],
+    "coord": {
+      "latitude": 47.596658,
+      "longitude": -122.115468
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Weowna Park (Trees Wanted)",
+    "alternateNames": [
+      "Trees Wanted Dead or Alive"
+    ],
+    "coord": {
+      "latitude": 47.593918,
+      "longitude": -122.115547
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Vasa Park (Fountain)",
+    "alternateNames": [
+      "Vasa Park Fountain"
+    ],
+    "coord": {
+      "latitude": 47.576751,
+      "longitude": -122.112869
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Vasa Park (Reunion Building)",
+    "alternateNames": [
+      "Vasa Park Reunion Building"
+    ],
+    "coord": {
+      "latitude": 47.576745,
+      "longitude": -122.114125
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Watching Washington",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.600058,
+      "longitude": -122.147675
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Phantom Lake",
+    "alternateNames": [
+      "Welcome To Phantom Lake!"
+    ],
+    "coord": {
+      "latitude": 47.592393,
+      "longitude": -122.130937
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Weowna Park (Trail Stairway)",
+    "alternateNames": [
+      "Weowna Park Trail Stairway Marker"
+    ],
+    "coord": {
+      "latitude": 47.60261,
+      "longitude": -122.114019
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "West Lake Sammamish Lion",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.595314,
+      "longitude": -122.111383
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Wood Ridge Open Loop Trail Marker",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.595555,
+      "longitude": -122.169477
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Lake Hills",
+    "name": "Woodridge Watertower",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.593469,
+      "longitude": -122.173872
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B99",
+    "alternateNames": [
+      "99 Rock Falls"
+    ],
+    "coord": {
+      "latitude": 47.642252,
+      "longitude": -122.141233
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "All Saints Lutheran Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.657134,
+      "longitude": -122.143459
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Ardmore Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.636716,
+      "longitude": -122.115505
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Crosswalk Box",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631435,
+      "longitude": -122.121498
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Bellevue Totem",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.629342,
+      "longitude": -122.147368
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Brown Bear",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.616887,
+      "longitude": -122.142896
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Brown Bear Car Wash Bel-Red",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.628316,
+      "longitude": -122.13635
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Chevy Chase Sign",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.623112,
+      "longitude": -122.142987
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft Cafe 43",
+    "alternateNames": [
+      "Cafe 43 Fountain"
+    ],
+    "coord": {
+      "latitude": 47.639946,
+      "longitude": -122.133298
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Commissioner's Waterway",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.626196,
+      "longitude": -122.14349
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Creekside Covenant Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.630389,
+      "longitude": -122.109666
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B6",
+    "alternateNames": [
+      "Double Quad"
+    ],
+    "coord": {
+      "latitude": 47.639234,
+      "longitude": -122.125582
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Electric Blue Tower of Power",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.630915,
+      "longitude": -122.13461
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Giant Leaves",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.632664,
+      "longitude": -122.136288
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Highland Covenant Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.627729,
+      "longitude": -122.138168
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Idylwood Park (South Side)",
+    "alternateNames": [
+      "Idylwood Park South Side"
+    ],
+    "coord": {
+      "latitude": 47.641949,
+      "longitude": -122.103427
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Islamic Center of the Eastside",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.610085,
+      "longitude": -122.144099
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Foursquare Church",
+    "alternateNames": [
+      "Lake Sammamish Foursquare Church"
+    ],
+    "coord": {
+      "latitude": 47.617415,
+      "longitude": -122.146474
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Leaf Seat",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.616016,
+      "longitude": -122.153519
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Ling Shen Temple",
+    "alternateNames": [
+      "Ling Shen Ching Tze Temple"
+    ],
+    "coord": {
+      "latitude": 47.646527,
+      "longitude": -122.112718
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft Fitness Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.643633,
+      "longitude": -122.120667
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B9",
+    "alternateNames": [
+      "Microsoft Fountain"
+    ],
+    "coord": {
+      "latitude": 47.639626,
+      "longitude": -122.127396
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "RedWest (Wetlands)",
+    "alternateNames": [
+      "Microsoft Redwest Wetlands East"
+    ],
+    "coord": {
+      "latitude": 47.656599,
+      "longitude": -122.138512
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B16",
+    "alternateNames": [
+      "Microsoft Vision Plaque"
+    ],
+    "coord": {
+      "latitude": 47.642939,
+      "longitude": -122.127827
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B25",
+    "alternateNames": [
+      "MSFT Bldg 25 Cafe Fountain"
+    ],
+    "coord": {
+      "latitude": 47.645331,
+      "longitude": -122.131129
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B115",
+    "alternateNames": [
+      "Nebula Torcida"
+    ],
+    "coord": {
+      "latitude": 47.640355,
+      "longitude": -122.141738
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Nintendo Building",
+    "alternateNames": [
+      "Nintendo of America"
+    ],
+    "coord": {
+      "latitude": 47.651046,
+      "longitude": -122.140126
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Nintendo Sign",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.654689,
+      "longitude": -122.141007
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "NBCC",
+    "alternateNames": [
+      "North Bellevue Community Center"
+    ],
+    "coord": {
+      "latitude": 47.647675,
+      "longitude": -122.1433
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Overlake Black Bears",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631661,
+      "longitude": -122.143336
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Overlake Park Prebyterian Church",
+    "alternateNames": [
+      "Overlake Park Presbyterian Church"
+    ],
+    "coord": {
+      "latitude": 47.627528,
+      "longitude": -122.131699
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Overlake Transit (Compass Rose)",
+    "alternateNames": [
+      "Overlake Transit: Compass Rose"
+    ],
+    "coord": {
+      "latitude": 47.644329,
+      "longitude": -122.133199
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Overlake Transit (Northern Compass)",
+    "alternateNames": [
+      "Overlake Transit: Northern Compass"
+    ],
+    "coord": {
+      "latitude": 47.645805,
+      "longitude": -122.133929
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Qdoba Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.631969,
+      "longitude": -122.138299
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Idylwood Park (Rockfish)",
+    "alternateNames": [
+      "Rockfish"
+    ],
+    "coord": {
+      "latitude": 47.642697,
+      "longitude": -122.10253
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B88",
+    "alternateNames": [
+      "Running Man Corner"
+    ],
+    "coord": {
+      "latitude": 47.653868,
+      "longitude": -122.134799
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "RedWest (Sidewalk)",
+    "alternateNames": [
+      "Running Man Sidewalk"
+    ],
+    "coord": {
+      "latitude": 47.660022,
+      "longitude": -122.141825
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B84",
+    "alternateNames": [
+      "Running Man Trail Marker"
+    ],
+    "coord": {
+      "latitude": 47.649877,
+      "longitude": -122.134852
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Salmon Woman and Raven",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.625192,
+      "longitude": -122.150538
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B24",
+    "alternateNames": [
+      "Small Waterfall"
+    ],
+    "coord": {
+      "latitude": 47.64113,
+      "longitude": -122.131385
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Overlake Starbucks",
+    "alternateNames": [
+      "Starbucks (Overlake)",
+      "Sears Starbucks"
+    ],
+    "coord": {
+      "latitude": 47.628162,
+      "longitude": -122.14111
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "RedWest (Waterfall)",
+    "alternateNames": [
+      "Step Waterfall"
+    ],
+    "coord": {
+      "latitude": 47.65896,
+      "longitude": -122.140784
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Stormwater Pond (Bel-Red)",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.64598,
+      "longitude": -122.114528
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft Studio D",
+    "alternateNames": [
+      "The Halo Vignette"
+    ],
+    "coord": {
+      "latitude": 47.643057,
+      "longitude": -122.135625
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "RedWest (Tree Cave)",
+    "alternateNames": [
+      "Tree Cave"
+    ],
+    "coord": {
+      "latitude": 47.655397,
+      "longitude": -122.140535
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B30",
+    "alternateNames": [
+      "Truck In A Tree"
+    ],
+    "coord": {
+      "latitude": 47.644983,
+      "longitude": -122.121525
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Microsoft B27",
+    "alternateNames": [
+      "TWC - Stone Columns"
+    ],
+    "coord": {
+      "latitude": 47.635711,
+      "longitude": -122.130721
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Anderson Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.67374,
+      "longitude": -122.116119
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Ashford Park Gazebo",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.682791,
+      "longitude": -122.100218
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Panera",
+    "alternateNames": [
+      "Bear Creek Crossing",
+      "Bear Creek"
+    ],
+    "coord": {
+      "latitude": 47.671026,
+      "longitude": -122.110648
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Bear Creek Water Tower",
+    "alternateNames": [
+      "Watertower",
+      "Water Tower"
+    ],
+    "coord": {
+      "latitude": 47.687974,
+      "longitude": -122.103674
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Camano Madrona",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.66353761,
+      "longitude": -122.08818376
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond 7-11",
+    "alternateNames": [
+      "Bicycle Bike Rack"
+    ],
+    "coord": {
+      "latitude": 47.669839,
+      "longitude": -122.130934
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Target",
+    "alternateNames": [
+      "Big Red Ball"
+    ],
+    "coord": {
+      "latitude": 47.672208,
+      "longitude": -122.104056
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Bear Creek Park and Ride",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.67363,
+      "longitude": -122.101006
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond PCC",
+    "alternateNames": [
+      "Bird on a Boat"
+    ],
+    "coord": {
+      "latitude": 47.701848,
+      "longitude": -122.0933
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Avondale Power Line",
+    "alternateNames": [
+      "Avondale Powerline"
+    ],
+    "coord": {
+      "latitude": 47.699122,
+      "longitude": -122.093363
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Flying Silverware",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.701848,
+      "longitude": -122.0933
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "BJs Brewhouse",
+    "alternateNames": [
+      "BJ's Brewmural"
+    ],
+    "coord": {
+      "latitude": 47.668914,
+      "longitude": -122.119748
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Black Raven",
+    "alternateNames": [
+      "Black Raven Brewing Co."
+    ],
+    "coord": {
+      "latitude": 47.685628,
+      "longitude": -122.14461
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Brooke Jillyann Bennette Park",
+    "alternateNames": ["Jillyann"],
+    "coord": {
+      "latitude": 47.7065777,
+      "longitude": -122.1129375
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Woodlands Park Play Structure",
+    "alternateNames": [
+      "Woodlands Park Play Structure 2"
+    ],
+    "coord": {
+      "latitude": 47.706011,
+      "longitude": -122.109182
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Farrell McWhirter Park (Trail)",
+    "alternateNames": [
+      "Charlotte's Trailhead",
+      "McWhirter Trail"
+    ],
+    "coord": {
+      "latitude": 47.693287,
+      "longitude": -122.08074
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Community Rockstars",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.683612,
+      "longitude": -122.132734
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Farrell McWhirter Park (Bench)",
+    "alternateNames": [
+      "Connor \"Boy\" Reed Memorial Bench",
+      "McWhirter Bench"
+    ],
+    "coord": {
+      "latitude": 47.694365,
+      "longitude": -122.079746
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Digipen",
+    "alternateNames": [
+      "Digipen Institute of Technology"
+    ],
+    "coord": {
+      "latitude": 47.688851,
+      "longitude": -122.150289
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Dog Watch Bridge)",
+    "alternateNames": [
+      "Dog Watch Bridge"
+    ],
+    "coord": {
+      "latitude": 47.658598,
+      "longitude": -122.115464
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "New Education Hill Pig",
+    "alternateNames": [
+      "Bear Creek Trail and Greenway"
+    ],
+    "coord": {
+      "latitude": 47.673594,
+      "longitude": -122.109134
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Flying Saucer Pizza",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.683467,
+      "longitude": -122.1442979
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Millennium Campus",
+    "alternateNames": [
+      "Fountain Fish"
+    ],
+    "coord": {
+      "latitude": 47.677081,
+      "longitude": -122.093758
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Glenn Bench)",
+    "alternateNames": [
+      "G Patrick Glenn Bench"
+    ],
+    "coord": {
+      "latitude": 47.661997,
+      "longitude": -122.123426
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Gridlock",
+    "alternateNames": [
+      "Gridlock Light Sculpture"
+    ],
+    "coord": {
+      "latitude": 47.673298,
+      "longitude": -122.125256
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Hartman Park Sign",
+    "alternateNames": [
+      "Hartman Park"
+    ],
+    "coord": {
+      "latitude": 47.691002,
+      "longitude": -122.110177
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Troy Croshaw",
+    "alternateNames": [
+      "Troy Croshaw Picnic Table"
+    ],
+    "coord": {
+      "latitude": 47.690664,
+      "longitude": -122.110075
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Baseball Fields)",
+    "alternateNames": [
+      "Have You Seen My Baseball?"
+    ],
+    "coord": {
+      "latitude": 47.664054,
+      "longitude": -122.12451
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "City Hall",
+    "alternateNames": [
+      "Hunting Fox"
+    ],
+    "coord": {
+      "latitude": 47.67892,
+      "longitude": -122.13052
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Jennifer Dunn Memorial Flagpole and Garden",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.70443,
+      "longitude": -122.142046
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Hartman Park (Baseball)",
+    "alternateNames": [
+      "Jim Palmquist Memorial Plaque"
+    ],
+    "coord": {
+      "latitude": 47.692436,
+      "longitude": -122.107328
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Josh Dowell Memorial)",
+    "alternateNames": [
+      "Josh Dowell Memorial Bench"
+    ],
+    "coord": {
+      "latitude": 47.658938,
+      "longitude": -122.11084
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Juel Park (Entrance)",
+    "alternateNames": [
+      "Juel Park"
+    ],
+    "coord": {
+      "latitude": 47.702702,
+      "longitude": -122.089278
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Juel Park (Trail)",
+    "alternateNames": [
+      "Juel Trail"
+    ],
+    "coord": {
+      "latitude": 47.701802,
+      "longitude": -122.089142
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Mattress Firm",
+    "alternateNames": [
+      "Kids Playing Baseball Mural"
+    ],
+    "coord": {
+      "latitude": 47.67262,
+      "longitude": -122.116819
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Leaf Inlay",
+    "alternateNames": [
+      "Leaf Inlay in Sidewalk"
+    ],
+    "coord": {
+      "latitude": 47.689362,
+      "longitude": -122.114435
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Luke McRedmond",
+    "alternateNames": [
+      "Luke McRedmond's Paired Beavers"
+    ],
+    "coord": {
+      "latitude": 47.67325,
+      "longitude": -122.13216
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Entrance)",
+    "alternateNames": [
+      "Marymoor Park"
+    ],
+    "coord": {
+      "latitude": 47.662058,
+      "longitude": -122.125947
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Sammamish River Trail)",
+    "alternateNames": [
+      "Sammamish River Trail"
+    ],
+    "coord": {
+      "latitude": 47.662682,
+      "longitude": -122.12603
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Rowing Facility)",
+    "alternateNames": [
+      "Marymoor Park Sammamish Rowing Facility"
+    ],
+    "coord": {
+      "latitude": 47.653548,
+      "longitude": -122.117129
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Soccer Fields)",
+    "alternateNames": [
+      "Marymoor Park Soccer Fields"
+    ],
+    "coord": {
+      "latitude": 47.665222,
+      "longitude": -122.119801
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Ballfield 7)",
+    "alternateNames": [
+      "Marymoor Park Ballfield 7"
+    ],
+    "coord": {
+      "latitude": 47.6622329,
+      "longitude": -122.1076367
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Farrell McWhirter Park (Road)",
+    "alternateNames": [
+      "McWhirter Park",
+      "McWhirter Road"
+    ],
+    "coord": {
+      "latitude": 47.692419,
+      "longitude": -122.079004
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Wells Fargo",
+    "alternateNames": [
+      "Mural (Wells Fargo)"
+    ],
+    "coord": {
+      "latitude": 47.67865,
+      "longitude": -122.127309
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Muslim Association (MAPS)",
+    "alternateNames": [
+      "Muslim Association Of Puget Sound",
+      "MAPS"
+    ],
+    "coord": {
+      "latitude": 47.665574,
+      "longitude": -122.106531
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "East Lake Sammamish Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.667491,
+      "longitude": -122.104472
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Evangelical Chinese Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.6657593,
+      "longitude": -122.1093522
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Reservoir Park",
+    "alternateNames": [
+      "Mysterious Hatch"
+    ],
+    "coord": {
+      "latitude": 47.685378,
+      "longitude": -122.122394
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Nike Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.683823,
+      "longitude": -122.110841
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Owl Pole)",
+    "alternateNames": [
+      "Owl Pole Marymoor Park"
+    ],
+    "coord": {
+      "latitude": 47.660371,
+      "longitude": -122.114934
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Painted Parking Lot",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.672712,
+      "longitude": -122.124617
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Perrigo Park",
+    "alternateNames": [
+      "Perrigo Park Welcome Sign"
+    ],
+    "coord": {
+      "latitude": 47.682932,
+      "longitude": -122.080517
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Portal 2",
+    "alternateNames": [
+      "Portal II"
+    ],
+    "coord": {
+      "latitude": 47.680447,
+      "longitude": -122.131723
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Prescott Community Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.708327,
+      "longitude": -122.11828
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Powerline Trail",
+    "alternateNames": [
+      "Redmond - Powerline Trail"
+    ],
+    "coord": {
+      "latitude": 47.691434,
+      "longitude": -122.130248
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Inn",
+    "alternateNames": [
+      "Redmond Bicycle Sculpture"
+    ],
+    "coord": {
+      "latitude": 47.668468,
+      "longitude": -122.105097
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Clock Tower",
+    "alternateNames": [
+      "Redmond Clock Tower"
+    ],
+    "coord": {
+      "latitude": 47.67417,
+      "longitude": -122.123056
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Meadow Park",
+    "alternateNames": [
+      "Redmond Meadow Park"
+    ],
+    "coord": {
+      "latitude": 47.695703,
+      "longitude": -122.12655
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Pool",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.692516,
+      "longitude": -122.106308
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Post Office",
+    "alternateNames": [
+      "Post Office"
+    ],
+    "coord": {
+      "latitude": 47.6693,
+      "longitude": -122.095035
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Arco",
+    "alternateNames": [
+      "Redmond Stormwater Project"
+    ],
+    "coord": {
+      "latitude": 47.681894,
+      "longitude": -122.143754
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Farmers Market",
+    "alternateNames": [
+      "Redmond Town Center Fish Statue",
+      "Fish",
+      "Market"
+    ],
+    "coord": {
+      "latitude": 47.671892,
+      "longitude": -122.124425
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Evergreen",
+    "alternateNames": [
+      "Redmond Twist"
+    ],
+    "coord": {
+      "latitude": 47.681979,
+      "longitude": -122.123692
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Erratic",
+    "alternateNames": [
+      "Redmond's Erratic"
+    ],
+    "coord": {
+      "latitude": 47.671955,
+      "longitude": -122.119251
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redwood Family Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.702695,
+      "longitude": -122.131803
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Safeway/Riparian",
+    "alternateNames": [
+      "Riparian Area"
+    ],
+    "coord": {
+      "latitude": 47.67182,
+      "longitude": -122.108778
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Retrofitting Runoff",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.672973,
+      "longitude": -122.109224
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Red Robin",
+    "alternateNames": [
+      "Salmon Circles II"
+    ],
+    "coord": {
+      "latitude": 47.670266,
+      "longitude": -122.113983
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Sixty Acres",
+    "alternateNames": [
+      "Sammamish River Trail at 60 Acres"
+    ],
+    "coord": {
+      "latitude": 47.704358,
+      "longitude": -122.142527
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Shapers Shelter)",
+    "alternateNames": [
+      "Shapers Shelter"
+    ],
+    "coord": {
+      "latitude": 47.660554,
+      "longitude": -122.121721
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Smith Woods",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.709227,
+      "longitude": -122.104174
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Sophie Irish Memorial)",
+    "alternateNames": [
+      "Sophie Irish Memorial Rock"
+    ],
+    "coord": {
+      "latitude": 47.659638,
+      "longitude": -122.114947
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Soul Foods",
+    "alternateNames": [
+      "Soulfood Books and Cafe"
+    ],
+    "coord": {
+      "latitude": 47.675219,
+      "longitude": -122.130386
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Niko Teriyaki",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675057,
+      "longitude": -122.1279183
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Spiritbrook Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.66459,
+      "longitude": -122.139351
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "St Judes",
+    "alternateNames": [
+      "St. Jude Walking Trail"
+    ],
+    "coord": {
+      "latitude": 47.693495,
+      "longitude": -122.116883
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Succession)",
+    "alternateNames": [
+      "Succession"
+    ],
+    "coord": {
+      "latitude": 47.655915,
+      "longitude": -122.108288
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Sunset Grove Gazebo",
+    "alternateNames": [
+      "Sunset Grove Park Gazebo"
+    ],
+    "coord": {
+      "latitude": 47.685978,
+      "longitude": -122.096297
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Sunset Gardens Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.685724,
+      "longitude": -122.096028
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Swamp Dog Bridge)",
+    "alternateNames": [
+      "Swamp Dog Bridge"
+    ],
+    "coord": {
+      "latitude": 47.657154,
+      "longitude": -122.110968
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "LDS (Hartman Park)",
+    "alternateNames": [
+      "The Church Of Jesus Christ Of Latter-Day Saints (Hartman Park)"
+    ],
+    "coord": {
+      "latitude": 47.690909,
+      "longitude": -122.110964
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "The Church of the Holy Cross",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.703726,
+      "longitude": -122.123088
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Last Test",
+    "alternateNames": [
+      "The Last Test"
+    ],
+    "coord": {
+      "latitude": 47.682691,
+      "longitude": -122.132021
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Bicycle",
+    "alternateNames": [
+      "The Redmond Bicycle"
+    ],
+    "coord": {
+      "latitude": 47.673542,
+      "longitude": -122.134375
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Dance Art",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675219,
+      "longitude": -122.139167
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Rich Marsh)",
+    "alternateNames": [
+      "The Rich Marsh"
+    ],
+    "coord": {
+      "latitude": 47.653069,
+      "longitude": -122.107094
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Samammish River Trail Kiosk",
+    "alternateNames": [
+      "Trails Project Kiosk"
+    ],
+    "coord": {
+      "latitude": 47.689861,
+      "longitude": -122.134146
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Uly Al Rw)",
+    "alternateNames": [
+      "Uly Al Rw"
+    ],
+    "coord": {
+      "latitude": 47.661421,
+      "longitude": -122.105375
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Marymoor (Vern Wagner)",
+    "alternateNames": [
+      "Vern Wagner Fields Dedication"
+    ],
+    "coord": {
+      "latitude": 47.664586,
+      "longitude": -122.115819
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Vesta Fountain",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.658175,
+      "longitude": -122.08833
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Victors Coffeeshop",
+    "alternateNames": [
+      "Victors Coffee Co. and Roasters"
+    ],
+    "coord": {
+      "latitude": 47.674577,
+      "longitude": -122.1219
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Washington Cathedral",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.709688,
+      "longitude": -122.13135
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Way Water Tower",
+    "alternateNames": [
+      "Water Tower"
+    ],
+    "coord": {
+      "latitude": 47.663903,
+      "longitude": -122.09184
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond PD",
+    "alternateNames": [
+      "Weiner Elephants",
+      "Redmond Police",
+      "Redmond Police Department"
+    ],
+    "coord": {
+      "latitude": 47.680386,
+      "longitude": -122.128889
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Ben Franklin",
+    "alternateNames": [
+      "West Ironcycle"
+    ],
+    "coord": {
+      "latitude": 47.675691,
+      "longitude": -122.130123
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Pretty Pagoda",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.675053,
+      "longitude": -122.125752
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Skate Park",
+    "alternateNames": [
+      "Redmond The Edge",
+      "The Edge",
+      "Skate Park"
+    ],
+    "coord": {
+      "latitude": 47.677012,
+      "longitude": -122.125045
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Avondale Bus Stop",
+    "alternateNames": [
+      "Wild Silhouettes"
+    ],
+    "coord": {
+      "latitude": 47.678821,
+      "longitude": -122.104461
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Willows Golf Course",
+    "alternateNames": [
+      "Willows Run Golf"
+    ],
+    "coord": {
+      "latitude": 47.694295,
+      "longitude": -122.150992
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Library",
+    "alternateNames": [
+      "Wisdom Seekers in Redmond",
+      "Library"
+    ],
+    "coord": {
+      "latitude": 47.678799,
+      "longitude": -122.128532
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Redmond Works Sculpture",
+    "alternateNames": [
+      "Works Sculpture at Redmond City"
+    ],
+    "coord": {
+      "latitude": 47.672222,
+      "longitude": -122.098055
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Joanne Brighton Place",
+    "alternateNames": [
+      "Stormwater Pond (Brighton Place)"
+    ],
+    "coord": {
+      "latitude": 47.699476,
+      "longitude": -122.111885
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Trailside Community Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.701128,
+      "longitude": -122.110852
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Rockwell Powerline Trail",
+    "alternateNames": [
+      "Powerline Trail at Norman Rockwell",
+      "Norman Rockwell Powerline Trail"
+    ],
+    "coord": {
+      "latitude": 47.698459,
+      "longitude": -122.122428
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Northstar Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.704642,
+      "longitude": -122.117114
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Grass Lawn Park (Woods)",
+    "alternateNames": [
+      "Austin J.Eversole Eagle Scout Project"
+    ],
+    "coord": {
+      "latitude": 47.667063,
+      "longitude": -122.148187
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "First Pitch",
+    "alternateNames": [
+      "The First Pitch"
+    ],
+    "coord": {
+      "latitude": 47.669224,
+      "longitude": -122.14419
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Auzias de Turenne",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.676058,
+      "longitude": -122.179037
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Tech City Bowling Mania",
+    "alternateNames": [
+      "Bowling Mania"
+    ],
+    "coord": {
+      "latitude": 47.666398,
+      "longitude": -122.165746
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "US Post Office Bartells",
+    "alternateNames": [
+      "Rose Hill Post Office",
+      "Post Office Bartells",
+      "Bartells PostOffice"
+    ],
+    "coord": {
+      "latitude": 47.665096,
+      "longitude": -122.16596
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Grass Lawn Park (Challenge)",
+    "alternateNames": [
+      "GLP: Challenge"
+    ],
+    "coord": {
+      "latitude": 47.667172,
+      "longitude": -122.145776
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Grass Lawn Park (Corner)",
+    "alternateNames": [
+      "Grass Lawn Park"
+    ],
+    "coord": {
+      "latitude": 47.667866,
+      "longitude": -122.143273
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Holy Family Catholic Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.669834,
+      "longitude": -122.180931
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Houghton Bus Stop Art",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.668943,
+      "longitude": -122.184839
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Lake Kirkland Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.687625,
+      "longitude": -122.176922
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Mark Twain Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.695799,
+      "longitude": -122.164783
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Mercury's Coffee House",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.679658,
+      "longitude": -122.177956
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Nick's Grill",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.704269,
+      "longitude": -122.176468
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Physio Control 911 LP500 AED",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.706964,
+      "longitude": -122.155831
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Protect the Forbes",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.687487,
+      "longitude": -122.174343
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Stormwater Pond (Redmond Way)",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.676566,
+      "longitude": -122.153148
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Rose Hill Meadows Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.67752,
+      "longitude": -122.175836
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Rose Hill Presbyterian Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.682646,
+      "longitude": -122.178359
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Sounding",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.704743,
+      "longitude": -122.168179
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "St. George's Coptic Orthodox Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.689862,
+      "longitude": -122.1646
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Surreal City Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.7043,
+      "longitude": -122.164581
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Tech City Bowl",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.666658,
+      "longitude": -122.165583
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "The City Church",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.684159,
+      "longitude": -122.164311
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Tzu Chi Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.678984,
+      "longitude": -122.170085
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "William Finkbeiner Field",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.697401,
+      "longitude": -122.177147
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Westlake Park",
+    "name": "Blue Trees",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.610833,
+      "longitude": -122.337
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Westlake Park",
+    "name": "McGraw Plaza",
+    "alternateNames": [
+      "John Harte McGraw"
+    ],
+    "coord": {
+      "latitude": 47.613027,
+      "longitude": -122.337669
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Westlake Park",
+    "name": "Pacific Place",
+    "alternateNames": [
+      "Pacific Place Penguin"
+    ],
+    "coord": {
+      "latitude": 47.613016,
+      "longitude": -122.335394
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Westlake Park",
+    "name": "Westlake Park Starbucks",
+    "alternateNames": [
+      "Starbucks (Westlake Park)"
+    ],
+    "coord": {
+      "latitude": 47.611505,
+      "longitude": -122.337614
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Westlake Park",
+    "name": "Deadly Sculptures",
+    "alternateNames": [
+      "The Deadly Sculptures"
+    ],
+    "coord": {
+      "latitude": 47.610363,
+      "longitude": -122.336676
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Downtown Seattle"
+    ],
+    "city": "Capitol Hill",
+    "name": "Boren Columns",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.613639,
+      "longitude": -122.329414
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Redmond Ridge Library Express",
+    "alternateNames": [
+      "Library Express Redmond Ridge"
+    ],
+    "coord": {
+      "latitude": 47.69332,
+      "longitude": -122.045556
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Gutter Water",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.693772,
+      "longitude": -122.043211
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Wetland Information Board",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.694278,
+      "longitude": -122.0385
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Theres No Free Lunch",
+    "alternateNames": [
+      "There's No Free Lunch"
+    ],
+    "coord": {
+      "latitude": 47.691701,
+      "longitude": -122.037393
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "RR Community Center",
+    "alternateNames": [
+      "Cedar Park and Fire Pit"
+    ],
+    "coord": {
+      "latitude": 47.690121,
+      "longitude": -122.044342
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Redmond North Little League",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.690802,
+      "longitude": -122.034327
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Cascara Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.688609,
+      "longitude": -122.038436
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Middle Bear Creek Natural Area",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.71743,
+      "longitude": -122.083014
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Dedication Plaque to Katherine Taylor",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.727218,
+      "longitude": -122.030255
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Collin Creek",
+    "alternateNames": [
+      "Collin Creek Trail"
+    ],
+    "coord": {
+      "latitude": 47.715658,
+      "longitude": -122.045894
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Lawn Bowling and Croquet",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.707173,
+      "longitude": 122.027815
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Nuthatch Trail",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.685268,
+      "longitude": -122.027161
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Walk in the Woods",
+    "alternateNames": [
+      "A Walk in the Woods"
+    ],
+    "coord": {
+      "latitude": 47.682839,
+      "longitude": -122.033317
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Stone Pyramid",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.677586,
+      "longitude": -122.029015
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Nuthatch to East Branch",
+    "alternateNames": [
+      "Nuthatch to East Branch Trail",
+      "Parkside"
+    ],
+    "coord": {
+      "latitude": 47.676628,
+      "longitude": -122.024674
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Elliston Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.694414,
+      "longitude": -122.02379
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Four Reasons",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.697229,
+      "longitude": -122.016464
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Brighton Monument",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.695757,
+      "longitude": -122.017854
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "RRE Basketball Courts",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.691218,
+      "longitude": -122.017103
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "RRE Soccer Fields",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.68366,
+      "longitude": -122.00745
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Dawnbreaker",
+    "alternateNames": [
+      "Dawnbreaker Water Tower"
+    ],
+    "coord": {
+      "latitude": 47.689859,
+      "longitude": -122.01369
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Brick Swan Wall",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.663111,
+      "longitude": -122.021384
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Eagle Trail Map",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.681397,
+      "longitude": -122.033139
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Arch at Turnstone Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.684641,
+      "longitude": -122.045197
+    },
+    "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Redmond Ridge Community Center",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.690463,
+      "longitude": -122.044224
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Community Energy",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.700139,
+      "longitude": -122.024405
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City",
+      "RedmondRidgePoGo"
+    ],
+    "city": "Redmond Ridge",
+    "name": "Redmond Watershed Preserve",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.69324,
+      "longitude": -122.049373
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Building 26 Trail Marker",
+    "alternateNames": [
+      "Microsoft Trail Marker Building 26",
+      "Microsoft Building 26 Trail Marker"
+    ],
+    "coord": {
+      "latitude": 47.636802,
+      "longitude": -122.131947
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Coffee Shop",
+    "alternateNames": [
+      "CoffeeShop",
+      "Coffee Shop Bus Stop"
+    ],
+    "coord": {
+      "latitude": 47.635695,
+      "longitude": -122.132163
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Eagles Soar",
+    "alternateNames": [
+      "Eagles Soar Where Buses Stop"
+    ],
+    "coord": {
+      "latitude": 47.628824,
+      "longitude": -122.132219
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Moscow Mural",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.643817,
+      "longitude": -122.149567
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Overlake",
+    "name": "Idylwood Park",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.643817,
+      "longitude": -122.106233
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Rose Hill",
+    "name": "Sunflowers",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.666205,
+      "longitude": -122.153163
+    },
+    "isExEligible": "nonEx"
+  }
+]

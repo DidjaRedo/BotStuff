@@ -22,8 +22,8 @@
 
 import * as Converters from '../utils/converters';
 import * as GeoConverters from './geoConverters';
+import { Poi, PoiProperties } from '../places/poi';
 import { Converter } from '../utils/converter';
-import { PoiProperties } from '../places/poi';
 import { fail } from '../utils/result';
 
 const delimitedString = Converters.delimitedString('|');
@@ -33,24 +33,30 @@ export const poiPropertiesFieldConverters = {
     city: Converters.string,
     coord: GeoConverters.coordinate,
     name: Converters.string,
-    zones: delimitedString,
+    zones: Converters.oneOf([delimitedString, Converters.arrayOf(Converters.string)]),
 };
 
 export const poiPropertiesFromObject = Converters.object<PoiProperties>(poiPropertiesFieldConverters);
 
 export const poiPropertiesFromArray = new Converter<PoiProperties>((from: unknown) => {
-    if ((!Array.isArray(from)) || (from.length !== 6)) {
-        return fail('POI Array must have six columns: zones,city,name,alternate names,latitude,longitude');
+    if ((!Array.isArray(from)) || (from.length !== 5)) {
+        return fail('POI Array must have five columns: zones,city,names,latitude,longitude');
     }
 
-    return poiPropertiesFromObject.convert({
-        zones: from[0],
-        city: from[1],
-        name: from[2],
-        alternateNames: from[3],
-        coord: {
-            latitude: from[4],
-            longitude: from[5],
-        },
+    return Converters.delimitedString('|').convert(from[2]).onSuccess((names) => {
+        return poiPropertiesFromObject.convert({
+            zones: from[0],
+            city: from[1],
+            name: names.shift(),
+            alternateNames: names,
+            coord: {
+                latitude: from[3],
+                longitude: from[4],
+            },
+        });
     });
 });
+
+export const poiFromObject = poiPropertiesFromObject.map(Poi.createPoi);
+export const poiFromArray = poiPropertiesFromArray.map(Poi.createPoi);
+export const poi = Converters.oneOf([poiFromObject, poiFromArray]);

@@ -20,8 +20,9 @@
  * SOFTWARE.
  */
 
+import '../../helpers/jestHelpers';
 import { Boss, BossProperties } from '../../../src/pogo/boss';
-import { BossDirectory, bossDirectory } from '../../../src/pogo/bossDirectory';
+import { BossDirectory, bossDirectory, loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
 import { RaidTier } from '../../../src/pogo/pogo';
 import { loadJson } from '../../helpers/dataHelpers';
 
@@ -57,6 +58,33 @@ describe('BossDirectory module', () => {
             });
         });
 
+        describe('filterForOptions static method', () => {
+            it('should filter based on supplied options', () => {
+                for (const boss of bosses) {
+                    expect(BossDirectory.filterForOptions(boss)).toBe(true);
+                    expect(BossDirectory.filterForOptions(boss, { isActive: true })).toBe(boss.isActive());
+                    expect(BossDirectory.filterForOptions(boss, { isActive: false })).toBe(!boss.isActive());
+                    const tiers: RaidTier[] = [1, 2, 3, 4, 5];
+                    for (const tier of tiers) {
+                        expect(BossDirectory.filterForOptions(boss, { tier })).toBe(boss.tier === tier);
+                    }
+                }
+            });
+        });
+
+        describe('getAll method', () => {
+            const dir = new BossDirectory(bosses);
+            it('should filter according to supplied options', () => {
+                expect(dir.getAll()).toEqual(expect.arrayContaining(bosses));
+                expect(dir.getAll({ isActive: true })).toEqual(expect.arrayContaining(
+                    bosses.filter((b) => b.isActive())
+                ));
+                expect(dir.getAll({ tier: 3 })).toEqual(expect.arrayContaining(
+                    bosses.filter((b) => b.tier === 3)
+                ));
+            });
+        });
+
         describe('lookup method', () => {
             const dir = new BossDirectory(bosses);
             it('should return all bosses if no filter is specified', () => {
@@ -75,13 +103,13 @@ describe('BossDirectory module', () => {
             it('should respect the active filter if specified', () => {
                 const active = dir.lookup('boss', { isActive: true });
                 active.forEach((b) => expect(b.item.isActive()).toBe(true));
-                expect(active.map((r) => r.item.name)).toEqual([
+                expect(active.all().map((r) => r.item.name)).toEqual([
                     'Boss active', 'Boss current',
                 ]);
 
                 const inactive = dir.lookup('boss', { isActive: false });
                 inactive.forEach((b) => expect(b.item.isActive()).toBe(false));
-                expect(inactive.map((r) => r.item.name)).toEqual([
+                expect(inactive.all().map((r) => r.item.name)).toEqual([
                     'Boss inactive', 'Boss past', 'Boss future', 'Boss indeterminate',
                 ]);
             });
@@ -104,18 +132,8 @@ describe('BossDirectory module', () => {
     // to avoid massive duplication of tests for intermediate converters and
     // initializers
     describe('bossDirectory converter', () => {
-        it('should load a well-formed boss directory json', () => {
-            const testFiles = ['./test/unit/pogo/data/goodBosses.json'];
-
-            for (const testFile of testFiles) {
-                const json = loadJson(testFile);
-                const dirResult = bossDirectory.convert(json);
-                expect(dirResult.isSuccess()).toBe(true);
-            }
-        });
-
         it('should fail when loading an invalid boss directory', () => {
-            const testFiles = ['./test/unit/pogo/data/badBossDirectories.json'];
+            const testFiles = ['./test/unit/pogo/data/bossDirectoryTests.json'];
 
             for (const testFile of testFiles) {
                 const tests = loadJson(testFile);
@@ -130,6 +148,24 @@ describe('BossDirectory module', () => {
                     }
                 }
             }
+        });
+    });
+
+    describe('loadBossDirectorySync function', () => {
+        it('should load a well-formed boss directory json', () => {
+            const testFiles = ['./test/unit/pogo/data/validBossDirectory.json'];
+
+            for (const testFile of testFiles) {
+                expect(loadBossDirectorySync(testFile)).toSucceed();
+            }
+        });
+
+        it('should fail to load an invalid or non-existent file', () => {
+            expect(loadBossDirectorySync('bogus.json')).toFailWith(/no such file/i);
+            expect(loadBossDirectorySync('./test/unit/pogo/data')).toFailWith(/illegal operation/i);
+            expect(loadBossDirectorySync('./test/unit/pogo/data/invalidBossDirectory.json')).toFailWith(/duplicate entries/i);
+            expect(loadBossDirectorySync('./test/unit/pogo/data/empty.json')).toFailWith(/not an array/i);
+            expect(loadBossDirectorySync('./test/unit/pogo/data/malformed.json')).toFailWith(/unexpected token/i);
         });
     });
 });
