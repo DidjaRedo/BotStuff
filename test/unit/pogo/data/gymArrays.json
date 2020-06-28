@@ -3474,7 +3474,7 @@
   [
     "Rain City",
     "Redmond",
-    "Redmond Erratic|Redmond's Erratic",
+    "Redmond Erratic|Redmond's Erratic|Erratic",
     47.671955,
     -122.119251,
     "nonEx"
@@ -3534,6 +3534,14 @@
     47.709227,
     -122.104174,
     "nonEx"
+  ],
+  [
+      "Rain City",
+      "Redmond",
+      "English Landing Park and Playground",
+      47.709692,
+      -122.101396,
+      "nonEx"
   ],
   [
     "Rain City",

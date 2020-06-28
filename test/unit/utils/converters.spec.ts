@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import '../../helpers/jestHelpers';
 import * as Converters from '../../../src/utils/converters';
 
 describe('Converters module', () => {
@@ -40,6 +41,26 @@ describe('Converters module', () => {
                 if (result.isFailure()) {
                     expect(result.message).toMatch(/not a string/i);
                 }
+            });
+        });
+    });
+
+    describe('enumerated values converter', () => {
+        const pie = Converters.enumeratedValue<'apple'|'blueberry'|'cherry'>(['apple', 'blueberry', 'cherry']);
+        it('should convert valid enumerated values', () => {
+            [
+                'apple', 'blueberry', 'cherry',
+            ].forEach((test) => {
+                expect(pie.convert(test)).toSucceedWith(test);
+            });
+        });
+
+        it('should fail for invalid enumerated values', () => {
+            [
+                'german chocolate',
+                'birthday',
+            ].forEach((test) => {
+                expect(pie.convert(test)).toFailWith(/invalid enumerated/i);
             });
         });
     });
@@ -179,15 +200,15 @@ describe('Converters module', () => {
                 Converters.number,
                 Converters.string,
             ], 'failOnError');
-            const optionalStringFirst = Converters.oneOf<string|number>([
+            const optionalStringFirst = Converters.oneOf<string|number|undefined>([
                 Converters.string.optional('ignoreErrors'),
                 Converters.number,
             ], 'failOnError');
-            const optionalNumFirst = Converters.oneOf<string|number>([
+            const optionalNumFirst = Converters.oneOf<string|number|undefined>([
                 Converters.number.optional('ignoreErrors'),
                 Converters.string,
             ], 'failOnError');
-            const allOptionalNumFirst = Converters.oneOf<string|number>([
+            const allOptionalNumFirst = Converters.oneOf<string|number|undefined>([
                 Converters.number.optional('ignoreErrors'),
                 Converters.string.optional('ignoreErrors'),
             ], 'failOnError');

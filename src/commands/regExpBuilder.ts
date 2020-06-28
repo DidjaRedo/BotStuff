@@ -20,11 +20,125 @@
  * SOFTWARE.
  */
 
+import { Result, captureResult, fail, succeed } from '../utils/result';
 import { Utils } from '../utils/utils';
 
 export interface RegExpFragment {
     value: string;
     optional?: boolean;
+    hasEmbeddedCapture?: boolean;
+}
+
+export interface RegExpProperty<T> extends RegExpFragment {
+    name?: keyof T;
+}
+
+export type RegExpProperties<T> = { [ key in keyof T]: RegExpFragment };
+export type ParsedCommand<T> = Partial<Record<keyof T, string>>;
+
+export class CommandParser<T> {
+    public readonly regexp: RegExp;
+    public readonly captures: (keyof T)[];
+
+    public constructor(regexp: RegExp, captures: (keyof T)[]) {
+        this.regexp = regexp;
+        this.captures = captures;
+    }
+
+    public parse(source: string): Result<ParsedCommand<T>|undefined> {
+        const match = this.regexp.exec(source);
+        if (match === null) {
+            return succeed(undefined);
+        }
+
+        match.shift(); // skip the full string
+        if (match.length !== (this.captures.length)) {
+            return fail(`Mismatched capture count: got ${match.length}, expected ${this.captures.length}`);
+        }
+
+        const result: ParsedCommand<T> = {};
+        for (const key of this.captures) {
+            result[key] = match.shift()?.trim();
+        }
+        return succeed(result);
+    }
+}
+
+export class ParserBuilder<T> {
+    protected _fields: RegExpProperties<T>;
+    public constructor(fields: RegExpProperties<T>) {
+        this._fields = fields;
+    }
+
+    public build(command: string|string[]): Result<CommandParser<T>> {
+        command = (typeof command === 'string') ? command.split(/\s/) : command;
+
+        const captures: (keyof T)[] = [];
+        let addSeparator = false;
+        let str = '^\\s*';
+        for (const part of command) {
+            const fieldResult = this._getFragment(part);
+            if (fieldResult.isFailure()) {
+                return fail(fieldResult.message);
+            }
+
+            const field = fieldResult.value;
+            const separator = addSeparator ? '\\s+' : '';
+            const isOptional = (field.optional === true);
+            const addCapture = ((field.name !== undefined) && (field.hasEmbeddedCapture !== true));
+
+            if (isOptional) {
+                if (addCapture) {
+                    str += `(?:${separator}(${field.value}))?`;
+                }
+                else {
+                    str += `(?:${separator}${field.value})?`;
+                }
+            }
+            else if (addCapture) {
+                str += `${separator}(${field.value})`;
+            }
+            else {
+                str += `${separator}${field.value}`;
+            }
+
+            addSeparator = true;
+            if (field.name !== undefined) {
+                captures.push(field.name);
+            }
+        }
+        str += '\\s*$';
+        return captureResult(() => new CommandParser(new RegExp(str), captures));
+    }
+
+    private _getFragment(part: string): Result<RegExpProperty<T>> {
+        if (part.startsWith('{{') && part.endsWith('}}')) {
+            part = part.slice(2, -2);
+
+            const forceOptional = part.endsWith('?');
+            if (forceOptional) {
+                part = part.slice(0, -1);
+            }
+
+            if (this._fields.hasOwnProperty(part)) {
+                const fragment: RegExpProperty<T> = {
+                    ...this._fields[part],
+                    name: part,
+                };
+                if (forceOptional) {
+                    fragment.optional = forceOptional;
+                }
+                return succeed(fragment);
+            }
+            return fail(`Unrecognized property ${part}`);
+        }
+
+        return succeed({
+            name: undefined,
+            value: part,
+            optional: false,
+        });
+    }
 }
 
 export interface RegExpField extends RegExpFragment {
@@ -49,7 +163,7 @@ export class RegExpBuilder {
             fields = fields.split(/\s/);
         }
 
-        let separator = undefined;
+        let separator: string|undefined = undefined;
         let str = '^\\s*';
 
         fields.forEach((raw: string): void => {

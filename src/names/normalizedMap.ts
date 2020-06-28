@@ -31,7 +31,7 @@ export interface LookupResults<T> {
 }
 
 export class NormalizedMap<T> extends Map<string, T> {
-    private _updater: ElementUpdater<T>;
+    private _updater?: ElementUpdater<T>;
 
     public constructor(updater?: ElementUpdater<T>) {
         super();

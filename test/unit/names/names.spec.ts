@@ -74,14 +74,14 @@ describe('Names static class', (): void => {
 
             it('should throw for any iterable containin empty strings or whitespace strings', (): void => {
                 const bad = ['', undefined, '   '];
-                expect((): void => Names.throwOnInvalidName(bad, 'some field')).toThrow(/must be non-empty/i);
-                expect((): void => Names.throwOnInvalidName(new Set(bad), 'some field')).toThrow(/must be non-empty/i);
+                expect((): void => Names.throwOnInvalidName(bad as string[], 'some field')).toThrow(/must be non-empty/i);
+                expect((): void => Names.throwOnInvalidName(new Set(bad as string[]), 'some field')).toThrow(/must be non-empty/i);
             });
 
             it('should include the field name in the error description', (): void => {
                 const bad = ['', undefined, '   '];
                 ['some field', 'name', 'location'].forEach((desc: string): void => {
-                    expect((): void => Names.throwOnInvalidName(bad, desc)).toThrowError(new RegExp(`.*${desc}.*`));
+                    expect((): void => Names.throwOnInvalidName(bad as string[], desc)).toThrowError(new RegExp(`.*${desc}.*`));
                 });
             });
 

@@ -56,9 +56,10 @@ describe('Pogo Boss Module', () => {
         });
 
         it('should use a displayName if supplied', () => {
+            const displayName = (fullInit.alternateNames !== undefined) ? fullInit.alternateNames[0] : 'oops';
             const dnInit = {
                 ...fullInit,
-                displayName: fullInit.alternateNames[0],
+                displayName: displayName,
             };
             const boss = new Boss(dnInit);
             expect(boss).toMatchObject(dnInit);
@@ -133,8 +134,23 @@ describe('Pogo Boss Module', () => {
 
         it('should use the normalized boss name by default', () => {
             const boss = new Boss({ ...fullInit, raidGuideName: undefined });
-            const expected = Names.tryNormalize(fullInit.name).toUpperCase();
+            const expected = Names.tryNormalize(fullInit.name)?.toUpperCase();
             expect(boss.raidGuideUrl).toContain(expected);
+        });
+    });
+
+    describe('getGuideUrl static method', () => {
+        it('should return the URL from a boss', () => {
+            const boss1 = new Boss({ ...fullInit, raidGuideName: 'GUIDE_FOR_THIS_MON' });
+            expect(Boss.getGuideUrl(boss1)).toContain('GUIDE_FOR_THIS_MON');
+
+            const boss2 = new Boss({ ...fullInit, raidGuideName: undefined });
+            const expected = Names.tryNormalize(fullInit.name)?.toUpperCase();
+            expect(Boss.getGuideUrl(boss2)).toContain(expected);
+        });
+
+        it('should return a default URL if boss is undefined', () => {
+            expect(Boss.getGuideUrl(undefined)).toEqual('http://www.pokebattler.com/raids');
         });
     });
 

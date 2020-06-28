@@ -21,11 +21,11 @@
  */
 
 import '../../helpers/jestHelpers';
-import { InMemoryLogger, LogLevel, Logger, NoOpLogger } from '../../../src/utils/logger';
-import { Result } from '../../../src/utils/result';
+import { InMemoryLogger, LogLevel, Logger, LoggerBase, NoOpLogger } from '../../../src/utils/logger';
+import { Result, Success, succeed } from '../../../src/utils/result';
 
 describe('Logger class', () => {
-    const messages: Record<LogLevel, string> = {
+    const messages: Record<LogLevel, string|undefined> = {
         'detail': 'This is a detail message',
         'info': 'This is an info message',
         'warning': 'This is a warning message',
@@ -34,7 +34,7 @@ describe('Logger class', () => {
     };
     const message = 'this is the default message';
 
-    type LogResults = Partial<Record<LogLevel|'warnAndFail'|'default', Result<string>>>;
+    type LogResults = Partial<Record<LogLevel|'warnAndFail'|'default', Result<string|undefined>>>;
     function logEverything(logger: Logger): LogResults {
         return {
             detail: logger.detail(messages.detail),
@@ -108,7 +108,7 @@ describe('Logger class', () => {
             expect(results.detail).toSucceedWith(undefined);
             expect(results.info).toSucceedWith(undefined);
             expect(results.warning).toSucceedWith(undefined);
-            expect(results.warnAndFail).toFailWith(undefined);
+            expect(results.warnAndFail).toFailWith('');
             expect(results.error).toFailWith(messages.error);
             expect(results.default).toSucceedWith(message);
 
@@ -122,8 +122,8 @@ describe('Logger class', () => {
             expect(results.detail).toSucceedWith(undefined);
             expect(results.info).toSucceedWith(undefined);
             expect(results.warning).toSucceedWith(undefined);
-            expect(results.warnAndFail).toFailWith(undefined);
-            expect(results.error).toFailWith(undefined);
+            expect(results.warnAndFail).toFailWith(messages.warning);
+            expect(results.error).toFailWith(messages.error);
             expect(results.default).toSucceedWith(undefined);
 
             expect(logger.messages).toEqual([]);
@@ -160,6 +160,28 @@ describe('Logger class', () => {
         it('should return successfully when silent', () => {
             const logger = new NoOpLogger('silent');
             expect(() => logEverything(logger)).not.toThrow();
+        });
+    });
+
+    describe('Unknown errors', () => {
+        class BogusLogger extends LoggerBase {
+            protected _innerLog(_message: string): Success<string|undefined> {
+                return succeed(undefined);
+            }
+            protected _innerSilent(_message: string): Success<string|undefined> {
+                return succeed(undefined);
+            }
+        }
+
+        it('should return \'unknown error\' if the inner logger returns undefined', () => {
+            const logger = new BogusLogger('detail');
+            const results = logEverything(logger);
+            expect(results.detail).toSucceedWith(undefined);
+            expect(results.info).toSucceedWith(undefined);
+            expect(results.warning).toSucceedWith(undefined);
+            expect(results.warnAndFail).toFailWith(messages.warning);
+            expect(results.error).toFailWith(messages.error);
+            expect(results.default).toSucceedWith(undefined);
         });
     });
 });

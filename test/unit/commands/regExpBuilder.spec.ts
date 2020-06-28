@@ -19,7 +19,92 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { RegExpBuilder } from '../../../src/commands/regExpBuilder';
+import '../../helpers/jestHelpers';
+import { CommandParser, ParserBuilder, RegExpBuilder } from '../../../src/commands/regExpBuilder';
+
+describe('ParserBuilder class', () => {
+    const fields = {
+        tier: { value: '(?:(?:L|T|l|t)?(\\d+))', hasEmbeddedCapture: true },
+        word: { value: '/\\w+/' },
+        words: { value: "\\w+(?:\\s|\\w|\\d|`|'|-|\\.)*" },
+        moreWords: { value: "\\w+(?:\\s|\\w|\\d|`|'|-|\\.)*" },
+        time: { value: '(?:\\d?\\d):?(?:\\d\\d)\\s*(?:a|A|am|AM|p|P|pm|PM)?)', optional: false },
+        timer: { value: '\\d?\\d' },
+        broken: { value: '(\\w)(\\w)(\\w)(\\w)' },
+    };
+
+    describe('constructor', () => {
+        it('should construct from an object of parsers', () => {
+            expect(() => new ParserBuilder(fields)).not.toThrow();
+        });
+    });
+
+    describe('build', () => {
+        const builder = new ParserBuilder(fields);
+
+        it('should build a parser from an array of strings or a string', () => {
+            [
+                ['!place', '{{words}}', '@', '{{moreWords}}'],
+                '!place {{words}} @ {{moreWords}}',
+            ].forEach((command) => {
+                expect(builder.build(command)).toSucceedWithCallback((p: CommandParser<typeof fields>) => {
+                    expect(p.regexp.toString()).toEqual('/^\\s*!place\\s+(\\w+(?:\\s|\\w|\\d|`|\'|-|\\.)*)\\s+@\\s+(\\w+(?:\\s|\\w|\\d|`|\'|-|\\.)*)\\s*$/');
+                    expect(p.captures).toEqual(['words', 'moreWords']);
+                    [
+                        ['these are some words', 'some more words'],
+                    ].forEach((t) => {
+                        expect(p.parse(`!place ${t[0]} @ ${t[1]}`)).toSucceedWith(
+                            expect.objectContaining({
+                                words: t[0],
+                                moreWords: t[1],
+                            }),
+                        );
+                    });
+                });
+            });
+        });
+
+        it('should make optional fields conditional', () => {
+            expect(builder.build('!beast {{tier?}} {{words}}')).toSucceedWithCallback((p: CommandParser<typeof fields>) => {
+                expect(p.regexp.toString()).toEqual('/^\\s*!beast(?:\\s+(?:(?:L|T|l|t)?(\\d+)))?\\s+(\\w+(?:\\s|\\w|\\d|`|\'|-|\\.)*)\\s*$/');
+                expect(p.captures).toEqual(['tier', 'words']);
+                [
+                    {
+                        src: '!beast T5 some beast',
+                        expected: {
+                            tier: '5',
+                            words: 'some beast',
+                        },
+                    },
+                    {
+                        src: '!beast some beast',
+                        success: true,
+                        expected: {
+                            tier: undefined,
+                            words: 'some beast',
+                        },
+                    },
+                    {
+                        src: '!beat some beast',
+                        expected: undefined,
+                    },
+                ].forEach((t) => {
+                    expect(p.parse(t.src)).toSucceedWith(t.expected);
+                });
+            });
+        });
+
+        it('should report an error if a commond references an unknown field', () => {
+            expect(builder.build('!command {{oops}}')).toFailWith(/unrecognized property/i);
+        });
+
+        it('should report an error if a command is has too many capture groups', () => {
+            expect(builder.build('!command {{broken}}')).toSucceedWithCallback((p: CommandParser<typeof fields>) => {
+                expect(p.parse('!command test')).toFailWith(/mismatched capture count/i);
+            });
+        });
+    });
+});
 
 describe('RegExpBuilder static class', (): void => {
     const fields = [
@@ -102,9 +187,13 @@ describe('RegExpBuilder static class', (): void => {
                 const regex: RegExp = rb.build(test.source);
                 test.cases.forEach((testCase: RegExpBuilderTestCase): void => {
                     const result = regex.exec(testCase.input);
-                    testCase.matches.forEach((match: string, index: number): void => {
-                        expect(result[index + 1]).toBe(match);
-                    });
+                    expect(result).not.toBe(null);
+                    if (result !== null) {
+                        // eslint-disable-next-line no-unused-expressions
+                        testCase.matches?.forEach((match: string, index: number): void => {
+                            expect(result[index + 1]).toBe(match);
+                        });
+                    }
                 });
             });
         });

@@ -19,37 +19,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import '../../helpers/jestHelpers';
 import { CommandProcessor, CommandSpec } from '../../../src/commands/commandProcessor';
+import { ParserBuilder, RegExpProperties } from '../../../src/commands/regExpBuilder';
+import { Result, fail, succeed } from '../../../src/utils/result';
 
 describe('commands', (): void => {
-    const goodCommands: CommandSpec<string>[] = [
-        { name: 'Command 1', description: 'Specific command', pattern: /^This is\s(.*)\.$/, handleCommand: (matches): string => matches[1] },
-        { name: 'Command 2', description: 'Catch all command', pattern: /^.*test.*$/, handleCommand: (matches): string => matches[0] },
+    interface TestFields {
+        word: string;
+        words: string;
+        testPhrase: string;
+        time: string;
+        broken: string;
+    }
+
+    const fields: RegExpProperties<TestFields> = {
+        word: { value: '\\w+' },
+        words: { value: '\\w+(?:\\s|\\w|\\d|`|\'|-|\\.)*' },
+        testPhrase: { value: '.*test.*' },
+        time: { value:  '(?:\\d?\\d):?(?:\\d\\d)\\s*(?:a|A|am|AM|p|P|pm|PM)?)', optional: false },
+        broken: { value: '(\\w)(\\w)(\\w)(\\w)' },
+    };
+    const builder = new ParserBuilder(fields);
+    const specific = builder.build('This is a {{word}}').getValueOrThrow();
+    const general = builder.build('{{testPhrase}}').getValueOrThrow();
+    const broken = builder.build('bad {{broken}}').getValueOrThrow();
+
+    const goodCommands: CommandSpec<typeof fields, string|undefined>[] = [
+        { name: 'Command 1', description: 'Specific command', parser: specific, handleCommand: (matches) => succeed(matches.word) },
+        { name: 'Command 2', description: 'Catch all command', parser: general, handleCommand: (matches) => succeed(matches.testPhrase) },
+        { name: 'Command 3', description: 'Broken command definition', parser: broken, handleCommand: (matches) => succeed(matches.broken) },
     ];
     const badCommands = {
         'missing name': {
             cmd: { description: 'Description', pattern: /^.*$/, handleCommand: (matches): string => matches },
-            error: 'Command must have name, description, pattern and handleCommand.',
+            error: /command must have/i,
         },
         'missing description': {
             cmd: { name: 'Command', pattern: /^.*$/, handleCommand: (matches): string => matches },
-            error: 'Command must have name, description, pattern and handleCommand.',
+            error: /command must have /i,
         },
         'missing pattern': {
             cmd: { name: 'Command', description: 'Description', handleCommand: (matches): string => matches },
-            error: 'Command must have name, description, pattern and handleCommand.',
+            error: /command must have/i,
         },
         'missing handler': {
             cmd: { name: 'Command', description: 'Description', pattern: /^.*$/ },
-            error: 'Command must have name, description, pattern and handleCommand.',
-        },
-        'non-regexp pattern': {
-            cmd: { name: 'Command', description: 'Description', pattern: '/^.*$/', handleCommand: (matches): string => matches },
-            error: 'Command.pattern must be a regular expression.',
+            error: /command must have/i,
         },
         'non-function handleCommand': {
-            cmd: { name: 'Command', description: 'Description', pattern: /^.*$/, handleCommand: '(matches) => matches' },
-            error: 'Command.handleCommand must be a function.',
+            cmd: { name: 'Command', description: 'Description', parser: specific, handleCommand: '(matches) => matches' },
+            error: /must be a function/i,
         },
     };
 
@@ -69,7 +89,7 @@ describe('commands', (): void => {
         {
             description: 'should fail with duplicate command names',
             cmds: [goodCommands[0], goodCommands[0]],
-            error: `Duplicate command name "${goodCommands[0].name}".`,
+            error: `Duplicate command name '${goodCommands[0].name}'.`,
         },
     ];
 
@@ -87,10 +107,10 @@ describe('commands', (): void => {
         testCommands.forEach((test): void => {
             it(test.description, (): void => {
                 if (test.error) {
-                    expect(() => new CommandProcessor<string>(test.cmds)).toThrowError(test.error);
+                    expect(() => new CommandProcessor<TestFields, string|undefined>(test.cmds)).toThrowError(test.error);
                 }
                 else {
-                    const cmds = new CommandProcessor<string>(test.cmds);
+                    const cmds = new CommandProcessor<TestFields, string|undefined>(test.cmds);
                     expect(cmds).toBeDefined();
                     expect(cmds.numCommands).toBe((test.cmds ? test.cmds.length : 0));
                 }
@@ -100,7 +120,7 @@ describe('commands', (): void => {
 
     describe('addCommand', (): void => {
         it('should add valid commands', (): void => {
-            const cmds = new CommandProcessor();
+            const cmds = new CommandProcessor<TestFields, string|undefined>();
             expect(cmds.numCommands).toBe(0);
             cmds.addCommand(goodCommands[0]);
             expect(cmds.numCommands).toBe(1);
@@ -109,22 +129,20 @@ describe('commands', (): void => {
         });
 
         it('should fail to add a duplicate command', (): void => {
-            const cmds = new CommandProcessor();
+            const cmds = new CommandProcessor<TestFields, string|undefined>();
             expect(cmds.numCommands).toBe(0);
             cmds.addCommand(goodCommands[0]);
             expect(cmds.numCommands).toBe(1);
-            expect(
-                (): void => cmds.addCommand(goodCommands[0])
-            ).toThrowError(`Duplicate command name "${goodCommands[0].name}".`);
+            expect(cmds.addCommand(goodCommands[0])).toFailWith(`Duplicate command name '${goodCommands[0].name}'.`);
             expect(cmds.numCommands).toBe(1);
         });
 
         describe('invalid commands', (): void => {
-            const cmds = new CommandProcessor();
+            const cmds = new CommandProcessor<TestFields, string>();
             for (const c in badCommands) {
                 if (badCommands.hasOwnProperty(c)) {
                     it(`should fail to add a command with ${c}`, (): void => {
-                        expect((): void => cmds.addCommand(badCommands[c].cmd)).toThrowError(badCommands[c].error);
+                        expect(cmds.addCommand(badCommands[c].cmd)).toFailWith(badCommands[c].error);
                         expect(cmds.numCommands).toBe(0);
                     });
                 }
@@ -133,61 +151,131 @@ describe('commands', (): void => {
     });
 
     describe('processAll', (): void => {
-        const cmds = new CommandProcessor(goodCommands);
+        const cmds = new CommandProcessor<TestFields, string|undefined>(goodCommands);
         it('should process only matching commands', (): void => {
-            const result = cmds.processAll('A test, this is.');
-            expect(result.length).toBe(1);
-            expect(result[0]).toBe('A test, this is.');
+            expect(cmds.processAll('A test, this is.')).toSucceedWith(
+                ['A test, this is.']
+            );
         });
         it('should process all matching commands', (): void => {
-            const result = cmds.processAll('This is a test.');
-            expect(result.length).toBe(2);
-            expect(result[0]).toBe('a test');
-            expect(result[1]).toBe('This is a test.');
+            expect(cmds.processAll('This is a test')).toSucceedWith(
+                ['test', 'This is a test']
+            );
         });
         it('should return an empty array if no command matches', (): void => {
-            const result = cmds.processAll('An example');
-            expect(result.length).toBe(0);
+            expect(cmds.processAll('An example')).toSucceedWith([]);
+        });
+
+        it('should fail if any of the commands fail', () => {
+            expect(cmds.processAll('bad data')).toFailWith(/mismatched capture count/i);
         });
     });
 
     describe('processFirst', (): void => {
         const cmds = new CommandProcessor(goodCommands);
         it('should process only the first matching command', (): void => {
-            let result = cmds.processFirst('A test, this is.');
-            expect(result.found).toBe(true);
-            expect(result.result).toBe('A test, this is.');
-
-            result = cmds.processFirst('This is a test.');
-            expect(result.found).toBe(true);
-            expect(result.result).toBe('a test');
+            expect(cmds.processFirst('A test, this is.')).toSucceedWith('A test, this is.');
+            expect(cmds.processFirst('This is a test')).toSucceedWith('test');
         });
 
-        it('should return found===false if no command matches', (): void => {
-            const result = cmds.processFirst('An example');
-            expect(result.found).toBe(false);
-            expect(result.result).toBeUndefined();
+        it('should fail if no command matches', (): void => {
+            expect(cmds.processFirst('An example')).toFailWith(/no command matched/i);
+        });
+
+        it('should fail if the first matching command fails', () => {
+            expect(cmds.processFirst('bad data')).toFailWith(/mismatched capture count/i);
         });
     });
 
     describe('processOne', (): void => {
         const cmds = new CommandProcessor(goodCommands);
         it('should process exactly one matching command', (): void => {
-            const result = cmds.processOne('A test, this is.');
-            expect(result.found).toBe(true);
-            expect(result.result).toBe('A test, this is.');
+            expect(cmds.processOne('A test, this is.')).toSucceedWith('A test, this is.');
         });
 
-        it('should throw if more than one command matches', (): void => {
-            expect((): void => {
-                cmds.processOne('This is a test.');
-            }).toThrowError('Ambiguous command "This is a test." could be "Command 1" or "Command 2".');
+        it('should fail if more than one command matches', (): void => {
+            expect(cmds.processOne('This is a test')).toFailWith(/ambiguous command/i);
         });
 
-        it('should return found===false if no command matches', (): void => {
-            const result = cmds.processFirst('An example');
-            expect(result.found).toBe(false);
-            expect(result.result).toBeUndefined();
+        it('should fail if no command matches', (): void => {
+            expect(cmds.processOne('An example')).toFailWith(/no command matched/i);
+        });
+
+        it('should fail if the any command fails', () => {
+            expect(cmds.processOne('bad data')).toFailWith(/mismatched capture count/i);
+        });
+    });
+
+    describe('with a validator', () => {
+        const failTest = (c: string): Result<string> => { return c === 'test' ? fail('filtered') : succeed(c); };
+        describe('processAll', (): void => {
+            const cmds = new CommandProcessor<TestFields, string|undefined>(goodCommands, failTest);
+            it('should process only matching commands', (): void => {
+                expect(cmds.processAll('A test, this is.')).toSucceedWith(
+                    ['A test, this is.']
+                );
+            });
+
+            it('should process all matching commands but ignore validation errors if any succeed', (): void => {
+                expect(cmds.processAll('This is a test')).toSucceedWith(
+                    ['This is a test']
+                );
+            });
+
+            it('should report any validation errors if all commands fail', (): void => {
+                expect(cmds.processAll('test')).toFailWith(/filtered/i);
+            });
+
+            it('should return an empty array if no command matches', (): void => {
+                expect(cmds.processAll('An example')).toSucceedWith([]);
+            });
+
+            it('should fail if any of the commands fail', () => {
+                expect(cmds.processAll('bad data')).toFailWith(/mismatched capture count/i);
+            });
+        });
+
+        describe('processFirst', (): void => {
+            const cmds = new CommandProcessor(goodCommands, failTest);
+            it('should process only the first matching command', (): void => {
+                expect(cmds.processFirst('A test, this is.')).toSucceedWith('A test, this is.');
+                expect(cmds.processFirst('This is a thing')).toSucceedWith('thing');
+            });
+
+            it('should report validation errors if no command succeeds', () => {
+                expect(cmds.processFirst('test')).toFailWith(/filtered/i);
+            });
+
+            it('should fail if no command matches', (): void => {
+                expect(cmds.processFirst('An example')).toFailWith(/no command matched/i);
+            });
+
+            it('should fail if the first matching command fails', () => {
+                expect(cmds.processFirst('bad data')).toFailWith(/mismatched capture count/i);
+            });
+        });
+
+        describe('processOne', (): void => {
+            const cmds = new CommandProcessor(goodCommands, failTest);
+            it('should process exactly one matching command', (): void => {
+                expect(cmds.processOne('A test, this is.')).toSucceedWith('A test, this is.');
+            });
+
+            it('should report validation errors if no command succeeds', () => {
+                expect(cmds.processFirst('test')).toFailWith(/filtered/i);
+            });
+
+            it('should succeed if more than one command matches but only one passes validation', (): void => {
+                expect(cmds.processOne('This is a test')).toSucceedWith(expect.stringMatching('This is a test'));
+            });
+
+            it('should fail if no command matches', (): void => {
+                expect(cmds.processOne('An example')).toFailWith(/no command matched/i);
+            });
+
+            it('should fail if the any command fails', () => {
+                expect(cmds.processOne('bad data')).toFailWith(/mismatched capture count/i);
+            });
         });
     });
 });

@@ -20,110 +20,141 @@
  * SOFTWARE.
  */
 
+import { CommandParser, ParsedCommand } from './regExpBuilder';
+import { Result, allSucceed, fail, mapSuccess, succeed } from '../utils/result';
+
 export interface CommandResult<T> {
     found: boolean;
     result: T|undefined;
 }
 
-export type CommandHandler<T> = (params: RegExpMatchArray) => T;
+export type CommandValidator<TR> = (processed: TR) => Result<TR>;
+export type CommandHandler<TP, TR> = (parsed: ParsedCommand<TP>, command: CommandSpec<TP, TR>) => Result<TR>;
 
-export interface CommandSpec<T> {
+export interface CommandSpec<TP, TR> {
     name: string;
     description: string;
-    pattern: RegExp;
-    handleCommand: CommandHandler<T>;
+    examples?: string[];
+    parser: CommandParser<TP>;
+    handleCommand: CommandHandler<TP, TR>;
 }
 
-export class CommandProcessor<T> {
-    private _commands: CommandSpec<T>[];
+export class CommandProcessor<TP, TR> {
+    private _commands: CommandSpec<TP, TR>[];
+    private _validator?: CommandValidator<TR>;
 
-    public constructor(commands?: CommandSpec<T>[]) {
+    public constructor(commands?: CommandSpec<TP, TR>[], validator?: CommandValidator<TR>) {
         this._commands = [];
+        this._validator = validator;
 
-        if (commands) {
-            commands.forEach((c): void => this.addCommand(c));
-        }
+        allSucceed((commands ?? []).map((c) => this.addCommand(c)), true).getValueOrThrow();
     }
 
-    public addCommand(cmd: CommandSpec<T>): void {
-        this._validateCommand(cmd);
-        this._commands.push(cmd);
+    public addCommand(cmd: CommandSpec<TP, TR>): Result<boolean> {
+        return this._validateSpec(cmd).onSuccess(() => {
+            this._commands.push(cmd);
+            return succeed(true);
+        });
     }
 
-    public processAll(message: string): T[] {
-        const results = [];
+    public processAll(message: string): Result<TR[]> {
+        const results: Result<TR>[] = [];
         for (const c of this._commands) {
-            const params = message.match(c.pattern);
-            if (params !== null) {
-                results.push(c.handleCommand(params));
+            const result: Result<TR|undefined> = c.parser.parse(message).onSuccess((parsed) => {
+                return (parsed !== undefined) ? c.handleCommand(parsed, c) : succeed(undefined);
+            }).onSuccess((processed) => {
+                if ((processed !== undefined) && (this._validator !== undefined)) {
+                    return this._validator(processed);
+                }
+                return succeed(processed);
+            });
+
+            if (result.isFailure()) {
+                results.push(fail(result.message));
+            }
+            else if (result.value !== undefined) {
+                results.push(succeed(result.value));
             }
         }
-        return results;
+        return mapSuccess(results);
     }
 
-    public processFirst(message: string): CommandResult<T> {
-        const result: CommandResult<T> = {
-            found: false,
-            result: undefined,
-        };
+    public processFirst(message: string): Result<TR> {
+        const errors: Result<TR>[] = [];
 
         for (const c of this._commands) {
-            const params = message.match(c.pattern);
-            if (params !== null) {
-                result.result = c.handleCommand(params);
-                result.found = true;
+            const result = c.parser.parse(message).onSuccess((parsed) => {
+                return (parsed !== undefined) ? c.handleCommand(parsed, c) : succeed(undefined);
+            }).onSuccess((processed: TR): Result<TR> => {
+                if ((processed !== undefined) && (this._validator !== undefined)) {
+                    return this._validator(processed);
+                }
+                return succeed(processed);
+            });
+
+            if (result.isFailure()) {
+                errors.push(result);
+            }
+            else if (result.isSuccess() && (result.value !== undefined)) {
                 return result;
             }
         }
 
-        return result;
+        const errorText = (errors.length > 0) ? `\n${errors.join('\n')}` : '';
+        return fail(`No command matched ${message}${errorText}`);
     }
 
-    public processOne(message: string): CommandResult<T> {
-        const result: CommandResult<T> = {
-            found: false,
-            result: undefined,
-        };
+    public processOne(message: string): Result<TR> {
+        const errors: Result<TR>[] = [];
+        const results: { command: CommandSpec<TP, TR>, result: TR }[] = [];
 
-        let firstCommand = undefined;
         for (const c of this._commands) {
-            const params = message.match(c.pattern);
-            if (params !== null) {
-                if (!result.found) {
-                    firstCommand = c;
-                    result.result = c.handleCommand(params);
-                    result.found = true;
+            const result: Result<TR|undefined> = c.parser.parse(message).onSuccess((parsed) => {
+                return (parsed !== undefined) ? c.handleCommand(parsed, c) : succeed(undefined);
+            }).onSuccess((processed) => {
+                if ((processed !== undefined) && (this._validator !== undefined)) {
+                    return this._validator(processed);
                 }
-                else {
-                    throw new Error(`Ambiguous command "${message}" could be "${firstCommand.name}" or "${c.name}".`);
+                return succeed(processed);
+            }).onSuccess((processed) => {
+                if (processed !== undefined) {
+                    results.push({ command: c, result: processed });
                 }
+                return succeed(processed);
+            });
+
+            if (result.isFailure()) {
+                errors.push(fail(result.message));
             }
         }
 
-        return result;
+        if (results.length < 1) {
+            const errorText = (errors.length > 0) ? `\n${errors.join('\n')}` : '';
+            return fail(`No command matched ${message}${errorText}`);
+        }
+        else if (results.length > 1) {
+            const candidates = results.map((r) => r.command.name).join(', ');
+            return fail(`Ambiguous command ${message} could be any of: [${candidates}]`);
+        }
+        return succeed(results[0].result);
     }
 
     public get numCommands(): number {
         return this._commands.length;
     }
 
-    private _validateCommand(cmd: CommandSpec<T>): void {
-        if ((!cmd.name) || (!cmd.description) || (!cmd.pattern) || (!cmd.handleCommand)) {
-            throw new Error('Command must have name, description, pattern and handleCommand.');
-        }
-
-        if ((cmd.pattern instanceof RegExp) !== true) {
-            throw new Error('Command.pattern must be a regular expression.');
+    private _validateSpec(cmd: CommandSpec<TP, TR>): Result<boolean> {
+        if ((!cmd.name) || (!cmd.description) || (!cmd.parser) || (!cmd.handleCommand)) {
+            return fail('Command must have name, description, parser and handleCommand.');
         }
 
         if (typeof cmd.handleCommand !== 'function') {
-            throw new Error('Command.handleCommand must be a function.');
+            return fail('Command handler must be a function.');
         }
 
-        this._commands.forEach((c): void => {
-            if (c.name === cmd.name) {
-                throw new Error(`Duplicate command name "${c.name}".`);
-            }
-        });
+        if (this._commands.find((c) => c.name === cmd.name) !== undefined) {
+            return fail(`Duplicate command name '${cmd.name}'.`);
+        }
+        return succeed(true);
     }
 }

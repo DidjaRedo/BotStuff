@@ -187,7 +187,7 @@ describe('ZonePoiDirectory class', (): void => {
             expect.assertions(2);
             const zoneName = 'Red Zone';
             const zone = new ZonePoiDirectory(zoneName, { failForUnknownZones: true });
-            expect(() => zone.addPois(undefined as Iterable<Poi>)).not.toThrow();
+            expect(() => zone.addPois(undefined as unknown as Iterable<Poi>)).not.toThrow();
             expect(zone.numPois).toEqual(0);
         });
 

@@ -37,6 +37,18 @@ export const string = new Converter<string>((from: unknown) => {
 });
 
 /**
+ *
+ * @param values A converter to convert unknown to one of a set of
+ * supplied enumerated values.  Anything else fails.
+ */
+export function enumeratedValue<T>(values: T[]): Converter<T> {
+    return new Converter<T>((from: unknown): Result<T> => {
+        const index = values.indexOf(from as T);
+        return (index >= 0 ? succeed(values[index]) : fail(`Invalid enumerated value ${JSON.stringify(from)}`));
+    });
+}
+
+/**
  * A converter to convert unknown to a number.  Numbers and strings
  * with a numeric format succeed.  Anything else fails.
  */

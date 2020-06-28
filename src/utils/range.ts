@@ -40,8 +40,8 @@ export class Range<T> implements RangeProperties<T> {
         this.max = max;
     }
 
-    public static createRange<T>(init: RangeProperties<T>): Result<Range<T>> {
-        return captureResult(() => new Range<T>(init.min, init.max));
+    public static createRange<T>(init?: RangeProperties<T>): Result<Range<T>> {
+        return captureResult(() => new Range<T>(init?.min, init?.max));
     }
 
     protected static _defaultCompare<T>(t1: T, t2: T): 'less'|'equal'|'greater' {

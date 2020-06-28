@@ -20,7 +20,9 @@
  * SOFTWARE.
  */
 
+import '../../helpers/jestHelpers';
 import * as TimeConverters from '../../../src/time/timeConverters';
+import moment from 'moment';
 
 describe('TimeConverters module', () => {
     describe('date converter', () => {
@@ -61,6 +63,46 @@ describe('TimeConverters module', () => {
                 if (conversion.isFailure()) {
                     expect(conversion.message).toMatch(/invalid date specification/i);
                 }
+            });
+        });
+    });
+
+    describe('flexTime converter', () => {
+        it('should convert valid absolute times', () => {
+            [
+                { src: '0608', hours: 6, minutes: 8 },
+                { src: '1310', hours: 13, minutes: 10 },
+                { src: '605pm', hours: 18, minutes: 5 },
+            ].forEach((test) => {
+                expect(TimeConverters.flexTime.convert(test.src)).toSucceedWithCallback((d: Date) => {
+                    expect(moment(d).hours()).toBe(test.hours);
+                    expect(moment(d).minutes()).toBe(test.minutes);
+                });
+            });
+        });
+
+        it('should convert relative times', () => {
+            const future = moment().add(10, 'minutes');
+            const futureSpec = future.format('hmm');
+            expect(TimeConverters.flexTime.convert(futureSpec)).toSucceedWithCallback((d: Date) => {
+                expect(moment(d).hours()).toBe(future.hours());
+                expect(moment(d).minutes()).toBe(future.minutes());
+            });
+
+            const past = moment().subtract(10, 'minutes');
+            const pastSpec = past.format('hmm');
+            expect(TimeConverters.flexTime.convert(pastSpec)).toSucceedWithCallback((d: Date) => {
+                expect(moment(d).hours()).toBe((past.hours() + 12) % 24);
+                expect(moment(d).minutes()).toBe(past.minutes());
+            });
+        });
+
+        it('should fail to convert an invalid time specification', () => {
+            [
+                '12345',
+                () => '12345',
+            ].forEach((test) => {
+                expect(TimeConverters.flexTime.convert(test)).toFailWith(/invalid time/i);
             });
         });
     });

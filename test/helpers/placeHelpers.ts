@@ -99,7 +99,7 @@ export abstract class PoiGeneratorBase<P extends Poi, PP extends PoiProperties> 
         }
 
         const poiSpec = spec.split('|')[0];
-        const zones = [];
+        const zones: number[] = [];
         for (let i = 1; i < poiSpec.length; i++) {
             const zone = PoiGeneratorBase._zoneSpecs.indexOf(poiSpec.substr(i, 1));
             if (zone < 0) {
@@ -180,6 +180,6 @@ export class TestPoiGenerator extends PoiGeneratorBase<TestPoi, TestPoiPropertie
     }
 
     public parseProperties(spec: string, zoneNames?: string[], cityNames?: string[]): TestPoiProperties {
-        return PoiGeneratorBase._parsePoiProperties(spec, zoneNames, cityNames);
+        return PoiGeneratorBase._parsePoiProperties(spec, zoneNames ?? [], cityNames ?? []);
     }
 }

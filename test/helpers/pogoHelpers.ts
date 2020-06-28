@@ -20,15 +20,26 @@
  * SOFTWARE.
  */
 
+import { BossDirectory, loadBossDirectorySync } from '../../src/pogo/bossDirectory';
+import {
+    DEFAULT_BOSSES_FILE,
+    DEFAULT_GYMS_FILE,
+    DEFAULT_SAVE_FILE,
+    RaidManager,
+    RaidManagerListener,
+    RaidManagerOptions,
+} from '../../src/pogo/raidManager';
+import { DateRange, ExplicitDateRange } from '../../src/time/dateRange';
+import { GlobalGymDirectory, loadGlobalGymDirectorySync } from '../../src/pogo/gymDirectory';
 import { Gym, GymProperties } from '../../src/pogo/gym';
 import { PoiGeneratorBase, PoiTestDataBase, PoiTestDataInitializer } from './placeHelpers';
 import { Raid, RaidInitializer, RaidState } from '../../src/pogo/raid';
 import { RaidTier, validateRaidTier } from '../../src/pogo/pogo';
-import { Result, captureResult } from '../../src/utils/result';
+import { Result, captureResult, succeed } from '../../src/utils/result';
 import { Boss } from '../../src/pogo/boss';
-import { BossDirectory } from '../../src/pogo/bossDirectory';
-import { DateRange } from '../../src/time/dateRange';
-import { GlobalGymDirectory } from '../../src/pogo/gymDirectory';
+import { InMemoryLogger } from '../../src/utils/logger';
+import { MockFileSystem } from './dataHelpers';
+import { RaidMap } from '../../src/pogo/raidMap';
 import moment from 'moment';
 
 export class TestGymData extends PoiTestDataBase<GymProperties> {
@@ -40,8 +51,9 @@ export class TestGymData extends PoiTestDataBase<GymProperties> {
     }
 
     public getGyms(): Gym[] {
-        if (this._gyms) {
-            return this.poiProperties.map((p) => this._gyms.lookup(p.name).bestItem().getValueOrThrow());
+        const gyms = this._gyms;
+        if (gyms !== undefined) {
+            return this.poiProperties.map((p) => gyms.lookup(p.name).bestItem().getValueOrThrow());
         }
         return this.poiProperties.map((p) => new Gym(p));
     }
@@ -72,7 +84,7 @@ export class TestGymGenerator extends PoiGeneratorBase<Gym, GymProperties> {
         }
 
         return {
-            ...PoiGeneratorBase._parsePoiProperties(spec, zoneNames, cityNames),
+            ...PoiGeneratorBase._parsePoiProperties(spec, zoneNames ?? [], cityNames ?? []),
             isExEligible,
         };
     }
@@ -132,14 +144,14 @@ export class TestRaid extends Raid {
             gym: base.gym,
             boss: base.boss,
             tier: base.tier,
-            raidTimes: new DateRange(
-                moment(base.raidTimes.start).add(1, 'minute').toDate(),
-                moment(base.raidTimes.end).add(1, 'minute').toDate(),
-            ),
+            raidTimes: DateRange.createExplicitDateRange({
+                start: moment(base.raidTimes.start).add(1, 'minute').toDate(),
+                end: moment(base.raidTimes.end).add(1, 'minute').toDate(),
+            }).getValueOrThrow(),
         });
     }
 
-    public static getTimes(relativeTo?: Date): Record<RaidState, DateRange> {
+    public static getTimes(relativeTo?: Date): Record<RaidState, ExplicitDateRange> {
         relativeTo = relativeTo ?? new Date();
         return {
             future: TestRaid.getTime('future', relativeTo),
@@ -149,31 +161,24 @@ export class TestRaid extends Raid {
         };
     }
 
-    public static getTime(state: RaidState, relativeTo?: Date): DateRange {
-        const duration = this.getRaidDuration('normal');
+    public static getStartTime(state: RaidState, relativeTo?: Date): Date {
         this.validateRaidState(state).getValueOrThrow();
         switch (state) {
             case 'future':
-                return new DateRange(
-                    moment(relativeTo).add(this.futureOffset, 'minutes').toDate(),
-                    moment(relativeTo).add(this.futureOffset + duration, 'minutes').toDate(),
-                );
+                return moment(relativeTo).add(this.futureOffset, 'minutes').toDate();
             case 'egg':
-                return new DateRange(
-                    moment(relativeTo).add(this.eggOffset, 'minutes').toDate(),
-                    moment(relativeTo).add(this.eggOffset + duration, 'minutes').toDate(),
-                );
+                return moment(relativeTo).add(this.eggOffset, 'minutes').toDate();
             case 'hatched':
-                return new DateRange(
-                    moment(relativeTo).add(this.hatchedOffset, 'minutes').toDate(),
-                    moment(relativeTo).add(this.hatchedOffset + duration, 'minutes').toDate(),
-                );
+                return moment(relativeTo).add(this.hatchedOffset, 'minutes').toDate();
             case 'expired':
-                return new DateRange(
-                    moment(relativeTo).add(this.expiredOffset, 'minutes').toDate(),
-                    moment(relativeTo).add(this.expiredOffset + duration, 'minutes').toDate(),
-                );
+                return moment(relativeTo).add(this.expiredOffset, 'minutes').toDate();
         }
+    }
+
+    public static getTime(state: RaidState, relativeTo?: Date): ExplicitDateRange {
+        const start = TestRaid.getStartTime(state, relativeTo);
+        const duration = this.getRaidDuration('normal');
+        return DateRange.createExplicitDateRange({ start, end: moment(start).add(duration, 'minutes').toDate() }).getValueOrThrow();
     }
 }
 
@@ -217,17 +222,17 @@ export class TestRaidData extends TestGymData {
             return this._getRaidsForGyms(relativeTo);
         }
         else if (this._raids === undefined) {
-            this._raids = this._getRaidsForGyms();
+            this._raids = this._getRaidsForGyms().filter((r): r is TestRaid => r !== undefined);
         }
         return this._raids;
     }
 
     public getRaids(relativeTo?: Date): Raid[] {
-        return this.getRaidsForGyms(relativeTo).filter((r) => r !== undefined);
+        return this.getRaidsForGyms(relativeTo).filter((r): r is TestRaid => r !== undefined);
     }
 
     public getAsSaveFile(relativeTo?: Date): string {
-        return JSON.stringify(this.getRaidsForGyms(relativeTo).map((r) => r.toJson()), undefined, 2);
+        return JSON.stringify(this.getRaidsForGyms(relativeTo).map((r) => r?.toJson()), undefined, 2);
     }
 
     private _getRaidsForGyms(relativeTo?: Date): (TestRaid|undefined)[] {
@@ -236,7 +241,7 @@ export class TestRaidData extends TestGymData {
         return this.raidInitializers.map((init) => {
             const gym = gyms.shift();
 
-            if (init === undefined) {
+            if ((init === undefined) || (gym === undefined)) {
                 return undefined;
             }
             const tier = init.tier;
@@ -319,3 +324,73 @@ export class TestRaidGenerator {
         return { gym, raid };
     }
 }
+
+export class TestRaidManager extends RaidManager {
+    public static readonly gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymArrays.json').getValueOrThrow();
+    public static readonly bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrThrow();
+    public static readonly mockFs: MockFileSystem = new MockFileSystem([
+        {
+            path: DEFAULT_GYMS_FILE,
+            backingFile: 'test/unit/pogo/data/gymArrays.json',
+            writable: false,
+        },
+        {
+            path: DEFAULT_BOSSES_FILE,
+            backingFile: 'test/unit/pogo/data/validBossDirectory.json',
+            writable: false,
+        },
+        {
+            path: DEFAULT_SAVE_FILE,
+            writable: true,
+        },
+    ]);
+
+    public constructor(options?: RaidManagerOptions) {
+        super({ autoSave: false, autoStart: false, ...(options ?? {}) });
+    }
+
+    public static setup(raids: string[], options?: Partial<RaidManagerOptions>, relativeTo?: Date): RaidManagerTestData {
+        const testData = TestRaidGenerator.generateForDirectory(raids, TestRaidManager.gyms, TestRaidManager.bosses);
+        const logger = new InMemoryLogger();
+        const saveData = testData.getAsSaveFile(relativeTo);
+
+        TestRaidManager.mockFs.reset();
+        const spies = TestRaidManager.mockFs.startSpies();
+
+        // we do it this way to bypass the refresh on the normal restore,
+        // which would automatically process expired or hatched raids. Since
+        // this is a test instrument we want to end up with exactly the requested
+        // contents.
+        const rm = new TestRaidManager({ autoSave: false, autoStart: false, logger, ...(options ?? {}) });
+        TestRaidManager.mockFs.writeMockFileSync(DEFAULT_SAVE_FILE, saveData);
+        rm.restore().getValueOrThrow();
+
+        spies.restore();
+        TestRaidManager.mockFs.reset();
+        logger.clear();
+        return { testData, logger, rm };
+    }
+
+    public restore(): Result<RaidMap> {
+        return this._restore().onSuccess((rm) => {
+            this._raids = rm;
+            return succeed(rm);
+        });
+    }
+
+    public add(raid: Raid): Result<Raid> {
+        return this._raids.addOrUpdate(raid);
+    }
+}
+
+export class TestListener implements RaidManagerListener {
+    public raidUpdated = jest.fn();
+    public raidListUpdated = jest.fn();
+    public reset(): void {
+        this.raidListUpdated.mockClear();
+        this.raidUpdated.mockClear();
+    }
+}
+
+export type RaidManagerTestData = { testData: TestRaidData, logger: InMemoryLogger, rm: TestRaidManager };
+

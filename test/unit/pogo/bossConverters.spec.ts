@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+import '../../helpers/jestHelpers';
 import { Boss, BossProperties } from '../../../src/pogo/boss';
 import { bossPropertiesFromArray, bossPropertiesFromLegacyArray } from '../../../src/pogo/bossConverters';
 
@@ -141,6 +142,10 @@ describe('Pogo BossConverters module', () => {
         it('should fail for an invalid input', () => {
             const tests = [
                 {
+                    src: [5, '  |Armored Mewtwo|*Mewtwo', 150, 3, 1740, 1821, 2175, 2276],
+                    expected: /invalid name/i,
+                },
+                {
                     src: ['Terrakion', '639', 'Tier 5', 't5.png', 'inactive'],
                     expected: /boss array must have/i,
                 },
@@ -163,11 +168,7 @@ describe('Pogo BossConverters module', () => {
             ];
 
             for (const test of tests) {
-                const result = bossPropertiesFromArray.convert(test.src);
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toMatch(test.expected);
-                }
+                expect(bossPropertiesFromArray.convert(test.src)).toFailWith(test.expected);
             }
         });
     });

@@ -20,13 +20,25 @@
  * SOFTWARE.
  */
 
-import { Result, captureResult } from '../utils/result';
+import { Result, captureResult, fail, succeed } from '../utils/result';
 import { Range } from '../utils/range';
 import moment from 'moment';
 
 export interface DateRangeProperties {
     readonly start?: Date;
     readonly end?: Date;
+}
+
+export interface ExplicitDateRange extends Range<Date>, DateRangeProperties {
+    start: Date;
+    end: Date;
+    isExplicit(): this is ExplicitDateRange;
+    validateIsExplicit(): Result<ExplicitDateRange>;
+    duration(units?: moment.unitOfTime.Diff): number;
+    timeSince(prop: keyof DateRangeProperties, date: Date, units?: moment.unitOfTime.Diff): number;
+    timeUntil(prop: keyof DateRangeProperties, date: Date, units?: moment.unitOfTime.Diff): number;
+    timeFromNowSince(prop: keyof DateRangeProperties, units?: moment.unitOfTime.Diff): number;
+    timeFromNowUntil(prop: keyof DateRangeProperties, units?: moment.unitOfTime.Diff): number;
 }
 
 export class DateRange extends Range<Date> implements DateRangeProperties {
@@ -38,8 +50,27 @@ export class DateRange extends Range<Date> implements DateRangeProperties {
         return captureResult(() => new DateRange(init.start, init.end));
     }
 
+    public static createExplicitDateRange(init: DateRangeProperties): Result<ExplicitDateRange> {
+        return DateRange.createDateRange(init).onSuccess((range) => range.validateIsExplicit());
+    }
+
+    public static compareDates(d1: Date, d2: Date): 'less'|'equal'|'greater' {
+        return Range._defaultCompare(d1.getTime(), d2.getTime());
+    }
+
     public get start(): Date|undefined { return this.min; }
     public get end(): Date|undefined { return this.max; }
+
+    public isExplicit(): this is ExplicitDateRange {
+        return ((this.min !== undefined) && (this.max !== undefined));
+    }
+
+    public validateIsExplicit(): Result<ExplicitDateRange> {
+        if (this.isExplicit()) {
+            return succeed(this);
+        }
+        return fail('Explicit date range must have both start and end.');
+    }
 
     public duration(units: moment.unitOfTime.Diff = 'minutes'): number|undefined {
         if ((this.min === undefined) || (this.max === undefined)) {
@@ -63,15 +94,15 @@ export class DateRange extends Range<Date> implements DateRangeProperties {
         return moment(this[prop]).diff(moment(date), units);
     }
 
-    public timeFromNowSince(prop: keyof DateRangeProperties, units: moment.unitOfTime.Diff = 'minutes'): number {
+    public timeFromNowSince(prop: keyof DateRangeProperties, units: moment.unitOfTime.Diff = 'minutes'): number|undefined {
         return this.timeSince(prop, new Date(), units);
     }
 
-    public timeFromNowUntil(prop: keyof DateRangeProperties, units: moment.unitOfTime.Diff = 'minutes'): number {
+    public timeFromNowUntil(prop: keyof DateRangeProperties, units: moment.unitOfTime.Diff = 'minutes'): number|undefined {
         return this.timeUntil(prop, new Date(), units);
     }
 
     protected _compare(d1: Date, d2: Date): 'less'|'equal'|'greater' {
-        return Range._defaultCompare(d1.getTime(), d2.getTime());
+        return DateRange.compareDates(d1, d2);
     }
 }

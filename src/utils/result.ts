@@ -103,6 +103,10 @@ export class Failure<T> implements IResult<T> {
     public onFailure(cb: FailureContinuation<T>): Result<T> {
         return cb(this.message);
     }
+
+    public toString(): string {
+        return this.message;
+    }
 }
 
 /**
@@ -136,7 +140,7 @@ export function captureResult<T>(func: () => T): Result<T> {
 }
 
 /**
- * Maps an Array of Result<T> to an array of <T>, if all results are
+ * Maps an array of Result<T> to an array of <T>, if all results are
  * successful.  If any results fail, returns failure with a concatenated
  * summary of all failure messages.
  * @param resultsIn The results to be mapped.
@@ -161,23 +165,50 @@ export function mapResults<T>(resultsIn: Iterable<Result<T>>): Result<T[]> {
 }
 
 /**
+ * Maps an array of Result<T> to an array of <T>, omitting any error
+ * results.  If no results were successful, returns failure with a
+ * concatenated summary of all failure messages.
+ */
+export function mapSuccess<T>(resultsIn: Iterable<Result<T>>): Result<T[]> {
+    const errors: string[] = [];
+    const elements: T[] = [];
+
+    for (const result of resultsIn) {
+        if (result.isSuccess()) {
+            elements.push(result.value);
+        }
+        else {
+            errors.push(result.message);
+        }
+    }
+
+    if ((elements.length === 0) && (errors.length > 0)) {
+        return fail(errors.join('\n'));
+    }
+    return succeed(elements);
+}
+
+/**
  * Returns success with true if all results are successful.  If any are unsuccessful,
  * returns failure with a concatenade summary of all failure messages.
  * @param results The results to be tested.
  */
-export function allSucceed(results: Iterable<Result<unknown>>): Result<boolean> {
+export function allSucceed<T>(results: Iterable<Result<unknown>>, successValue: T): Result<T> {
     const errors: string[] = [];
 
-    for (const result of results) {
-        if (result.isFailure()) {
-            errors.push(result.message);
+    // istanbul ignore else
+    if (results !== undefined) {
+        for (const result of results) {
+            if (result.isFailure()) {
+                errors.push(result.message);
+            }
         }
     }
 
     if (errors.length > 0) {
         return fail(errors.join('\n'));
     }
-    return succeed(true);
+    return succeed(successValue);
 }
 
 export type FieldInitializers<T> = { [ key in keyof T ]: (state: Partial<T>) => Result<T[key]> };

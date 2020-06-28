@@ -162,8 +162,11 @@ describe('Directory class', (): void => {
             expect((): void => {
                 dir.add(new FakeKeyedThing(elem));
             }).not.toThrowError(/duplicate/i);
-            const results = dir.getByFieldExact('alternateName', init[0].alternateName);
-            expect(results).toHaveLength(2);
+            expect(init[0].alternateName).toBeDefined();
+            if (init[0].alternateName !== undefined) {
+                const results = dir.getByFieldExact('alternateName', init[0].alternateName);
+                expect(results).toHaveLength(2);
+            }
         });
 
         it('should throw if any value of an array unique alternate key conflicts', () => {
@@ -461,26 +464,32 @@ describe('Directory class', (): void => {
 
         describe('isAlternateKey method', () => {
             it('should return true for a valid alternate key', () => {
-                for (const altKey of uniqueAlternateNameOptions.alternateKeys) {
-                    expect(altKeysDir.isAlternateKey(altKey)).toBe(true);
+                expect(uniqueAlternateNameOptions.alternateKeys).toBeDefined();
+                if (uniqueAlternateNameOptions.alternateKeys !== undefined) {
+                    for (const altKey of uniqueAlternateNameOptions.alternateKeys) {
+                        expect(altKeysDir.isAlternateKey(altKey)).toBe(true);
+                    }
                 }
             });
 
             it('should return false for a invalid alternate key', () => {
-                for (const altKey of uniqueAlternateNameOptions.alternateKeys) {
-                    expect(noAltKeysDir.isAlternateKey(altKey)).toBe(false);
-                }
+                expect(uniqueAlternateNameOptions.alternateKeys).toBeDefined();
+                if (uniqueAlternateNameOptions.alternateKeys !== undefined) {
+                    for (const altKey of uniqueAlternateNameOptions.alternateKeys) {
+                        expect(noAltKeysDir.isAlternateKey(altKey)).toBe(false);
+                    }
 
-                const notAltKeys: (keyof FakeKeys)[] = ['name', 'state', 'aliases'];
-                for (const notAltKey of notAltKeys) {
-                    expect(altKeysDir.isAlternateKey(notAltKey)).toBe(false);
+                    const notAltKeys: (keyof FakeKeys)[] = ['name', 'state', 'aliases'];
+                    for (const notAltKey of notAltKeys) {
+                        expect(altKeysDir.isAlternateKey(notAltKey)).toBe(false);
+                    }
                 }
             });
         });
 
         describe('alternateKeys property', () => {
             it('should return an array with any alternate keys', () => {
-                expect(altKeysDir.alternateKeys).toEqual(uniqueAlternateNameOptions.alternateKeys);
+                expect(altKeysDir.alternateKeys).toEqual(uniqueAlternateNameOptions.alternateKeys ?? []);
             });
 
             it('should return an empty array if there are no alternate keys', () => {
@@ -492,7 +501,7 @@ describe('Directory class', (): void => {
     describe('forEach method', (): void => {
         it('should enumerate all of the items', (): void => {
             const dir = new FakeKtDirectory(uniqueAlternateNameOptions, initThings);
-            const found = [];
+            const found: FakeKeyedThing[] = [];
             dir.forEach((fp: FakeKeyedThing): void => {
                 expect(initThings).toContain(fp);
                 found.push(fp);
@@ -508,13 +517,17 @@ describe('Directory class', (): void => {
         it('should return the normalized keys for an element in the directory', (): void => {
             const dir = new FakeKtDirectory(uniqueAlternateNameOptions, initThings);
             const kt = dir.get(init[0].name);
-            expect(dir.getKeys(kt)).toEqual(kt.keys);
+            expect(kt).toBeDefined();
+            if (kt !== undefined) {
+                expect(dir?.getKeys(kt)).toEqual(kt.keys);
+            }
         });
 
         it('should return undefined for an element not in the directory', (): void => {
             const dir = new FakeKtDirectory(uniqueAlternateNameOptions, initThings);
             const elem = new FakeKeyedThing({ name: 'Fourth Place', alternateName: init[0].alternateName, city: 'Bangor', state: 'Maine' });
-            expect(dir.getKeys(elem)).toBeUndefined();
+            expect(dir).toBeDefined();
+            expect(dir?.getKeys(elem)).toBeUndefined();
         });
 
         it('should throw if the directory contains a different object with the same name', (): void => {
@@ -531,7 +544,7 @@ describe('Directory class', (): void => {
             const dir = new FakeKtDirectory(noAlternateKeyOptions, initThings);
             init.forEach((i): void => {
                 const kt = dir.get(i.name);
-                expect(kt.primaryKey).toBe(Names.normalizeOrThrow(i.name));
+                expect(kt?.primaryKey).toBe(Names.normalizeOrThrow(i.name));
                 expect(kt).toMatchObject(i);
             });
         });
@@ -552,7 +565,7 @@ describe('Directory class', (): void => {
         it('should throw if the specified field is not an alternate key', (): void => {
             const dir = new FakeKtDirectory(noAlternateKeyOptions, initThings);
             expect((): void => {
-                dir.getByFieldExact('alternateName', init[0].alternateName);
+                dir.getByFieldExact('alternateName', init[0].alternateName as string);
             }).toThrowError(/not an alternate key/i);
         });
 

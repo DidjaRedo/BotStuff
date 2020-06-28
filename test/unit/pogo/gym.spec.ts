@@ -59,12 +59,14 @@ describe('PoGo Gym module', () => {
                         Gym.Gym.createGym(init).getValueOrDefault(),
                     ].forEach((gym) => {
                         expect(gym).toBeDefined();
-                        expect(gym.name).toEqual(init.name);
-                        expect(gym.alternateNames).toEqual(init.alternateNames ?? []);
-                        expect(gym.city).toEqual(init.city);
-                        expect(gym.zones).toEqual(init.zones);
-                        expect(gym.coord).toEqual(init.coord);
-                        expect(gym.isExEligible).toEqual(init.isExEligible);
+                        if (gym !== undefined) {
+                            expect(gym.name).toEqual(init.name);
+                            expect(gym.alternateNames).toEqual(init.alternateNames ?? []);
+                            expect(gym.city).toEqual(init.city);
+                            expect(gym.zones).toEqual(init.zones);
+                            expect(gym.coord).toEqual(init.coord);
+                            expect(gym.isExEligible).toEqual(init.isExEligible);
+                        }
                     });
                 }
             });
@@ -134,15 +136,19 @@ describe('PoGo Gym module', () => {
 
         it('should round trip through toArray', () => {
             tests.forEach((test) => {
-                const gym = Gym.gym.convert(test.source).getValueOrDefault();
-                const gym2 = Gym.gym.convert(gym.toArray()).getValueOrDefault();
-                expect(gym).toEqual(gym2);
+                expect(Gym.gym.convert(test.source)).toSucceedWithCallback((gym: Gym.Gym) => {
+                    expect(Gym.gym.convert(gym.toArray())).toSucceedWith(gym);
+                });
             });
         });
 
         it('should round trip through toJson', () => {
             tests.forEach((test) => {
-                const gym = Gym.gym.convert(test.source).getValueOrDefault();
+                expect(Gym.gym.convert(test.source)).toSucceedWithCallback((gym: Gym.Gym) => {
+                    const json = gym.toJson();
+                    expect(Gym.gym.convert(json)).toSucceedWith(gym);
+                });
+                const gym = Gym.gym.convert(test.source).getValueOrThrow();
                 const json = gym.toJson();
                 const gym2 = Gym.gym.convert(json).getValueOrDefault();
                 expect(gym).toEqual(gym2);
@@ -278,7 +284,7 @@ describe('PoGo Gym module', () => {
         it('should write legacy gyms to a json file as arrays', () => {
             const spies = mockFs.startSpies();
 
-            const gyms = Gym.loadLegacyGymsFile('legacyGyms.csv').getValueOrDefault();
+            const gyms = Gym.loadLegacyGymsFile('legacyGyms.csv').getValueOrThrow();
             const json = gyms.map((g) => g.toJson());
             expect(saveJsonFile('gymObjects.json', json)).toSucceed();
 

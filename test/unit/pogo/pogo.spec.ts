@@ -69,9 +69,9 @@ describe('Pogo Module', () => {
                 [1.0, 2.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0],
             ];
 
-            const got = [];
+            const got: number[][] = [];
             for (const attackType of types) {
-                const gotRow = [];
+                const gotRow: number[] = [];
                 for (const targetType of types) {
                     gotRow.push(getTypeBoost(attackType, targetType));
                 }

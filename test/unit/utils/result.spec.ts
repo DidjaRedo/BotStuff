@@ -28,6 +28,7 @@ import {
     captureResult,
     fail,
     mapResults,
+    mapSuccess,
     succeed,
 } from '../../../src/utils/result';
 
@@ -187,11 +188,36 @@ describe('Result module', () => {
             });
         });
 
+        describe('mapSuccess method', () => {
+            const strings = ['string1', 'STRING2', 'String_3'];
+            const results = [...strings.map((s) => succeed(s)), fail('failure')];
+            it('should report all successful values if any results are successful', () => {
+                const result = mapSuccess(results);
+                expect(result.isSuccess()).toBe(true);
+                if (result.isSuccess()) {
+                    expect(result.value).toEqual(strings);
+                }
+            });
+
+            it('should report an error if all results failed', () => {
+                const errors = ['Biff!', 'Pow!', 'Bam!'];
+                const errorResults = errors.map((s) => fail(s));
+                const badResults = [...errorResults];
+                const result = mapSuccess(badResults);
+                expect(result.isFailure()).toBe(true);
+                if (result.isFailure()) {
+                    for (const e of errors) {
+                        expect(result.message).toContain(e);
+                    }
+                }
+            });
+        });
+
         describe('allSucceed method', () => {
             const strings = ['string1', 'STRING2', 'String_3'];
             const results = strings.map((s) => succeed(s));
             it('should return true if all results are successful', () => {
-                const result = allSucceed(results);
+                const result = allSucceed(results, true);
                 expect(result.isSuccess()).toBe(true);
                 if (result.isSuccess()) {
                     expect(result.value).toBe(true);
@@ -202,7 +228,7 @@ describe('Result module', () => {
                 const errors = ['Biff!', 'Pow!', 'Bam!'];
                 const errorResults = errors.map((s) => fail(s));
                 const badResults = [...results, ...errorResults];
-                const result = allSucceed(badResults);
+                const result = allSucceed(badResults, true);
                 expect(result.isFailure()).toBe(true);
                 if (result.isFailure()) {
                     for (const e of errors) {

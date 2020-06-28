@@ -109,7 +109,7 @@ export class ZonePoiDirectoryBase<P extends Poi> implements ZonePoiDirectoryProp
         options = options || this._options;
 
         if (pois) {
-            const myPois = [];
+            const myPois: P[] = [];
             for (const poi of pois) {
                 if (poi.belongsToZone(this._name)) {
                     myPois.push(poi);

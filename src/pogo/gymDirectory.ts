@@ -66,7 +66,8 @@ export class GlobalGymDirectory extends GlobalPoiDirectoryBase<Gym.Gym, GymLooku
     protected _getEffectiveOptions(user: Partial<GymLookupOptionsProperties>): GymLookupOptionsProperties {
         const base = this.options ?? PoiLookupOptions.defaultProperties;
         if (user) {
-            return optionsMerger.mergeIntoCopy(base, user).getValueOrThrow();
+            // cannot return undefined because base cannot be undefined
+            return optionsMerger.mergeIntoCopy(base, user).getValueOrThrow() as GymLookupOptionsProperties;
         }
         return base;
     }

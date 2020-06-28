@@ -23,12 +23,12 @@
 import * as Converters from '../utils/converters';
 import * as PogoConverters from '../pogo/pogoConverters';
 import * as TimeConverters from '../time/timeConverters';
+import { DateRange, ExplicitDateRange } from '../time/dateRange';
 import { RaidTier, validateRaidTier } from './pogo';
 import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
 import { Boss } from './boss';
 import { BossDirectory } from './bossDirectory';
 import { Converter } from '../utils/converter';
-import { DateRange } from '../time/dateRange';
 import { DirectoryOptions } from '../names/directory';
 import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
@@ -72,7 +72,7 @@ export interface RaidInitializer {
     tier: RaidTier;
     gym: Gym;
     boss?: Boss;
-    raidTimes: DateRange;
+    raidTimes: ExplicitDateRange;
     raidType?: RaidType;
 }
 
@@ -93,12 +93,13 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
     public readonly keys: RaidKeys;
 
     public get gymName(): string { return this.gym.name; }
+    public get bossName(): string { return this.boss?.displayName ?? 'undefined'; }
     public get tier(): RaidTier { return this._tier; }
     public readonly gym: Gym;
     public get boss(): Boss|undefined { return this._boss; }
-    public get hatchTime(): Date|undefined { return this.raidTimes.min; }
-    public get expiryTime(): Date|undefined { return this.raidTimes.max; }
-    public readonly raidTimes: DateRange;
+    public get hatchTime(): Date { return this.raidTimes.start; }
+    public get expiryTime(): Date { return this.raidTimes.end; }
+    public readonly raidTimes: ExplicitDateRange;
     public get state(): RaidState { return this._state; }
     public readonly raidType: RaidType;
 
@@ -143,28 +144,28 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         return (raidType === 'raid-hour') ? MAX_RAID_HOUR_RAID_ACTIVE_TIME : MAX_NORMAL_RAID_ACTIVE_TIME;
     }
 
-    public static getRaidTimesForFutureRaid(timerInMinutes: number, raidType?: RaidType): Result<DateRange>;
-    public static getRaidTimesForFutureRaid(startTime: Date, raidType?: RaidType): Result<DateRange>;
-    public static getRaidTimesForFutureRaid(timerOrStart: Date|number, raidType?: RaidType): Result<DateRange> {
+    public static getRaidTimesForFutureRaid(timerInMinutes: number, raidType?: RaidType): Result<ExplicitDateRange>;
+    public static getRaidTimesForFutureRaid(startTime: Date, raidType?: RaidType): Result<ExplicitDateRange>;
+    public static getRaidTimesForFutureRaid(timerOrStart: Date|number, raidType?: RaidType): Result<ExplicitDateRange> {
         if (typeof timerOrStart === 'number') {
             return Raid._getRaidTimesFromEggTimer(timerOrStart, raidType);
         }
         return Raid._getRaidTimesFromStartTime(timerOrStart, raidType);
     }
 
-    public static getRaidTimesForActiveRaid(timeInMinutes: number, raidType?: RaidType): Result<DateRange> {
+    public static getRaidTimesForActiveRaid(timeInMinutes: number, raidType?: RaidType): Result<ExplicitDateRange> {
         const max = Raid.getRaidDuration(raidType);
         if ((timeInMinutes < 1) || (timeInMinutes > max)) {
             return fail(`Raid timer ${timeInMinutes} is out of range (1..${max})`);
         }
         const end = moment().add(timeInMinutes, 'minutes');
-        return DateRange.createDateRange({
+        return DateRange.createExplicitDateRange({
             start: end.clone().subtract(max, 'minutes').toDate(),
             end: end.toDate(),
         });
     }
 
-    public static getStateFromRaidTimes(raidTimes: DateRange, fromDate?: Date, raidType?: RaidType): Result<RaidState> {
+    public static getStateFromRaidTimes(raidTimes: ExplicitDateRange, fromDate?: Date, raidType?: RaidType): Result<RaidState> {
         const valid = Raid._validateRaidTimes(raidTimes, raidType);
         if (valid.isFailure()) {
             return fail(valid.message);
@@ -182,13 +183,17 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         return succeed('expired');
     }
 
-    public static getCurrentStateFromRaidTimes(raidTimes: DateRange, raidType?: RaidType): Result<RaidState> {
+    public static getCurrentStateFromRaidTimes(raidTimes: ExplicitDateRange, raidType?: RaidType): Result<RaidState> {
         return Raid.getStateFromRaidTimes(raidTimes, new Date(), raidType);
     }
 
-    public static createFutureRaid(start: Date, gym: Gym, tier: RaidTier, raidType?: RaidType): Result<Raid>;
-    public static createFutureRaid(startsIn: number, gym: Gym, tier: RaidTier, raidType?: RaidType): Result<Raid>;
-    public static createFutureRaid(start: Date|number, gym: Gym, tier: RaidTier, raidType?: RaidType): Result<Raid> {
+    public static createFutureRaid(start: Date, gym: Gym|undefined, tier: RaidTier, raidType?: RaidType): Result<Raid>;
+    public static createFutureRaid(startsIn: number, gym: Gym|undefined, tier: RaidTier, raidType?: RaidType): Result<Raid>;
+    public static createFutureRaid(start: Date|number, gym: Gym|undefined, tier: RaidTier, raidType?: RaidType): Result<Raid> {
+        if (gym === undefined) {
+            return fail('Gym must be specified for a future raid.');
+        }
+
         const times = Raid.getRaidTimesForFutureRaid(start as number, raidType);
         if (times.isFailure()) {
             return fail(times.message);
@@ -198,7 +203,14 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         return captureResult(() => new Raid({ tier, gym, raidTimes, raidType }));
     }
 
-    public static createActiveRaid(timeLeftInMinutes: number, gym: Gym, boss: Boss, raidType?: RaidType): Result<Raid> {
+    public static createActiveRaid(timeLeftInMinutes: number, gym: Gym|undefined, boss: Boss|undefined, raidType?: RaidType): Result<Raid> {
+        if (gym === undefined) {
+            return fail('Gym must be specified for an active raid.');
+        }
+        if (boss === undefined) {
+            return fail('Boss must be specified for an active raid');
+        }
+
         const times = Raid.getRaidTimesForActiveRaid(timeLeftInMinutes, raidType);
         if (times.isFailure()) {
             return fail(times.message);
@@ -244,7 +256,7 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         });
     }
 
-    protected static _getRaidTimesFromStartTime(hatchTime: Date, raidType?: RaidType, options?: RaidOptions): Result<DateRange> {
+    protected static _getRaidTimesFromStartTime(hatchTime: Date, raidType?: RaidType, options?: RaidOptions): Result<ExplicitDateRange> {
         const hatch = moment(hatchTime);
         const delta = hatch.diff(moment(), 'minutes');
 
@@ -258,18 +270,18 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
             }
         }
 
-        return DateRange.createDateRange({
+        return DateRange.createExplicitDateRange({
             start: hatch.toDate(),
             end: hatch.clone().add(Raid.getRaidDuration(raidType), 'minutes').toDate(),
         });
     }
 
-    protected static _getRaidTimesFromEggTimer(timeInMinutes: number, raidType?: RaidType): Result<DateRange> {
+    protected static _getRaidTimesFromEggTimer(timeInMinutes: number, raidType?: RaidType): Result<ExplicitDateRange> {
         if ((timeInMinutes < 1) || (timeInMinutes > MAX_EGG_HATCH_TIME)) {
             return fail(`Egg timer ${timeInMinutes} is out of range (1..${MAX_EGG_HATCH_TIME})`);
         }
         const start = moment().add(timeInMinutes, 'minutes');
-        return DateRange.createDateRange({
+        return DateRange.createExplicitDateRange({
             start: start.toDate(),
             end: start.clone().add(Raid.getRaidDuration(raidType), 'minutes').toDate(),
         });
@@ -279,17 +291,13 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         return `${moment(startTime).format('YYYY-MM-DD_HH:MM')}@${gymKey}`;
     }
 
-    private static _validateRaidTimes(raidTimes: DateRange, raidType?: RaidType): Result<DateRange> {
-        if ((raidTimes.start === undefined) || (raidTimes.end === undefined)) {
-            return fail('Raid times must define both start and end');
-        }
-
-        const got = raidTimes.duration('minutes');
+    private static _validateRaidTimes(times: ExplicitDateRange, raidType?: RaidType): Result<ExplicitDateRange> {
+        const got = times.duration('minutes');
         const expected = Raid.getRaidDuration(raidType);
         if (got !== expected) {
             return fail(`Invalid raid duration - got ${got}, expected ${expected}.`);
         }
-        return succeed(raidTimes);
+        return succeed(times);
     }
 
     private static _validateBoss(boss?: Boss, tier?: RaidTier): Result<Boss|undefined> {
@@ -299,18 +307,18 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         return succeed(boss);
     }
 
-    private static _validateInitializer(init: RaidInitializer): Result<boolean> {
+    private static _validateInitializer(init: RaidInitializer): Result<ExplicitDateRange> {
         return allSucceed([
             validateRaidTier(init.tier),
             Raid._validateBoss(init.boss, init.tier),
-            Raid._validateRaidTimes(init.raidTimes, init.raidType),
-        ]);
+        ], true).onSuccess(() => {
+            return Raid._validateRaidTimes(init.raidTimes, init.raidType);
+        });
     }
-
 
     public update(tier: RaidTier): Result<RaidTier>;
     public update(boss: Boss): Result<Boss>;
-    public update(tierOrBoss: RaidTier|Boss): Result<RaidTier|Boss> {
+    public update(tierOrBoss: RaidTier|Boss): Result<RaidTier|Boss|undefined> {
         if (typeof tierOrBoss === 'number') {
             if (this.boss !== undefined) {
                 return fail('Cannot change tier once a boss is assigned.');

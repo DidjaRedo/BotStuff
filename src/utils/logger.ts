@@ -24,10 +24,10 @@ import { Failure, Success, fail, succeed } from './result';
 export type LogLevel = 'detail'|'info'|'warning'|'error'|'silent';
 
 export interface Logger {
-    log(message?: unknown, ...parameters: unknown[]): Success<string>;
-    detail(message?: unknown, ...parameters: unknown[]): Success<string>;
-    info(message?: unknown, ...parameters: unknown[]): Success<string>;
-    warn(message?: unknown, ...parameters: unknown[]): Success<string>;
+    log(message?: unknown, ...parameters: unknown[]): Success<string|undefined>;
+    detail(message?: unknown, ...parameters: unknown[]): Success<string|undefined>;
+    info(message?: unknown, ...parameters: unknown[]): Success<string|undefined>;
+    warn(message?: unknown, ...parameters: unknown[]): Success<string|undefined>;
     warnAndFail<T>(message?: unknown, ...parameters: unknown[]): Failure<T>;
     error<T>(message?: unknown, ...parameters: unknown[]): Failure<T>;
 }
@@ -39,21 +39,21 @@ export abstract class LoggerBase {
         this.logLevel = logLevel ?? 'info';
     }
 
-    public detail(message?: unknown, ...parameters: unknown[]): Success<string> {
+    public detail(message?: unknown, ...parameters: unknown[]): Success<string|undefined> {
         if (this.logLevel === 'detail') {
             return this.log(message, parameters);
         }
         return succeed(undefined);
     }
 
-    public info(message?: unknown, ...parameters: unknown[]): Success<string> {
+    public info(message?: unknown, ...parameters: unknown[]): Success<string|undefined> {
         if ((this.logLevel === 'detail') || (this.logLevel === 'info')) {
             return this.log(message, parameters);
         }
         return succeed(undefined);
     }
 
-    public warn(message?: unknown, ...parameters: unknown[]): Success<string> {
+    public warn(message?: unknown, ...parameters: unknown[]): Success<string|undefined> {
         if ((this.logLevel !== 'error') && (this.logLevel !== 'silent')) {
             return this.log(message, parameters);
         }
@@ -61,37 +61,44 @@ export abstract class LoggerBase {
     }
 
     public warnAndFail<T>(message?: unknown, ...parameters: unknown[]): Failure<T> {
+        const formatted = this._format(message, ...parameters);
         if ((this.logLevel !== 'error') && (this.logLevel !== 'silent')) {
-            const result = this.log(message, parameters);
-            return fail(result.value);
+            const result = this.log(formatted);
+            return fail(result.value ?? formatted);
         }
-        return fail(undefined);
+        return fail(formatted);
     }
 
     public error<T>(message?: unknown, ...parameters: unknown[]): Failure<T> {
+        const formatted = this._format(message, ...parameters);
         if (this.logLevel !== 'silent') {
-            const result = this.log(message, parameters);
-            return fail(result.value);
+            const result = this.log(formatted);
+            return fail(result.value ?? formatted);
         }
-        return fail(undefined);
+        return fail(formatted);
     }
 
-    public log(message?: unknown, ...parameters: unknown[]): Success<string> {
-        if (parameters && parameters.length > 0) {
-            message = [message, ...parameters].filter((m) => (m !== undefined)).map((m) => m.toString()).join('');
-        }
-        const messageString = message.toString();
+    public log(message?: unknown, ...parameters: unknown[]): Success<string|undefined> {
+        const messageString = this._format(message, ...parameters);
         if (this.logLevel === 'silent') {
             return this._innerSilent(messageString);
         }
         return this._innerLog(messageString);
     }
 
-    protected _innerSilent(_message: string): Success<string> {
+    protected _format(message?: unknown, ...parameters: unknown[]): string {
+        const raw = [message, ...parameters];
+        const filtered = raw.filter((m): m is string => (m !== undefined));
+        const strings = filtered.map((m) => m.toString());
+        const joined = strings.join('');
+        return joined;
+    }
+
+    protected _innerSilent(_message: string): Success<string|undefined> {
         return succeed(undefined);
     }
 
-    protected abstract _innerLog(message: string): Success<string>;
+    protected abstract _innerLog(message: string): Success<string|undefined>;
 }
 
 export class InMemoryLogger extends LoggerBase {
@@ -110,19 +117,19 @@ export class InMemoryLogger extends LoggerBase {
         this._silent = [];
     }
 
-    protected _innerLog(message: string): Success<string> {
+    protected _innerLog(message: string): Success<string|undefined> {
         this._messages.push(message);
         return succeed(message);
     }
 
-    protected _innerSilent(message: string): Success<string> {
+    protected _innerSilent(message: string): Success<string|undefined> {
         this._silent.push(message);
         return succeed(undefined);
     }
 }
 
 export class NoOpLogger extends LoggerBase {
-    protected _innerLog(message: string): Success<string> {
+    protected _innerLog(message: string): Success<string|undefined> {
         // no-op
         return succeed(message);
     }

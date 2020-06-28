@@ -23,10 +23,11 @@
 import * as Converters from '../utils/converters';
 import * as PogoConverters from './pogoConverters';
 import * as TimeConverters from '../time/timeConverters';
-import { fail, succeed } from '../utils/result';
+import { Result, fail, succeed } from '../utils/result';
 import { BossProperties } from './boss';
 import { Converter } from '../utils/converter';
 import { DateRange } from '../time/dateRange';
+import { Names } from '../names/names';
 
 export const bossPropertiesFieldConverters: Converters.FieldConverters<BossProperties> = {
     name: Converters.string,
@@ -72,13 +73,17 @@ export interface BossNames {
     alternateNames?: string[];
 }
 
-export const bossNames = new Converter<BossNames>((from: unknown) => {
+export const bossNames = new Converter<BossNames>((from: unknown): Result<BossNames> => {
     if (typeof from !== 'string') {
         return fail(`Invalid names specifier ${JSON.stringify(from)} must be string.`);
     }
 
     const alternateNames = from.split('|');
-    const name = alternateNames.shift();
+    const name = (alternateNames.shift() as string).trim(); // first item is never undefined
+
+    if ((name === undefined) || !Names.isValidName(name)) {
+        return fail('Invalid name - must be non-empty string');
+    }
 
     let displayName: string|undefined;
     for (let i = 0; i < alternateNames.length; i++) {

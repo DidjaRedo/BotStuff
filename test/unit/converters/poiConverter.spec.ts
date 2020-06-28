@@ -21,6 +21,7 @@
  */
 import '../../helpers/jestHelpers';
 import * as PoiConverter from '../../../src/converters/poiConverter';
+import { Poi } from '../../../src/places/poi';
 
 describe('PoiConverters module', () => {
     describe('poiPropertiesFromArray converter', () => {
@@ -75,18 +76,18 @@ describe('PoiConverters module', () => {
 
         it('should round-trip through "toArray"', () => {
             tests.forEach((test) => {
-                const poi = PoiConverter.poiFromArray.convert(test.source).getValueOrDefault();
-                const poi2 = PoiConverter.poiFromArray.convert(poi.toArray()).getValueOrDefault();
-                expect(poi).toEqual(poi2);
+                expect(PoiConverter.poiFromArray.convert(test.source)).toSucceedWithCallback((poi: Poi) => {
+                    expect(PoiConverter.poiFromArray.convert(poi.toArray())).toSucceedWith(poi);
+                });
             });
         });
 
         it('should round-trip through "toJson"', () => {
             tests.forEach((test) => {
-                const poi = PoiConverter.poiFromArray.convert(test.source).getValueOrDefault();
-                const json = poi.toJson();
-                const poi2 = PoiConverter.poiFromObject.convert(json).getValueOrDefault();
-                expect(poi2).toEqual(poi);
+                expect(PoiConverter.poiFromArray.convert(test.source)).toSucceedWithCallback((poi: Poi) => {
+                    const json = poi.toJson();
+                    expect(PoiConverter.poiFromObject.convert(json)).toSucceedWith(poi);
+                });
             });
         });
     });

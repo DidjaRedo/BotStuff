@@ -21,54 +21,19 @@
  */
 
 import '../../helpers/jestHelpers';
-import {
-    DEFAULT_BOSSES_FILE,
-    DEFAULT_GYMS_FILE,
-    DEFAULT_SAVE_FILE,
-    RaidManager,
-    RaidManagerListener,
-    RaidManagerOptions,
-} from '../../../src/pogo/raidManager';
+import { DEFAULT_SAVE_FILE, RaidManager } from '../../../src/pogo/raidManager';
 import { Raid, RaidType } from '../../../src/pogo/raid';
-import { Result, succeed } from '../../../src/utils/result';
-import { TestRaidData, TestRaidGenerator } from '../../helpers/pogoHelpers';
-import { DateRange } from '../../../src/time/dateRange';
+import { TestListener, TestRaidGenerator, TestRaidManager } from '../../helpers/pogoHelpers';
+import { ExplicitDateRange } from '../../../src/time/dateRange';
 import { InMemoryLogger } from '../../../src/utils/logger';
-import { MockFileSystem } from '../../helpers/dataHelpers';
-import { RaidMap } from '../../../src/pogo/raidMap';
-import { loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
-import { loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
+import { ItemArray } from '../../../src/utils/utils';
 import moment from 'moment';
 
-class TestRaidManager extends RaidManager {
-    public constructor(options?: RaidManagerOptions) {
-        super({ autoSave: false, autoStart: false, ...(options ?? {}) });
-    }
-
-    public restore(): Result<RaidMap> {
-        return this._restore().onSuccess((rm) => {
-            this._raids = rm;
-            return succeed(rm);
-        });
-    }
-
-    public add(raid: Raid): Result<Raid> {
-        return this._raids.addOrUpdate(raid);
-    }
-}
-
-class TestListener implements RaidManagerListener {
-    public raidUpdated = jest.fn();
-    public raidListUpdated = jest.fn();
-    public reset() {
-        this.raidListUpdated.mockClear();
-        this.raidUpdated.mockClear();
-    }
-}
-
 describe('RaidManager class', () => {
-    const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymArrays.json').getValueOrThrow();
-    const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrThrow();
+    const gyms = TestRaidManager.gyms;
+    const bosses = TestRaidManager.bosses;
+    const mockFs = TestRaidManager.mockFs;
+
     const testRaids = [
         'northstar|future|4',
         'jillyann|egg|5',
@@ -81,47 +46,6 @@ describe('RaidManager class', () => {
     ];
     const testRaidData = TestRaidGenerator.generateForDirectory(testRaids, gyms, bosses);
     const saveData = testRaidData.getAsSaveFile();
-
-    const mockFs = new MockFileSystem([
-        {
-            path: DEFAULT_GYMS_FILE,
-            backingFile: 'test/unit/pogo/data/gymArrays.json',
-            writable: false,
-        },
-        {
-            path: DEFAULT_BOSSES_FILE,
-            backingFile: 'test/unit/pogo/data/validBossDirectory.json',
-            writable: false,
-        },
-        {
-            path: DEFAULT_SAVE_FILE,
-            writable: true,
-        },
-    ]);
-
-    type RaidManagerTestData = { testData: TestRaidData, logger: InMemoryLogger, rm: TestRaidManager };
-
-    function getTestRm(raids: string[], options?: Partial<RaidManagerOptions>, relativeTo?: Date): RaidManagerTestData {
-        const testData = TestRaidGenerator.generateForDirectory(raids, gyms, bosses);
-        const logger = new InMemoryLogger();
-        const saveData = testData.getAsSaveFile(relativeTo);
-
-        mockFs.reset();
-        const spies = mockFs.startSpies();
-
-        // we do it this way to bypass the refresh on the normal restore,
-        // which would automatically process expired or hatched raids. Since
-        // this is a test instrument we want to end up with exactly the requested
-        // contents.
-        const rm = new TestRaidManager({ autoSave: false, autoStart: false, logger, ...(options ?? {}) });
-        mockFs.writeMockFileSync(DEFAULT_SAVE_FILE, saveData);
-        rm.restore().getValueOrThrow();
-
-        spies.restore();
-        mockFs.reset();
-        logger.clear();
-        return { testData, logger, rm };
-    }
 
     describe('constructors', () => {
         it('should initialize with default options', () => {
@@ -194,12 +118,17 @@ describe('RaidManager class', () => {
     });
 
     describe('getRaid method', () => {
-        const { rm } = getTestRm(testRaids);
+        const { rm } = TestRaidManager.setup(testRaids);
 
         it('should get a raid that exists', () => {
-            expect(rm.getRaid('prescott')).toSucceedWith(
-                expect.objectContaining({ tier: 5 }),
-            );
+            [
+                'prescott',
+                rm.gyms.lookup('prescott').singleItem().getValueOrThrow(),
+            ].forEach((gym) => {
+                expect(rm.getRaid(gym)).toSucceedWith(
+                    expect.objectContaining({ tier: 5 }),
+                );
+            });
         });
 
         it('should get the best match if several matching raids exist', () => {
@@ -211,38 +140,46 @@ describe('RaidManager class', () => {
         });
 
         it('should fail if no raid exists', () => {
-            expect(rm.getRaid('xyzzy')).toFailWith(/raid not found/i);
+            expect(rm.getRaid('xyzzy')).toFailWith(/no gyms match/i);
         });
     });
 
     describe('getRaids method', () => {
-        const { rm } = getTestRm(testRaids);
+        const { rm } = TestRaidManager.setup(testRaids);
 
         it('should get a raid that exists', () => {
-            const raids = rm.getRaids('prescott');
-            expect(raids).toHaveLength(1);
-            expect(raids).toEqual(expect.arrayContaining([
-                expect.objectContaining({ name: expect.stringContaining('Prescott') }),
-            ]));
+            expect(rm.getRaids('prescott')).toSucceedWithCallback((raids: ItemArray<Raid>) => {
+                expect(raids).toHaveLength(1);
+                expect(raids).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ name: expect.stringContaining('Prescott') }),
+                ]));
+            });
         });
 
         it('should get ordered list if several matching raids exist', () => {
-            const raids = rm.getRaids('starbucks');
-            expect(raids.length).toBeGreaterThan(1);
-            for (const raid of raids) {
-                expect(raid.name).toEqual(expect.stringContaining('Starbucks'));
-            }
+            expect(rm.getRaids('starbucks')).toSucceedWithCallback((raids: ItemArray<Raid>) => {
+                expect(raids.length).toBeGreaterThan(1);
+                for (const raid of raids) {
+                    expect(raid.name).toEqual(expect.stringContaining('Starbucks'));
+                }
+            });
         });
 
-        it('should get an empty list if no raid exists', () => {
-            expect(rm.getRaids('xyzzy')).toHaveLength(0);
+        it('should get an empty list if no raid exists at a matching gym', () => {
+            expect(rm.getRaids('retrofitting')).toSucceedWithCallback((raids: ItemArray<Raid>) =>{
+                expect(raids).toHaveLength(0);
+            });
+        });
+
+        it('should fail if no matching gyms are found', () => {
+            expect(rm.getRaids('xyzzy')).toFailWith(/no gyms match/i);
         });
     });
 
     describe('addFutureRaid method', () => {
         it('should add a valid raid starting in the next 60 minutes', () => {
             const listener = new TestListener();
-            const { rm } = getTestRm(testRaids);
+            const { rm } = TestRaidManager.setup(testRaids);
             rm.addListener(listener);
 
             const prescott = rm.gyms.lookup('prescott').bestItem().getValueOrDefault();
@@ -273,10 +210,10 @@ describe('RaidManager class', () => {
 
         it('should update an existing raid', () => {
             const listener = new TestListener();
-            const { rm } = getTestRm([]);
+            const { rm } = TestRaidManager.setup([]);
             rm.addListener(listener);
 
-            let firstRaid: Raid;
+            let firstRaid: Raid|undefined = undefined;
             expect(rm.addFutureRaid(20, 'prescott', 4)).toSucceedWithCallback((r: Raid) => {
                 firstRaid = r;
             });
@@ -284,7 +221,7 @@ describe('RaidManager class', () => {
                 rm, firstRaid, 'added', undefined
             );
 
-            let secondRaid: Raid;
+            let secondRaid: Raid|undefined = undefined;
             expect(rm.addFutureRaid(20, 'prescott', 5, 'raid-hour')).toSucceedWithCallback((r: Raid) => {
                 secondRaid = r;
             });
@@ -301,7 +238,7 @@ describe('RaidManager class', () => {
         describe('in strict mode', () => {
             it('should fail to update an existing raid', () => {
                 const listener = new TestListener();
-                const { rm } = getTestRm([], { strict: true });
+                const { rm } = TestRaidManager.setup([], { strict: true });
                 rm.addListener(listener);
 
                 expect(rm.addFutureRaid(20, 'prescott', 4)).toSucceed();
@@ -318,7 +255,7 @@ describe('RaidManager class', () => {
     });
 
     describe('addActiveRaid method', () => {
-        const { rm } = getTestRm(testRaids);
+        const { rm } = TestRaidManager.setup(testRaids);
 
         it('should add a valid active raid', () => {
             const prescott = rm.gyms.lookup('prescott').bestItem().getValueOrDefault();
@@ -345,19 +282,20 @@ describe('RaidManager class', () => {
 
         it('should update an existing raid', () => {
             const listener = new TestListener();
-            const { rm } = getTestRm([]);
+            const { rm } = TestRaidManager.setup([]);
             rm.addListener(listener);
 
-            let firstRaid: Raid;
+            let firstRaid: Raid|undefined = undefined;
             expect(rm.addActiveRaid(20, 'prescott', 'lugia')).toSucceedWithCallback((r: Raid) => {
                 firstRaid = r;
             });
+            expect(firstRaid).toBeDefined();
 
             expect(listener.raidUpdated).toHaveBeenLastCalledWith(
                 rm, firstRaid, 'added', undefined
             );
 
-            let secondRaid: Raid;
+            let secondRaid: Raid|undefined = undefined;
             expect(rm.addActiveRaid(20, 'prescott', 'ho-oh', 'raid-hour')).toSucceedWithCallback((r: Raid) => {
                 secondRaid = r;
             });
@@ -373,7 +311,7 @@ describe('RaidManager class', () => {
 
         describe('in strict mode', () => {
             it('should fail to update an existing raid', () => {
-                const { rm } = getTestRm([], { strict: true });
+                const { rm } = TestRaidManager.setup([], { strict: true });
 
                 expect(rm.addActiveRaid(20, 'prescott', 'lugia')).toSucceed();
                 expect(rm.addActiveRaid(20, 'prescott', 'ho-oh', 'raid-hour')).toFailWith(/raid already reported/i);
@@ -385,10 +323,55 @@ describe('RaidManager class', () => {
         });
     });
 
+    describe('updateRaid', () => {
+        it('should update a hatched raid without or without a boss', () => {
+            const prescott = gyms.lookup('prescott').bestItem().getValueOrThrow();
+            const latias = bosses.lookup('latias').bestItem().getValueOrThrow();
+            const groudon = bosses.lookup('groudon').bestItem().getValueOrThrow();
+            [
+                'latias',
+                latias,
+            ].forEach((boss) => {
+                [
+                    'prescott',
+                    prescott,
+                ].forEach((gym) => {
+                    const { rm } = TestRaidManager.setup(['prescott|hatched|5|boss']);
+                    expect(rm.updateRaid(gym, boss)).toSucceedWith(expect.objectContaining({
+                        // eslint-disable-next-line @typescript-eslint/naming-convention
+                        _boss: expect.objectContaining({ name: 'Latias' }),
+                    }));
+
+                    expect(rm.updateRaid(gym, groudon)).toSucceedWith(expect.objectContaining({
+                        // eslint-disable-next-line @typescript-eslint/naming-convention
+                        _boss: expect.objectContaining({ name: 'Groudon' }),
+                    }));
+                });
+            });
+        });
+
+        it('should fail to update a raid that has not hatched', () => {
+            const prescott = gyms.lookup('prescott').bestItem().getValueOrThrow();
+            const latias = bosses.lookup('latias').bestItem().getValueOrThrow();
+            [
+                'latias',
+                latias,
+            ].forEach((boss) => {
+                [
+                    'prescott',
+                    prescott,
+                ].forEach((gym) => {
+                    const { rm } = TestRaidManager.setup(['prescott|egg|5|boss']);
+                    expect(rm.updateRaid(gym, boss)).toFailWith(/cannot assign.*future raid/i);
+                });
+            });
+        });
+    });
+
     describe('listeners', () => {
         describe('addListener method', () => {
             it('should add a listener and not call it by default', () => {
-                const { rm } = getTestRm([]);
+                const { rm } = TestRaidManager.setup([]);
 
                 const listener = new TestListener();
                 expect(rm.addListener(listener)).toSucceedWith(true);
@@ -404,7 +387,7 @@ describe('RaidManager class', () => {
             });
 
             it('should add a listener and not call it if specified', () => {
-                const { rm } = getTestRm(testRaids);
+                const { rm } = TestRaidManager.setup(testRaids);
 
                 const listener = new TestListener();
                 expect(rm.addListener(listener, 'immediate')).toSucceedWith(true);
@@ -413,7 +396,7 @@ describe('RaidManager class', () => {
             });
 
             it('should return an error if the listener is already present', () => {
-                const { rm } = getTestRm(testRaids);
+                const { rm } = TestRaidManager.setup(testRaids);
 
                 const listener = new TestListener();
                 expect(rm.addListener(listener, 'immediate')).toSucceedWith(true);
@@ -423,7 +406,7 @@ describe('RaidManager class', () => {
 
         describe('removeListener method', () => {
             it('should remove a listener that exists and return true', () => {
-                const { rm } = getTestRm(testRaids);
+                const { rm } = TestRaidManager.setup(testRaids);
 
                 const listener = new TestListener();
                 expect(rm.addListener(listener)).toSucceedWith(true);
@@ -433,7 +416,7 @@ describe('RaidManager class', () => {
             });
 
             it('should return an error if listener does not exist', () => {
-                const { rm } = getTestRm(testRaids);
+                const { rm } = TestRaidManager.setup(testRaids);
 
                 const listener = new TestListener();
                 const listener2 = new TestListener();
@@ -445,7 +428,7 @@ describe('RaidManager class', () => {
 
     describe('refreshRaidList method', () => {
         it('should remove expired raids', () => {
-            const { rm, logger } = getTestRm(testRaids);
+            const { rm, logger } = TestRaidManager.setup(testRaids);
             const listener = new TestListener();
 
             expect(rm.getRaid('painted parking lot')).toSucceedWith(expect.objectContaining({
@@ -460,17 +443,17 @@ describe('RaidManager class', () => {
                 expect.stringMatching(/raid expired at painted/i),
             ]));
 
-            expect(rm.getRaid('painted parking lot')).toFailWith(/raid not found/i);
+            expect(rm.getRaid('painted parking lot')).toFailWith(/no raid found/i);
         });
 
         it('should hatch eggs that are past their time populating boss if unique', () => {
             const stateRelativeTo = moment().subtract(31, 'minutes').toDate();
             const spy = jest.spyOn(Raid, 'getCurrentStateFromRaidTimes')
-                .mockImplementation((raidTimes: DateRange, raidType?: RaidType) => {
+                .mockImplementation((raidTimes: ExplicitDateRange, raidType?: RaidType) => {
                     return Raid.getStateFromRaidTimes(raidTimes, stateRelativeTo, raidType);
                 });
 
-            const { rm, logger } = getTestRm(testRaids, undefined, stateRelativeTo);
+            const { rm, logger } = TestRaidManager.setup(testRaids, undefined, stateRelativeTo);
             const listener = new TestListener();
 
             ['jillyann', 'evergreen starbucks'].forEach((gymName) => {
@@ -491,7 +474,7 @@ describe('RaidManager class', () => {
             expect(rm.getRaid('jillyann')).toSucceedWithCallback((raid: Raid) => {
                 expect(raid.state).toBe('hatched');
                 expect(raid.boss).toBeDefined();
-                expect(raid.boss.tier).toBe(raid.tier);
+                expect(raid.boss?.tier).toBe(raid.tier);
             });
 
             // Many tier 3 bosses

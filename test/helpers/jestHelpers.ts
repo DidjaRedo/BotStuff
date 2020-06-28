@@ -27,10 +27,10 @@ declare global {
     namespace jest {
         interface Matchers<R> {
             toFail();
-            toFailWith(message: string|RegExp);
+            toFailWith(message: string|RegExp|undefined);
             toSucceed();
             toSucceedWithCallback<T>(cb: (value: T) => void);
-            toSucceedWith<T>(value: unknown);
+            toSucceedWith<T>(value: T);
             toBeInRange(min: number, max: number);
             toBeOneOf(values: unknown[]);
         }

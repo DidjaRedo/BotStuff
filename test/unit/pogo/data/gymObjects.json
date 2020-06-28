@@ -5977,7 +5977,8 @@
     "city": "Redmond",
     "name": "Redmond Erratic",
     "alternateNames": [
-      "Redmond's Erratic"
+      "Redmond's Erratic",
+      "Erratic"
     ],
     "coord": {
       "latitude": 47.671955,
@@ -6081,6 +6082,19 @@
     "coord": {
       "latitude": 47.709227,
       "longitude": -122.104174
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "English Landing Park and Playground",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.709692,
+      "longitude": -122.101396
     },
     "isExEligible": "nonEx"
   },

@@ -28,7 +28,7 @@ import { BossDirectory } from './bossDirectory';
 import { Converter } from '../utils/converter';
 import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
-import { ItemArray } from '../names/directory';
+import { ItemArray } from '../utils/utils';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
 import { loadJsonFile } from '../utils/jsonHelpers';
@@ -134,8 +134,40 @@ export class RaidMap implements Map<string, Raid> {
         this._map.clear();
     }
 
-    public delete(name: string): boolean {
-        return this._map.delete(name);
+    public delete(name: string): boolean;
+    public delete(raid: Raid): boolean;
+    public delete(gym: Gym): boolean;
+    public delete(spec: string|Raid|Gym): boolean {
+        return this.remove(spec as string).isSuccess();
+    }
+
+    public remove(name: string): Result<Raid>;
+    public remove(raid: Raid): Result<Raid>;
+    public remove(gym: Gym): Result<Raid>;
+    public remove(spec: string|Raid|Gym): Result<Raid> {
+        let raid: Raid|undefined = undefined;
+        let name: string;
+
+        if (spec instanceof Raid) {
+            raid = spec;
+            name = spec.keys.gymName;
+        }
+        else {
+            name = (spec instanceof Gym) ? spec.keys.name : spec;
+        }
+
+        if (raid === undefined) {
+            const result = this.getStrict(name);
+            if (result.isFailure()) {
+                return fail(result.message);
+            }
+            raid = result.value;
+        }
+
+        if (!this._map.delete(name)) {
+            return fail(`No raid at ${name}`);
+        }
+        return succeed(raid);
     }
 
     public entries(): IterableIterator<[string, Raid]> {

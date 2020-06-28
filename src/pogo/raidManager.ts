@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { BossDirectory, loadBossDirectorySync } from './bossDirectory';
+import { BossDirectory, BossLookupOptions, loadBossDirectorySync } from './bossDirectory';
 import { GlobalGymDirectory, loadGlobalGymDirectorySync } from './gymDirectory';
 import { Logger, NoOpLogger } from '../utils/logger';
 import { Raid, RaidType } from './raid';
@@ -28,9 +28,10 @@ import { RaidMap, loadRaidMapSync } from './raidMap';
 import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
 import { Boss } from './boss';
 import { Gym } from './gym';
-import { ItemArray } from '../names/directory';
+import { ItemArray } from '../utils/utils';
 import { RaidLookupOptions } from './raidDirectory';
 import { RaidTier } from './pogo';
+import { ResultArray } from '../names/directory';
 import { saveJsonFile } from '../utils/jsonHelpers';
 
 export const DEFAULT_BOSSES_FILE = './data/bosses.json';
@@ -115,18 +116,35 @@ export class RaidManager {
         return captureResult(() => new RaidManager(options));
     }
 
+    public getGyms(want: string, options?: RaidLookupOptions): ResultArray<Gym> {
+        return this.gyms.lookup(want, options);
+    }
+
+    public getBosses(want: string, options?: BossLookupOptions): ResultArray<Boss> {
+        return this.bosses.lookup(want, options);
+    }
+
     public getRaids(
         want: string,
         options?: RaidLookupOptions,
-    ): ItemArray<Raid> {
-        return this._raids.getRaidsAtGyms(this.gyms.lookup(want, options).allItems(), options);
+    ): Result<ItemArray<Raid>> {
+        const gyms = this.gyms.lookup(want, options).allItems();
+        if (gyms.length === 0) {
+            return fail(`No gyms match ${want}`);
+        }
+        return succeed(this._raids.getRaidsAtGyms(gyms, options));
     }
 
     public getRaid(
-        want: string,
+        want: string|Gym,
         options?: RaidLookupOptions,
     ): Result<Raid> {
-        return this.getRaids(want, options).best();
+        if (typeof want === 'string') {
+            return this.getRaids(want, options).onSuccess((raids) => {
+                return raids.best(`No raid found matching ${want}`);
+            });
+        }
+        return this._raids.getRaidsAtGyms([want], options).best(`No raid found matching ${want}`);
     }
 
     public addFutureRaid(start: Date, gymName: string, tier: RaidTier, raidType?: RaidType): Result<Raid>;
@@ -166,6 +184,31 @@ export class RaidManager {
                 this._reportRaidListUpdate();
                 return succeed(args.raid);
             });
+        });
+    }
+
+    public updateRaid(gymSpec: string|Gym, bossSpec: string|Boss): Result<Raid> {
+        return populateObject<{raid: Raid, boss: Boss}>({
+            raid: () => this.getRaid(gymSpec),
+            boss: () => (typeof bossSpec === 'string') ? this.bosses.lookup(bossSpec).bestItem() : succeed(bossSpec),
+        }).onSuccess((args) => {
+            const updateResult = args.raid.update(args.boss);
+            if (updateResult.isFailure()) {
+                return fail(updateResult.message);
+            }
+            return succeed(args.raid);
+        });
+    }
+
+    public removeRaid(name: string): Result<Raid>;
+    public removeRaid(gym: Gym): Result<Raid>;
+    public removeRaid(spec: string|Gym): Result<Raid> {
+        return this.getRaid(spec).onSuccess((raid) => {
+            return this._raids.remove(raid);
+        }).onSuccess((raid) => {
+            this._reportRaidUpdate(raid, 'deleted');
+            this._reportRaidListUpdate();
+            return succeed(raid);
         });
     }
 
@@ -280,12 +323,12 @@ export class RaidManager {
         return allSucceed([
             ...this._listeners.map((l) => captureResult(() => l.raidListUpdated(this))),
             this._trySaveState(true),
-        ]);
+        ], true);
     }
 
     protected _reportRaidUpdate(raid: Raid, change: RaidChangeType, prior?: Raid): Result<boolean> {
         return allSucceed([
             ...this._listeners.map((l) => captureResult(() => l.raidUpdated(this, raid, change, prior))),
-        ]);
+        ], true);
     }
 }

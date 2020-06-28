@@ -21,12 +21,13 @@
  */
 
 import * as PoiLookupOptions from './poiLookupOptions';
-import { ItemArray, ResultArray } from '../names/directory';
 import { City } from './city';
+import { ItemArray } from '../utils/utils';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
 import { Poi } from './poi';
 import { PoiDirectoryBase } from './poiDirectory';
+import { ResultArray } from '../names/directory';
 import { Zone } from './zone';
 
 export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookupOptions.Properties> {
@@ -101,14 +102,15 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
         }
     }
 
-    protected abstract _getEffectiveOptions(user: Partial<PO>): PO;
+    protected abstract _getEffectiveOptions(user?: Partial<PO>): PO;
 }
 
 export class GlobalPoiDirectory<P extends Poi> extends GlobalPoiDirectoryBase<P, PoiLookupOptions.Properties> {
-    protected _getEffectiveOptions(user: Partial<PoiLookupOptions.Properties>): PoiLookupOptions.Properties {
+    protected _getEffectiveOptions(user?: Partial<PoiLookupOptions.Properties>): PoiLookupOptions.Properties {
         const base = this.options ?? PoiLookupOptions.defaultProperties;
-        if (user) {
-            return PoiLookupOptions.merger.mergeIntoCopy(base, user).getValueOrThrow();
+        if (user !== undefined) {
+            // cannot be undefined because base is not undefined
+            return PoiLookupOptions.merger.mergeIntoCopy(base, user).getValueOrThrow() as PoiLookupOptions.Properties;
         }
         return base;
     }

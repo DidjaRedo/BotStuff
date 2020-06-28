@@ -47,7 +47,7 @@ export const DEFAULT_NEAR_RADIUS = 1000;
 
 export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
     private _name: string;
-    private _alternateNames?: string[];
+    private _alternateNames: string[];
     private _city: string;
     private _zones: string[];
     private _coord: Geo.Coordinate;
@@ -58,9 +58,8 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
     public get zones(): string[] { return this._zones; }
     public get coord(): Geo.Coordinate { return this._coord; }
 
-    public get hasAlternateNames(): boolean { return this._alternateNames && (this._alternateNames.length > 0); }
-    /* istanbul ignore next */
-    public get numAlternateNames(): number { return this._alternateNames ? this._alternateNames.length : 0; }
+    public get hasAlternateNames(): boolean { return (this._alternateNames.length > 0); }
+    public get numAlternateNames(): number { return this._alternateNames.length; }
     public get alternateNames(): string[] { return this._alternateNames; }
 
     public constructor(init: PoiProperties) {
@@ -105,6 +104,10 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
         }
     }
 
+    public getDirectionsLink(): string {
+        return `https://www.google.com/maps/dir/?api=1&destination=${this.coord.latitude},${this.coord.longitude}`;
+    }
+
     public belongsToZone(zones: string|Iterable<string>): boolean {
         if (!zones) {
             throw new Error('Invalid argument - must supply at least one valid zone name to belongsToZone.');
@@ -134,12 +137,12 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
             && Names.isListedOrDefault(cities, this.city);
     }
 
-    public isNear(coord: Geo.Coordinate, radius?: number): boolean {
-        return Geo.coordinatesAreNear(coord, this.coord, radius ?? DEFAULT_NEAR_RADIUS);
+    public isNear(coord?: Geo.Coordinate, radius?: number): boolean {
+        return (coord === undefined) || Geo.coordinatesAreNear(coord, this.coord, radius ?? DEFAULT_NEAR_RADIUS);
     }
 
-    public isInRegion(region: Geo.Region): boolean {
-        return Geo.coordinateIsInRegion(this.coord, region);
+    public isInRegion(region?: Geo.Region): boolean {
+        return (region === undefined) || Geo.coordinateIsInRegion(this.coord, region);
     }
 
     public get keys(): PoiKeys {

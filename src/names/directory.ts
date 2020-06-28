@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
+import { ItemArray, Utils } from '../utils/utils';
 import { NamedThing, Names } from './names';
-import { Result, fail, succeed } from '../utils/result';
+import { Result, succeed } from '../utils/result';
 import Fuse from 'fuse.js';
 import { KeyedThing } from './keyedThing';
-import { Utils } from '../utils/utils';
 
 export interface FieldSearchWeight<T> {
     name: keyof T;
@@ -57,41 +57,15 @@ export interface SearchResult<T> {
     item: T;
 }
 
-export class ItemArray<T> extends Array<T> {
-    protected readonly _key: string;
-    public constructor(key: string, ...items: T[]) {
-        super(...items);
-        this._key = key;
-    }
-
-    public single(): Result<T> {
-        if (this.length === 1) {
-            return succeed(this[0]);
-        }
-        if (this.length === 0) {
-            return fail(`${this._key} not found`);
-        }
-        return fail(`${this._key} matches ${this.length} items`);
-    }
-
-    public best(): Result<T> {
-        if (this.length > 0) {
-            return succeed(this[0]);
-        }
-        return fail(`${this._key} not found`);
-    }
-
-    public all(): T[] {
-        return Array.from(this);
-    }
-}
-
 export class ResultArray<T> extends ItemArray<SearchResult<T>> {
     public constructor(key: string, ...items: SearchResult<T>[]) {
         super(key, ...items);
     }
 
     public singleItem(): Result<T> {
+        if ((this.length > 1) && (this[0].score - this[1].score > 0.1)) {
+            return succeed(this[0].item);
+        }
         return this.single().onSuccess((sr) => succeed(sr.item));
     }
 
@@ -104,7 +78,7 @@ export class ResultArray<T> extends ItemArray<SearchResult<T>> {
     }
 }
 
-export type DirectoryFilter<T, TO> = (item: T, options: Partial<TO>) => boolean;
+export type DirectoryFilter<T, TO> = (item: T, options?: Partial<TO>) => boolean;
 
 // TK are the keys
 // TS are the searchable properties
@@ -114,7 +88,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
     private _all: T[];
     private _byKey: Map<string, T>;
     private _byAlternateKey: Map<keyof TK, Map<string, T|T[]>>;
-    private _search: Fuse<T, { includeScore: true }>;
+    private _search?: Fuse<T, { includeScore: true }>;
     private _options: DirectoryOptions<T, TS, TK>;
 
     public constructor(options: DirectoryOptions<T, TS, TK>, elements?: Iterable<T>) {
@@ -199,17 +173,18 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
     }
 
     public searchByTextFields(name: string, options?: Partial<TLO>): ResultArray<T> {
-        if (!this._search) {
-            this._initSearch();
+        if (this._search === undefined) {
+            this._search = this._initSearch();
         }
 
         const matches = this._search.search(name);
-        if (matches.length > 0) {
+        if ((matches !== undefined) && (matches.length > 0)) {
             const searchResults = this._adjustSearchResults(
-                matches.map((match: Fuse.FuseResult<T>): SearchResult<T> => {
+                matches.map((match): SearchResult<T> => {
+                    /* istanbul ignore next */
                     return {
                         item: match.item,
-                        score: 1 - match.score,
+                        score: 1 - (match.score ?? 0),
                     };
                 }),
                 options,
@@ -254,7 +229,8 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
     }
 
     private _hasUniqueKeys(): boolean {
-        return (this._options.alternateKeys?.length > 0) && (this._options.enforceAlternateKeyUniqueness?.length > 0);
+        return (this._options.alternateKeys !== undefined) && (this._options.alternateKeys.length > 0)
+                && (this._options.enforceAlternateKeyUniqueness !== undefined) && (this._options.enforceAlternateKeyUniqueness.length > 0);
     }
 
     private _validateItemDoesNotConflict(elem: T): void {
@@ -263,8 +239,9 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         }
 
         if (this._hasUniqueKeys()) {
-            for (const key of this._options.alternateKeys) {
-                /* istanbul ignore next */
+            // istanbul ignore next
+            const altKeys = this._options.alternateKeys ?? [];
+            for (const key of altKeys) {
                 if (this._isUniqueKey(key)) {
                     const map = this._byAlternateKey.get(key);
                     if (map) {
@@ -291,35 +268,38 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         const pending = new Map(this._options.alternateKeys?.map((k) => {
             return [k, new Set<string>()];
         }));
-        pending.set(null, new Set<string>());
+        const primaryKeys = new Set<string>();
 
         for (const elem of elems) {
             this._validateItemDoesNotConflict(elem);
 
-            let set = pending.get(null);
-            if (set.has(elem.primaryKey)) {
+            if (primaryKeys.has(elem.primaryKey)) {
                 throw new Error(`Range to be addded has duplicate entries for key "${elem.primaryKey}".`);
             }
-            set.add(elem.primaryKey);
+            primaryKeys.add(elem.primaryKey);
 
             if (this._hasUniqueKeys()) {
-                for (const k of this._options.alternateKeys) {
-                    /* istanbul ignore next */
+                // istanbul ignore next
+                const altKeys = this._options.alternateKeys ?? [];
+                for (const k of altKeys) {
                     if (this._isUniqueKey(k)) {
                         const altKeyValue = elem.keys[k];
                         const values = Array.isArray(altKeyValue) ? altKeyValue : [altKeyValue];
-                        set = pending.get(k);
+                        const set = pending.get(k);
 
-                        for (const v of values) {
-                            /* istanbul ignore else */
-                            if (typeof v === 'string') {
-                                if (set.has(v)) {
-                                    throw new Error(`Range to be added has duplicate entries for "${v}" of "${k}".`);
+                        // istanbul ignore else
+                        if (set !== undefined) {
+                            for (const v of values) {
+                                /* istanbul ignore else */
+                                if (typeof v === 'string') {
+                                    if (set.has(v)) {
+                                        throw new Error(`Range to be added has duplicate entries for "${v}" of "${k}".`);
+                                    }
+                                    set.add(v);
                                 }
-                                set.add(v);
-                            }
-                            else if (v !== undefined) {
-                                throw new Error('Key property must be string or array of strings.');
+                                else if (v !== undefined) {
+                                    throw new Error('Key property must be string or array of strings.');
+                                }
                             }
                         }
                     }
@@ -370,8 +350,8 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return elem;
     }
 
-    private _initSearch(): void {
-        this._search = new Fuse<T, Fuse.IFuseOptions<T>>(this._all, {
+    private _initSearch(): Fuse<T, Fuse.IFuseOptions<T>> {
+        return new Fuse<T, Fuse.IFuseOptions<T>>(this._all, {
             shouldSort: true,
             isCaseSensitive: false,
             includeMatches: true,
@@ -393,7 +373,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
     }
 
     protected abstract _filterItems(
-        items: T[],
+        items: (T|undefined)[],
         options?: Partial<TLO>,
     ): T[];
 

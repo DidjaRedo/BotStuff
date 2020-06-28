@@ -55,6 +55,10 @@ describe('Poi class', (): void => {
                     expect(poi.hasAlternateNames).toBe(false);
                     expect(poi.numAlternateNames).toBe(0);
                 }
+
+                expect(poi.getDirectionsLink()).toMatch(
+                    new RegExp(`^.*google.com/maps.*destination=${poi.coord.latitude},${poi.coord.longitude}.*$`),
+                );
             });
         });
 
@@ -149,7 +153,7 @@ describe('Poi class', (): void => {
             it('should throw if the supplied name is invalid', (): void => {
                 ['   ', '', undefined].forEach((zone: string|undefined): void => {
                     expect((): void => {
-                        poi.belongsToZone(zone);
+                        poi.belongsToZone(zone as string);
                     }).toThrowError(/invalid/i);
                 });
             });
@@ -206,7 +210,7 @@ describe('Poi class', (): void => {
                     ['yellow', undefined],
                 ].forEach((zones: (string|undefined)[]): void => {
                     expect((): void => {
-                        poi.belongsToZone(zones);
+                        poi.belongsToZone(zones as string[]);
                     }).toThrowError(/invalid/i);
                 });
             });

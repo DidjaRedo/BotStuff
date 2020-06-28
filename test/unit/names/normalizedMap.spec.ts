@@ -105,7 +105,7 @@ describe('NormalizedMap class', (): void => {
                 const map = new NormalizedMap<BogusObject>(update);
                 const name = 'FIRST ELEMENT';
                 const normalized = Names.normalizeOrThrow(name);
-                const element = bogusInit(name, normalized).getValueOrDefault();
+                const element = bogusInit(name, normalized).getValueOrThrow();
 
                 expect(() => map.set(name, element)).not.toThrow();
                 const gotElement = map.get(normalized);
@@ -120,8 +120,8 @@ describe('NormalizedMap class', (): void => {
                 const map = new NormalizedMap(update);
                 const name = 'FIRST ELEMENT';
                 const normalized = Names.normalizeOrThrow(name);
-                const element = bogusInit(name, normalized).getValueOrDefault();
-                const element2 = bogusInit(normalized, normalized).getValueOrDefault();
+                const element = bogusInit(name, normalized).getValueOrThrow();
+                const element2 = bogusInit(normalized, normalized).getValueOrThrow();
 
                 expect(() => map.set(name, element)).not.toThrow();
                 expect(update).not.toHaveBeenCalled();
@@ -169,7 +169,7 @@ describe('NormalizedMap class', (): void => {
                 const map = new NormalizedMap();
                 const name = 'TEST';
                 const normalized = Names.normalizeOrThrow(name);
-                const element = bogusInit(name, normalized).getValueOrDefault();
+                const element = bogusInit(name, normalized).getValueOrThrow();
                 element.payload = 'have payload';
 
                 map.set(name, element);
@@ -380,14 +380,14 @@ describe('NormalizedMap class', (): void => {
         const map = new NormalizedMap<{ name: string}>();
         const names = ['Element 1', 'second ELEMENT', 'Third Element'];
         const normalizedNames = names.map((n) => Names.normalizeOrThrow(n));
-        const added = [];
+        const added: { name: string }[] = [];
         names.forEach((n: string): void => {
             added.push(map.trySet(n, { name: n }).getValueOrThrow());
         });
 
         describe('forEach method', (): void => {
             it('should enumerate all elements passing normalized key names', (): void => {
-                const found = [];
+                const found: { name: string }[] = [];
                 map.forEach((e: { name: string }, n: string): void => {
                     found.push(e);
                     const gotName = (e as { name: string }).name;
@@ -402,7 +402,7 @@ describe('NormalizedMap class', (): void => {
 
         describe('for .. of (Symbol.iterator)', () => {
             it('should enumerate all elements returning normalized key names', (): void => {
-                const found = [];
+                const found: { name: string }[] = [];
                 for (const entry of map) {
                     found.push(entry[1]);
                     expect(normalizedNames).toContain(entry[0]);

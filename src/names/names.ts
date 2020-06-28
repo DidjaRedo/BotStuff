@@ -40,27 +40,27 @@ export class Names {
         return (input && (typeof input === 'string') && (input.trim().length > 0)) ? true : false;
     }
 
-    public static validate(input: string, description: string): Result<boolean>;
+    public static validate(input: string|undefined, description: string): Result<boolean>;
     public static validate(input: Iterable<string>, description: string, minSize?: number): Result<boolean>;
-    public static validate(input: string|Iterable<string>, description: string, minSize?: number): Result<boolean> {
+    public static validate(input: string|Iterable<string>|undefined, description: string, minSize?: number): Result<boolean> {
         if (typeof input === 'string') {
             return this._validateName(input, description);
         }
-        else if (!input) {
+        else if (input === undefined) {
             return fail(`${description} must be non-empty string.`);
         }
         return this._validateNames(input, description, minSize);
     }
 
-    public static throwOnInvalidName(input: string, description: string): void;
+    public static throwOnInvalidName(input: string|undefined, description: string): void;
     public static throwOnInvalidName(input: Iterable<string>, description: string, minSize?: number): void;
-    public static throwOnInvalidName(input: string|Iterable<string>, description: string, minSize?: number): void {
-        this.validate(input, description, minSize).getValueOrThrow();
+    public static throwOnInvalidName(input: string|Iterable<string>|undefined, description: string, minSize?: number): void {
+        this.validate(input as string, description, minSize).getValueOrThrow();
     }
 
     public static normalize(input: string): Result<string>
     public static normalize(input: string[]): Result<string[]>;
-    public static normalize(input: string|string[]): Result<string|string[]> {
+    public static normalize(input: string|string[]|undefined): Result<string|string[]> {
         if (typeof input === 'string') {
             return Names._normalizeName(input);
         }
@@ -79,22 +79,22 @@ export class Names {
         return Names.normalize(input).getValueOrThrow();
     }
 
-    public static tryNormalizeName(input: string): string|undefined {
-        if ((!input) || (input.trim().length < 1)) {
+    public static tryNormalizeName(input?: string): string|undefined {
+        if ((input === undefined) || (input.trim().length < 1)) {
             return undefined;
         }
         return Names.normalize(input).getValueOrDefault();
     }
 
-    public static tryNormalizeNames(input: string[]): string[]|undefined {
-        const normalized = [];
-        if (input && (input.length > 0)) {
-            input.forEach((name): void => {
-                name = Names.tryNormalizeName(name);
-                if (name) {
-                    normalized.push(name);
+    public static tryNormalizeNames(input?: string[]): string[]|undefined {
+        const normalized: string[] = [];
+        if ((input !== undefined) && (input.length > 0)) {
+            for (const name of input) {
+                const normalizedName = Names.tryNormalizeName(name);
+                if (normalizedName !== undefined) {
+                    normalized.push(normalizedName);
                 }
-            });
+            }
         }
         return ((normalized.length > 0) ? normalized : undefined);
     }
@@ -138,8 +138,9 @@ export class Names {
         return succeed(true);
     }
 
-    private static _validateNames(input: Iterable<string>, description: string, minSize?: number): Result<boolean> {
-        const results = [];
+    private static _validateNames(input: Iterable<string>, description: string, minSize = 0): Result<boolean> {
+        const results: Result<boolean>[] = [];
+
         for (const str of input) {
             results.push(Names._validateName(str, description));
         }

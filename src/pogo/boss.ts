@@ -77,9 +77,10 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
     public constructor(init: Partial<BossProperties>) {
         Names.throwOnInvalidName(init.name, 'boss name');
 
-        this.name = init.name;
+        // throwOnInvalidName ensures that init.name is not undefined
+        this.name = init.name as string;
         this.alternateNames = init.alternateNames;
-        this.displayName = init.displayName ?? init.name;
+        this.displayName = init.displayName ?? this.name;
         this.tier = Pogo.validateRaidTier(init.tier).getValueOrThrow();
         this.pokedexNumber = init.pokedexNumber;
         this.numRaiders = init.numRaiders;
@@ -90,7 +91,7 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
             this.raidGuideName = init.raidGuideName;
         }
         else {
-            this.raidGuideName = Names.tryNormalize(this.name).toUpperCase();
+            this.raidGuideName = Names.normalizeOrThrow(this.name).toUpperCase();
         }
 
         if (init.imageFileName) {
@@ -109,6 +110,10 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
 
         this.primaryKey = Names.normalizeOrThrow(`${this.name} T${this.tier}`);
         this.keys = this._normalize();
+    }
+
+    public static getGuideUrl(boss?: Boss): string {
+        return boss?.raidGuideUrl ?? 'http://www.pokebattler.com/raids';
     }
 
     public static getDirectoryOptions(): DirectoryOptions<Boss, BossProperties, BossKeys> {
@@ -154,7 +159,7 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
     protected _normalize(): BossKeys {
         return {
             name: Names.normalizeOrThrow(this.name),
-            alternateNames: Names.tryNormalize(this.alternateNames),
+            alternateNames: Names.tryNormalize(this.alternateNames || []),
         };
     }
 }

@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+import { Result, fail, succeed } from './result';
+
 export class Utils {
     /* istanbul ignore next */
     private constructor() {} // eslint-disable-line
@@ -44,7 +46,7 @@ export class Utils {
         return result;
     }
 
-    public static toArray<T>(source: Iterable<T>): T[] {
+    public static toArray<T>(source?: Iterable<T>): T[] {
         return Utils.select(source, (elem: T): T => elem);
     }
 
@@ -56,5 +58,34 @@ export class Utils {
             return [items];
         }
         return items;
+    }
+}
+
+export class ItemArray<T> extends Array<T> {
+    protected readonly _key: string;
+    public constructor(key: string, ...items: T[]) {
+        super(...items);
+        this._key = key;
+    }
+
+    public single(): Result<T> {
+        if (this.length === 1) {
+            return succeed(this[0]);
+        }
+        if (this.length === 0) {
+            return fail(`${this._key} not found`);
+        }
+        return fail(`${this._key} matches ${this.length} items`);
+    }
+
+    public best(failMessage?: string): Result<T> {
+        if (this.length > 0) {
+            return succeed(this[0]);
+        }
+        return fail(failMessage ?? `${this._key} not found`);
+    }
+
+    public all(): T[] {
+        return Array.from(this);
     }
 }

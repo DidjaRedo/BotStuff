@@ -22,8 +22,9 @@
 
 import * as Converters from '../utils/converters';
 import { DateRange, DateRangeProperties } from './dateRange';
-import { Result, fail, succeed } from '../utils/result';
+import { Result, captureResult, fail, succeed } from '../utils/result';
 import { Converter } from '../utils/converter';
+import FlexTime from './flexTime';
 import moment from 'moment';
 
 (moment as unknown as { suppressDeprecationWarnings: boolean }).suppressDeprecationWarnings = true;
@@ -42,6 +43,13 @@ export const date = new Converter<Date>((from: unknown): Result<Date> => {
         return succeed(from);
     }
     return fail(`Invalid date specification ${JSON.stringify(from)}`);
+});
+
+export const flexTime = new Converter<Date>((from: unknown): Result<Date> => {
+    if ((typeof from === 'string') || (typeof from === 'number') || (from instanceof Date)) {
+        return captureResult(() => new FlexTime(from).toDate());
+    }
+    return fail(`Invalid time specification ${JSON.stringify(from)}`);
 });
 
 const dateRangePropertiesFromObject = Converters.object<DateRangeProperties>({

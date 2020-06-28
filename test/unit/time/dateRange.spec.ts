@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+import '../../helpers/jestHelpers';
 import { DateRange } from '../../../src/time/dateRange';
 import { Result } from '../../../src/utils/result';
 import moment from 'moment';
@@ -45,9 +46,9 @@ describe('DateRange class', () => {
             expect(() => {
                 result = DateRange.createDateRange({ start, end });
             }).not.toThrow();
-            expect(result.isFailure()).toBe(true);
-            if (result.isFailure()) {
-                expect(result.message).toMatch(/inverted range/i);
+            expect(result?.isFailure()).toBe(true);
+            if (result?.isFailure()) {
+                expect(result?.message).toMatch(/inverted range/i);
             }
         });
     });
@@ -60,6 +61,24 @@ describe('DateRange class', () => {
             const range = new DateRange(start, end);
             expect(range.start).toBe(range.min);
             expect(range.end).toBe(range.max);
+        });
+    });
+
+    describe('explicit ranges', () => {
+        it('should report ranges with both start and end as explicit', () => {
+            const range = new DateRange(new Date(), moment().add(10, 'minutes').toDate());
+            expect(range.isExplicit()).toBe(true);
+            expect(range.validateIsExplicit()).toSucceedWith(range);
+        });
+
+        it('should report ranges with unbounded start or and as not explicit', () => {
+            [
+                new DateRange(undefined, moment().add(10, 'minutes').toDate()),
+                new DateRange(new Date(), undefined),
+            ].forEach((range) => {
+                expect(range.isExplicit()).toBe(false);
+                expect(range.validateIsExplicit()).toFailWith(/explicit date range must/i);
+            });
         });
     });
 

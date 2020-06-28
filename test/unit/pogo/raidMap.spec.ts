@@ -193,8 +193,8 @@ describe('RaidMap module', () => {
         describe('for a conflicting raid', () => {
             it('should fail for setStrict or succeed with set or trySet', () => {
                 const map = new RaidMap(allRaids);
-                const dup0 = TestRaid.cloneShifted(allRaids[0]).getValueOrDefault();
-                const dup1 = TestRaid.cloneShifted(allRaids[1]).getValueOrDefault();
+                const dup0 = TestRaid.cloneShifted(allRaids[0]).getValueOrThrow();
+                const dup1 = TestRaid.cloneShifted(allRaids[1]).getValueOrThrow();
 
                 expect(map.setStrict(dup0.gymName, dup0)).toFailWith(/raid already exists/i);
                 expect(map.get(dup0.gymName)).toBe(allRaids[0]);
@@ -218,7 +218,7 @@ describe('RaidMap module', () => {
     });
 
     describe('delete method', () => {
-        it('should delete an existing raid and return true', () => {
+        it('should delete an existing raid by name and return true', () => {
             const map = new RaidMap(allRaids);
             expect(map.size).toBe(allRaids.length);
             expect(map.has(allRaids[0].gymName)).toBe(true);
@@ -227,10 +227,66 @@ describe('RaidMap module', () => {
             expect(map.size).toBe(allRaids.length - 1);
         });
 
+        it('should delete an existing raid by gym and return true', () => {
+            const map = new RaidMap(allRaids);
+            expect(map.size).toBe(allRaids.length);
+            expect(map.has(allRaids[0].gymName)).toBe(true);
+            expect(map.delete(allRaids[0].gym)).toBe(true);
+            expect(map.has(allRaids[0].gymName)).toBe(false);
+            expect(map.size).toBe(allRaids.length - 1);
+        });
+
+        it('should delete an existing raid and return true', () => {
+            const map = new RaidMap(allRaids);
+            expect(map.size).toBe(allRaids.length);
+            expect(map.has(allRaids[0].gymName)).toBe(true);
+            expect(map.delete(allRaids[0])).toBe(true);
+            expect(map.has(allRaids[0].gymName)).toBe(false);
+            expect(map.size).toBe(allRaids.length - 1);
+        });
+
         it('should return false if no such raid exists', () => {
             const map = new RaidMap(allRaids);
             expect(map.delete('xyyyz')).toBe(false);
             expect(map.size).toBe(allRaids.length);
+        });
+    });
+
+    describe('remove method', () => {
+        it('should remove an existing raid by name and return the raid', () => {
+            const map = new RaidMap(allRaids);
+            expect(map.size).toBe(allRaids.length);
+            expect(map.has(allRaids[0].gymName)).toBe(true);
+            expect(map.remove(allRaids[0].gymName)).toSucceedWith(allRaids[0]);
+            expect(map.has(allRaids[0].gymName)).toBe(false);
+            expect(map.size).toBe(allRaids.length - 1);
+        });
+
+        it('should remove an existing raid by gym and return true', () => {
+            const map = new RaidMap(allRaids);
+            expect(map.size).toBe(allRaids.length);
+            expect(map.has(allRaids[0].gymName)).toBe(true);
+            expect(map.remove(allRaids[0].gym)).toSucceedWith(allRaids[0]);
+            expect(map.has(allRaids[0].gymName)).toBe(false);
+            expect(map.size).toBe(allRaids.length - 1);
+        });
+
+        it('should remove an existing raid and return true', () => {
+            const map = new RaidMap(allRaids);
+            expect(map.size).toBe(allRaids.length);
+            expect(map.has(allRaids[0].gymName)).toBe(true);
+            expect(map.remove(allRaids[0])).toSucceedWith(allRaids[0]);
+            expect(map.has(allRaids[0].gymName)).toBe(false);
+            expect(map.size).toBe(allRaids.length - 1);
+        });
+
+        it('should return an error if no such raid or gym exists', () => {
+            const map = new RaidMap(allRaids);
+            expect(map.remove('xyyyz')).toFailWith(/no raid found/i);
+            expect(map.size).toBe(allRaids.length);
+            expect(map.remove('retrofitting')).toFailWith(/no raid found/i);
+            expect(map.remove(allRaids[0])).toSucceedWith(allRaids[0]);
+            expect(map.remove(allRaids[0])).toFailWith(/no raid at/i);
         });
     });
 
@@ -254,8 +310,8 @@ describe('RaidMap module', () => {
         it('should return all elements', () => {
             const map = new RaidMap(allRaids);
 
-            const r1 = [];
-            const r2 = [];
+            const r1: [string, Raid][] = [];
+            const r2: Raid[] = [];
             for (const raid of map) {
                 r1.push(raid);
             }
@@ -274,15 +330,15 @@ describe('RaidMap module', () => {
     });
 
     describe('converters', () => {
-        const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json').getValueOrDefault();
-        const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrDefault();
+        const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json').getValueOrThrow();
+        const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrThrow();
         const past = moment().subtract(10, 'minutes').toDate();
         const future = moment().add(10, 'minutes').toDate();
         const raids = [
             { hatch: past.toISOString(), boss: 'lugiat5', gym: 'mysterioushatch', type: 'normal' },
             { hatch: future.toISOString(), tier: 3, gym: 'paintedparkinglot', type: 'raid-hour' },
         ].map((json) => {
-            return Raid.createFromJson(json as RaidJson, gyms, bosses).getValueOrDefault();
+            return Raid.createFromJson(json as RaidJson, gyms, bosses).getValueOrThrow();
         });
         let nextIsArray = false;
         const testData = raids.map((r) => {

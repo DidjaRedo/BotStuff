@@ -51,7 +51,7 @@ function findFutureHour(now, hours, minutes): number {
     return (hours % 24);
 }
 
-function tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay {
+function tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay|undefined {
     const match = flexTimeRegex.exec(str);
 
     if (match !== null) {

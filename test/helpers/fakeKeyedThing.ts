@@ -62,7 +62,7 @@ export class FakeKeyedThing implements FakeProps, KeyedThing<FakeKeys> {
         this.externalId = init.externalId;
         this.keys = {
             name: Names.normalizeOrThrow(init.name),
-            alternateName: Names.normalizeOrThrow(init.alternateName),
+            alternateName: Names.normalizeOrThrow(init.alternateName ?? ''),
             aliases: Names.normalizeOrThrow(init.aliases ?? []),
             city: Names.normalizeOrThrow(init.city),
             state: Names.normalizeOrThrow(init.state),

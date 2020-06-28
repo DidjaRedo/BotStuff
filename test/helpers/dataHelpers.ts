@@ -85,7 +85,12 @@ export class MockFileSystem {
             const body = fs.readFileSync(fullBackingPath).toString();
             this._data.set(fullPathWanted, body);
         }
-        return this._data.get(fullPathWanted);
+
+        const payload = this._data.get(fullPathWanted);
+        if (payload === undefined) {
+            throw new Error(`Mock file ${wanted} payload is undefined.`);
+        }
+        return payload;
     }
 
     public writeMockFileSync(wanted: string, body: string): void {

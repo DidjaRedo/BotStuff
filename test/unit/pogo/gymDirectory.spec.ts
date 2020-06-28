@@ -34,10 +34,13 @@ describe('GlobalGymDirectory class', () => {
                 new GlobalGymDirectory(),
                 GlobalGymDirectory.createGymDirectory().getValueOrDefault(),
             ].forEach((dir) => {
-                expect(dir.options).toEqual(PoiLookupOptions.defaultProperties);
-                expect(dir.pois.size).toBe(0);
-                expect(dir.zones.size).toBe(0);
-                expect(dir.cities.size).toBe(0);
+                expect(dir).toBeDefined();
+                if (dir !== undefined) {
+                    expect(dir.options).toEqual(PoiLookupOptions.defaultProperties);
+                    expect(dir.pois.size).toBe(0);
+                    expect(dir.zones.size).toBe(0);
+                    expect(dir.cities.size).toBe(0);
+                }
             });
         });
 
@@ -50,7 +53,7 @@ describe('GlobalGymDirectory class', () => {
                 new GlobalGymDirectory(options),
                 GlobalGymDirectory.createGymDirectory(options).getValueOrDefault(),
             ].forEach((dir) => {
-                expect(dir.options).toEqual({
+                expect(dir?.options).toEqual({
                     ...PoiLookupOptions.defaultProperties,
                     allowedZones: ['zone1'],
                     exFilter: 'exEligible',
@@ -70,9 +73,12 @@ describe('GlobalGymDirectory class', () => {
                 new GlobalGymDirectory(undefined, testGyms),
                 GlobalGymDirectory.createGymDirectory(undefined, testGyms).getValueOrDefault(),
             ].forEach((dir) => {
-                expect(dir.pois.size).toEqual(testData.poiProperties.length);
-                expect(dir.zones.size).toEqual(testData.zones.length);
-                expect(dir.cities.size).toEqual(testData.cities.length);
+                expect(dir).toBeDefined();
+                if (dir !== undefined) {
+                    expect(dir.pois.size).toEqual(testData.poiProperties.length);
+                    expect(dir.zones.size).toEqual(testData.zones.length);
+                    expect(dir.cities.size).toEqual(testData.cities.length);
+                }
             });
         });
     });
@@ -188,9 +194,9 @@ describe('GlobalGymDirectory class', () => {
             // presumably when trying to generate the diff.  Comparing pois, cities
             // and zones directly seems to work fine.
             // expect(dir2).toEqual(dir1)
-            expect(dir2.pois).toEqual(dir1.pois);
-            expect(dir2.cities).toEqual(dir1.cities);
-            expect(dir2.zones).toEqual(dir1.zones);
+            expect(dir2?.pois).toEqual(dir1?.pois);
+            expect(dir2?.cities).toEqual(dir1?.cities);
+            expect(dir2?.zones).toEqual(dir1?.zones);
         });
     });
 });

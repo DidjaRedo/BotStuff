@@ -42,9 +42,9 @@ describe('Range class', () => {
             expect(() => {
                 result = Range.createRange({ min: max, max: min });
             }).not.toThrow();
-            expect(result.isFailure()).toBe(true);
-            if (result.isFailure()) {
-                expect(result.message).toMatch(/inverted range/i);
+            expect(result?.isFailure()).toBe(true);
+            if (result?.isFailure()) {
+                expect(result?.message).toMatch(/inverted range/i);
             }
         });
     });

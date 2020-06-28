@@ -121,15 +121,15 @@ describe('RaidDirectory module', () => {
     });
 
     describe('converters', () => {
-        const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json').getValueOrDefault();
-        const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrDefault();
+        const gyms = loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json').getValueOrThrow();
+        const bosses = loadBossDirectorySync('./test/unit/pogo/data/validBossDirectory.json').getValueOrThrow();
         const past = moment().subtract(10, 'minutes').toDate();
         const future = moment().add(10, 'minutes').toDate();
         const raids = [
             { hatch: past.toISOString(), boss: 'lugiat5', gym: 'mysterioushatch', type: 'normal' },
             { hatch: future.toISOString(), tier: 3, gym: 'paintedparkinglot', type: 'raid-hour' },
         ].map((json) => {
-            return Raid.createFromJson(json as RaidJson, gyms, bosses).getValueOrDefault();
+            return Raid.createFromJson(json as RaidJson, gyms, bosses).getValueOrThrow();
         });
         let nextIsArray = false;
         const testData = raids.map((r) => {
