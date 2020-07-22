@@ -30,22 +30,22 @@ describe('City class', () => {
     describe('constructor', () => {
         it('should construct a city with a valid name', () => {
             validCityNames.forEach((name) => {
-                let city;
+                let city: City|undefined;
                 expect(() => { city = new City(name); }).not.toThrow();
                 expect(city).toBeDefined();
-                expect(city.name).toBe(name);
-                expect(city.primaryKey).toBe(Names.normalizeOrThrow(name));
-                expect(city.keys).toEqual({
+                expect(city?.name).toBe(name);
+                expect(city?.primaryKey).toBe(Names.normalizeOrThrow(name));
+                expect(city?.keys).toEqual({
                     name: Names.normalizeOrThrow(name),
                 });
-                expect(city.zones.size).toBe(0);
-                expect(city.pois.size).toBe(0);
+                expect(city?.zones.size).toBe(0);
+                expect(city?.pois.size).toBe(0);
             });
         });
 
         it('should throw if a city name is invalid', () => {
             invalidCityNames.forEach((name) => {
-                let city;
+                let city: City|undefined;
                 expect(() => { city = new City(name); }).toThrowError(/non-empty/i);
                 expect(city).toBeUndefined();
             });

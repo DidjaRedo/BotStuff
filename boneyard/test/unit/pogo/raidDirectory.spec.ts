@@ -26,8 +26,8 @@ import { Raid, RaidJson } from '../../../src/pogo/raid';
 import { RaidDirectory, loadRaidDirectorySync } from '../../../src/pogo/raidDirectory';
 import { TestRaidGenerator } from '../../helpers/pogoHelpers';
 import fs from 'fs';
-import { loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
-import { loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
+import { loadBossDirectorySync } from '../../../src/pogo/converters/bossConverters';
+import { loadGlobalGymDirectorySync } from '../../../src/pogo/converters/gymConverters';
 import moment from 'moment';
 
 describe('RaidDirectory module', () => {

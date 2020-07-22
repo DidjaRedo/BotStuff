@@ -241,7 +241,7 @@ describe('Result module', () => {
 
         describe('onSuccess method', () => {
             it('should not call the continuation and should return the original result', () => {
-                const cb = jest.fn((_: string): Result<string> => fail('oops'));
+                const cb = jest.fn((_: unknown): Result<string> => fail('oops'));
                 const result = fail('oops').onSuccess(cb);
                 expect(cb).not.toHaveBeenCalled();
                 expect(result.isFailure()).toBe(true);

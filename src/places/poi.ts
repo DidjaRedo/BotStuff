@@ -78,15 +78,15 @@ export class Poi implements PoiProperties, KeyedThing<PoiKeys> {
 
     public static getDirectoryOptions(): DirectoryOptions<Poi, PoiProperties, PoiKeys> {
         return {
-            threshold: 0.70,
+            threshold: 0.7,
             textSearchKeys: [
                 {
                     name: 'name',
-                    weight: 3,
+                    weight: 0.6,
                 },
                 {
                     name: 'alternateNames',
-                    weight: 2,
+                    weight: 0.4,
                 },
             ],
             alternateKeys: ['alternateNames'],

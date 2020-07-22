@@ -22,6 +22,11 @@
 
 import { Result, fail, succeed } from './result';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isKey<T extends object>(key: string|number|symbol, item: T): key is keyof T {
+    return item.hasOwnProperty(key);
+}
+
 export class Utils {
     /* istanbul ignore next */
     private constructor() {} // eslint-disable-line
@@ -68,19 +73,27 @@ export class ItemArray<T> extends Array<T> {
         this._key = key;
     }
 
-    public single(): Result<T> {
-        if (this.length === 1) {
-            return succeed(this[0]);
+    public single(predicate?: (item: T) => boolean): Result<T> {
+        const match = (predicate ? this.filter(predicate) : this);
+        if (match.length === 1) {
+            return succeed(match[0]);
         }
-        if (this.length === 0) {
+        if (match.length === 0) {
             return fail(`${this._key} not found`);
         }
-        return fail(`${this._key} matches ${this.length} items`);
+        return fail(`${this._key} matches ${match.length} items`);
     }
 
     public best(failMessage?: string): Result<T> {
         if (this.length > 0) {
             return succeed(this[0]);
+        }
+        return fail(failMessage ?? `${this._key} not found`);
+    }
+
+    public atLeastOne(failMessage?: string): Result<T[]> {
+        if (this.length > 0) {
+            return succeed(Array.from(this));
         }
         return fail(failMessage ?? `${this._key} not found`);
     }

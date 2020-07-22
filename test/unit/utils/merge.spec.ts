@@ -315,6 +315,10 @@ describe('Merge module', () => {
             arrayOfStringsField: ['base string 1'],
             normalizedArrayOfStringsField: ['normalizedbasestring1'],
         };
+        function cloneThing(thing?: Thing): Thing {
+            return { ... (thing ?? base) };
+        }
+
         const successTests: { merge: Partial<Thing>; expect: Thing }[] = [
             {
                 merge: { numberField: 10 },
@@ -335,7 +339,7 @@ describe('Merge module', () => {
             },
         ];
 
-        const object = new Merge.ObjectMerger(fieldMergers);
+        const object = new Merge.ObjectMerger(fieldMergers, cloneThing);
 
         describe('mergeInPlace method', () => {
             it('should merge correctly into the supplied object', () => {
@@ -370,7 +374,7 @@ describe('Merge module', () => {
                         normalizedStringField: Merge.normalizedString,
                     },
                 };
-                const partial = new Merge.ObjectMerger(incompleteMergers);
+                const partial = new Merge.ObjectMerger(incompleteMergers, cloneThing);
 
                 it('should succeed if mergers are defined for all fields to be merged', () => {
                     const mergeInto: Thing = { ...base };
@@ -463,7 +467,7 @@ describe('Merge module', () => {
                         normalizedStringField: Merge.normalizedString,
                     },
                 };
-                const partial = new Merge.ObjectMerger(incompleteMergers);
+                const partial = new Merge.ObjectMerger(incompleteMergers, cloneThing);
 
                 it('should succeed if mergers are defined for all fields to be merged', () => {
                     const mergeInto: Thing = { ...base };

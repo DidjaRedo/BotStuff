@@ -36,7 +36,7 @@ export class Names {
     private constructor() {} // eslint-disable-line
 
 
-    public static isValidName(input: string): boolean {
+    public static isValidName(input?: string): boolean {
         return (input && (typeof input === 'string') && (input.trim().length > 0)) ? true : false;
     }
 

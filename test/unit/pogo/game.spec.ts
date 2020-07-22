@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { PokemonType, getTypeBoost } from '../../../src/pogo/pogo';
+import { PokemonType, getTypeBoost } from '../../../src/pogo/game';
 describe('Pogo Module', () => {
     describe('getTypeBoost function', () => {
         it('should return correct type boosts', () => {

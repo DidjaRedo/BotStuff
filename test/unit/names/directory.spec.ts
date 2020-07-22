@@ -211,7 +211,7 @@ describe('Directory class', (): void => {
             dir.addRange(goodInit.map((i) => new FakeKeyedThing(i)));
             expect(dir.size).toBe(init.length + goodInit.length);
             [init, goodInit].forEach((group): void => {
-                forEachAlternateKey(group, dir.alternateKeys, (key: keyof FakeKeys|null, value: string, elem: FakeKeyedThing): void => {
+                forEachAlternateKey(group, dir.alternateKeys, (key: keyof FakeKeys|null, value: string, elem: FakeProps): void => {
                     if (key === null) {
                         expect(dir.get(value)).toMatchObject(elem);
                     }
@@ -226,7 +226,7 @@ describe('Directory class', (): void => {
 
         function checkKeyCorrectness(dir: FakeKtDirectory, present: FakeProps[], missing: FakeProps[]): void {
             expect(dir.size).toBe(present.length);
-            forEachAlternateKey(present, dir.alternateKeys, (key: keyof FakeKeys|null, value: string, elem: FakeKeyedThing): void => {
+            forEachAlternateKey(present, dir.alternateKeys, (key: keyof FakeKeys|null, value: string, elem: FakeProps): void => {
                 if (key === null) {
                     expect(dir.get(value)).toMatchObject(elem);
                 }
@@ -236,7 +236,7 @@ describe('Directory class', (): void => {
                 }
             });
 
-            forEachAlternateKey(missing, dir.alternateKeys, (key: keyof FakeKeys|null, value: string, elem: FakeKeyedThing): void => {
+            forEachAlternateKey(missing, dir.alternateKeys, (key: keyof FakeKeys|null, value: string, elem: FakeProps): void => {
                 if (key === null) {
                     expect(dir.get(value)).not.toBe(elem);
                 }

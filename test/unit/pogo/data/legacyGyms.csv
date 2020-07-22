@@ -383,7 +383,7 @@ raincity20200106.1,Rain City,Redmond,Avondale Powerline,Avondale Power Line,-122
 20191116raincity.2,Rain City,Redmond,Flying Silverware,Flying Silverware,-122.093300,47.701848,NonEx
 f7c305833fb143f4beeba3550f48c527.16,Rain City,Redmond,BJ's Brewmural,BJs Brewhouse,-122.119748,47.668914,NonEx
 890092103ca740499435447f2ba9df88.11,Rain City,Redmond,Black Raven Brewing Co.,Black Raven,-122.14461,47.685628,NonEx
-N/A,Rain City,Redmond,Brooke Jillyann Bennette Park,Brooke Jillyann Bennette Park,-122.1129375,47.7065777,ExEligible
+N/A,Rain City,Redmond,Brooke Jillyann Bennette Park,Brooke Jillyann Bennette Park|Jillyann,-122.1129375,47.7065777,ExEligible
 raincity.20200123,Rain City,Redmond,Woodlands Park Play Structure 2,Woodlands Park Play Structure,-122.109182,47.706011,NonEx
 5aaccc40120c4ed2a1399b5012c95945.16,Rain City,Redmond,Charlotte's Trailhead,Farrell McWhirter Park (Trail)|McWhirter Trail,-122.08074,47.693287,NonEx
 305873ab0f934cf18a5b515afb77950b.16,Rain City,Redmond,Community Rockstars,Community Rockstars,-122.132734,47.683612,NonEx
@@ -404,6 +404,7 @@ bd051691116c4fe8837693ba31529163.16,Rain City,Redmond,Jim Palmquist Memorial Pla
 ea197d2a49df492fb232a903f944438c.16,Rain City,Redmond,Josh Dowell Memorial Bench,Marymoor (Josh Dowell Memorial),-122.11084,47.658938,NonEx
 b70d3d5f022e4029bd215f7dec1dbcca.16,Rain City,Redmond,Juel Park,Juel Park (Entrance),-122.089278,47.702702,NonEx
 4552c968d9eb4be1966824784f2e236f.16,Rain City,Redmond,Juel Trail,Juel Park (Trail),-122.089142,47.701802,ExEligible
+raincity20200627.3,Rain City,Redmond,Powerline Trail Post,Juel Powerline Trail Post,-122.084098,47.698715,NonEx
 b4757dc0af8b3f3abcf7ba03a12bfad8,Rain City,Redmond,Kids Playing Baseball Mural,Mattress Firm,-122.116819,47.67262,NonEx
 c73eb00cf09544ba8de4cd1d7fcb4369.16,Rain City,Redmond,Leaf Inlay in Sidewalk,Leaf Inlay,-122.114435,47.689362,NonEx
 d38924fc05f649cd923bdecc6afffdbe.12,Rain City,Redmond,Luke McRedmond's Paired Beavers,Luke McRedmond,-122.13216,47.67325,NonEx
@@ -433,7 +434,7 @@ ef71e02621b74fe79e59b74b25fb7e87.16,Rain City,Redmond,Redmond Meadow Park,Meadow
 403e6342286b4c6594c3d2e1287ab432.16,Rain City,Redmond,Redmond Stormwater Project,Redmond Arco,-122.143754,47.681894,NonEx
 90788188f6f343acbbba7a007b647857.16,Rain City,Redmond,Redmond Town Center Fish Statue,Farmers Market|Fish|Market,-122.124425,47.671892,ExEligible
 4b9a0fed1ea94c948e437665da54a99a.16,Rain City,Redmond,Redmond Twist,Evergreen,-122.123692,47.681979,NonEx
-511db23a34c5418396c70b22b65a8557.16,Rain City,Redmond,Redmond's Erratic,Redmond Erratic,-122.119251,47.671955,NonEx
+511db23a34c5418396c70b22b65a8557.16,Rain City,Redmond,Redmond's Erratic,Redmond Erratic|Erratic,-122.119251,47.671955,NonEx
 4312a7dcdb4a4f1487f4ee4958bb8dc8.16,Rain City,Redmond,Redwood Family Church,Redwood Family Church,-122.131803,47.702695,NonEx
 dde41fbd7ec2464b8c8e352f2dcc8abc.16,Rain City,Redmond,Riparian Area,Safeway/Riparian,-122.108778,47.67182,ExEligible
 raincity20200204.3,Rain City,Redmond,Retrofitting Runoff,Retrofitting Runoff,-122.109224,47.672973,NonEx
@@ -441,6 +442,7 @@ raincity20200204.3,Rain City,Redmond,Retrofitting Runoff,Retrofitting Runoff,-12
 6292a44df15949b7b2fd3ea133005f77.16,Rain City,Redmond,Sammamish River Trail at 60 Acres,Sixty Acres,-122.142527,47.704358,NonEx
 fddce7376ce14026bfe468eb52fcce15.16,Rain City,Redmond,Shapers Shelter,Marymoor (Shapers Shelter),-122.121721,47.660554,NonEx
 N/A,Rain City,Redmond,Smith Woods,Smith Woods,-122.104174,47.709227,NonEx
+raincity20200621.1,Rain City,Redmond,English Landing Park and Playground,English Landing Park and Playground,-122.101396,47.709692,NonEx
 8f1b3b935b39466791c7eabb1dc4938d.16,Rain City,Redmond,Sophie Irish Memorial Rock,Marymoor (Sophie Irish Memorial),-122.114947,47.659638,NonEx
 b0104e64daaf474996cd44327b323c47.16,Rain City,Redmond,Soulfood Books and Cafe,Soul Foods,-122.130386,47.675219,NonEx
 raincity20191223.1,Rain City,Redmond,Niko Teriyaki,Niko Teriyaki,-122.1279183,47.675057,NonEx
@@ -449,6 +451,7 @@ raincity20191223.1,Rain City,Redmond,Niko Teriyaki,Niko Teriyaki,-122.1279183,47
 70fee5fc0b1e44e2855cd230c23a56da.16,Rain City,Redmond,Succession,Marymoor (Succession),-122.108288,47.655915,NonEx
 1fc0165979a3416ba3402dc3f56b6f6b.16,Rain City,Redmond,Sunset Grove Park Gazebo,Sunset Grove Gazebo,-122.096297,47.685978,ExEligible
 raincity20200204.2,Rain City,Redmond,Sunset Gardens Park,Sunset Gardens Park,-122.096028,47.685724,ExEligible
+raincity20200627.1,Rain City,Redmond,Basketball Court,Basketball Court,-122.098902,47.687505,NonEx
 d22c0743662d45478d5e5a6c314a380a.16,Rain City,Redmond,Swamp Dog Bridge,Marymoor (Swamp Dog Bridge),-122.110968,47.657154,NonEx
 99eae6944d3d4bce9866e6d7008e913c.16,Rain City,Redmond,The Church Of Jesus Christ Of Latter-Day Saints (Hartman Park),LDS (Hartman Park),-122.110964,47.690909,NonEx
 01d1a1a0543ee8fe670e4825959836b3,Rain City,Redmond,The Church of the Holy Cross,The Church of the Holy Cross,-122.123088,47.703726,NonEx
@@ -460,6 +463,7 @@ a43edff5f6784b1ea7dbff3cba82c92b.16,Rain City,Redmond,The Rich Marsh,Marymoor (R
 b793664bd36b4bb49909c20bad86bb52.16,Rain City,Redmond,Uly Al Rw,Marymoor (Uly Al Rw),-122.105375,47.661421,ExEligible
 a169f4d109054d07936844148457333f.16,Rain City,Redmond,Vern Wagner Fields Dedication,Marymoor (Vern Wagner),-122.115819,47.664586,NonEx
 8809a5f47188461f81574dd0c613f342.16,Rain City,Redmond,Vesta Fountain,Vesta Fountain,-122.08833,47.658175,NonEx
+raincity20200627.2,Rain City,Redmond,Woodbridge Playground,Woodbridge Playground,-122.1127492,47.676571,NonEx
 f3d6b06d15e74e9e88262ead6c5f20da.16,Rain City,Redmond,Victors Coffee Co. and Roasters,Victors Coffeeshop,-122.1219,47.674577,NonEx
 7a65b4ad11344ebdb3421c045bcd56f6.16,Rain City,Redmond,Washington Cathedral,Washington Cathedral,-122.13135,47.709688,NonEx
 72c4e8cb052344cd84a626a99aaecd36.16,Rain City,Redmond,Water Tower,Redmond Way Water Tower,-122.09184,47.663903,NonEx
@@ -534,7 +538,7 @@ raincity20200409.2,Rain City|RedmondRidgePoGo,Redmond Ridge,Redmond Ridge Commun
 rotom20190531,Rain City|RedmondRidgePoGo,Redmond Ridge,Community Energy,Community Energy,-122.024405,47.700139,NonEx
 N/A,Rain City|RedmondRidgePoGo,Redmond Ridge,Redmond Watershed Preserve,Redmond Watershed Preserve,-122.049373,47.69324,NonEx
 rotom20190904-1,Rain City,Overlake,Microsoft Trail Marker Building 26,Building 26 Trail Marker|Microsoft Building 26 Trail Marker,-122.1319470,47.636802,NonEx
-rotom20190904-2,Rain City,Overlake,CoffeeShop,Coffee Shop|Coffee Shop Bus Stop,-122.1321630,47.635695,NonEx
+rotom20190904-2,Rain City,Overlake,Coffee Shop,Coffee Shop Bus Stop,-122.1321630,47.635695,NonEx
 raincity20200428.1,Rain City,Overlake,Eagles Soar Where Buses Stop,Eagles Soar,-122.1322190,47.628824,NonEx
 raincity20200428.2,Rain City,Overlake,Moscow Mural,Moscow Mural,-122.1495670,47.643817,NonEx
 raincity20200428.3,Rain City,Overlake,Idylwood Park,Idylwood Park,-122.1062330,47.643817,NonEx

@@ -20,141 +20,251 @@
  * SOFTWARE.
  */
 
-import { CommandParser, ParsedCommand } from './regExpBuilder';
-import { Result, allSucceed, fail, mapSuccess, succeed } from '../utils/result';
+import { CommandResult, Commands, ValidatedCommands } from './command';
+import { FormatTargets, Formatter } from '../utils/formatter';
+import { Result, fail, succeed } from '../utils/result';
 
-export interface CommandResult<T> {
-    found: boolean;
-    result: T|undefined;
+export type ExecutedResult<TCMDS> = { [key in keyof TCMDS]: CommandResult<keyof TCMDS, TCMDS[key]> }
+
+export interface ValidatedCommandsResult<TCMDS> {
+    keys: (keyof TCMDS)[];
+    validated: Partial<ValidatedCommands<TCMDS>>;
+    validationErrors: string[];
 }
 
-export type CommandValidator<TR> = (processed: TR) => Result<TR>;
-export type CommandHandler<TP, TR> = (parsed: ParsedCommand<TP>, command: CommandSpec<TP, TR>) => Result<TR>;
-
-export interface CommandSpec<TP, TR> {
-    name: string;
-    description: string;
-    examples?: string[];
-    parser: CommandParser<TP>;
-    handleCommand: CommandHandler<TP, TR>;
+export interface ExecutedCommandsResult<TCMDS> {
+    keys: (keyof TCMDS)[];
+    executed: Partial<ExecutedResult<TCMDS>>;
 }
 
-export class CommandProcessor<TP, TR> {
-    private _commands: CommandSpec<TP, TR>[];
-    private _validator?: CommandValidator<TR>;
+export type ResultFormatters<TCMDS> = { [key in keyof TCMDS]: Formatter<TCMDS[key]> }
+export type FormattedResult<TCMDS> = { [key in keyof TCMDS]: string }
 
-    public constructor(commands?: CommandSpec<TP, TR>[], validator?: CommandValidator<TR>) {
-        this._commands = [];
-        this._validator = validator;
+export interface FormattedCommandsResult<TCMDS> {
+    keys: (keyof TCMDS)[];
+    formatted: Partial<FormattedResult<TCMDS>>;
+}
 
-        allSucceed((commands ?? []).map((c) => this.addCommand(c)), true).getValueOrThrow();
-    }
+class FieldTracker<T> {
+    public readonly errors: string[] = [];
+    public readonly keys: (keyof T)[] = [];
 
-    public addCommand(cmd: CommandSpec<TP, TR>): Result<boolean> {
-        return this._validateSpec(cmd).onSuccess(() => {
-            this._commands.push(cmd);
-            return succeed(true);
-        });
-    }
-
-    public processAll(message: string): Result<TR[]> {
-        const results: Result<TR>[] = [];
-        for (const c of this._commands) {
-            const result: Result<TR|undefined> = c.parser.parse(message).onSuccess((parsed) => {
-                return (parsed !== undefined) ? c.handleCommand(parsed, c) : succeed(undefined);
-            }).onSuccess((processed) => {
-                if ((processed !== undefined) && (this._validator !== undefined)) {
-                    return this._validator(processed);
-                }
-                return succeed(processed);
-            });
-
+    public add<T2>(key: keyof T, result?: Result<T2>): void {
+        if (result !== undefined) {
             if (result.isFailure()) {
-                results.push(fail(result.message));
+                this.errors.push(result.message);
             }
             else if (result.value !== undefined) {
-                results.push(succeed(result.value));
+                this.keys.push(key);
             }
         }
-        return mapSuccess(results);
     }
 
-    public processFirst(message: string): Result<TR> {
-        const errors: Result<TR>[] = [];
-
-        for (const c of this._commands) {
-            const result = c.parser.parse(message).onSuccess((parsed) => {
-                return (parsed !== undefined) ? c.handleCommand(parsed, c) : succeed(undefined);
-            }).onSuccess((processed: TR): Result<TR> => {
-                if ((processed !== undefined) && (this._validator !== undefined)) {
-                    return this._validator(processed);
-                }
-                return succeed(processed);
-            });
-
-            if (result.isFailure()) {
-                errors.push(result);
-            }
-            else if (result.isSuccess() && (result.value !== undefined)) {
-                return result;
-            }
-        }
-
-        const errorText = (errors.length > 0) ? `\n${errors.join('\n')}` : '';
-        return fail(`No command matched ${message}${errorText}`);
+    public get failed(): boolean {
+        return (this.keys.length === 0) && (this.errors.length > 0);
     }
 
-    public processOne(message: string): Result<TR> {
-        const errors: Result<TR>[] = [];
-        const results: { command: CommandSpec<TP, TR>, result: TR }[] = [];
+    public getFailure<T>(message?: string): Result<T> {
+        const errors = (message ? [message, ...this.errors] : this.errors);
+        return fail(errors.join('\n'));
+    }
 
-        for (const c of this._commands) {
-            const result: Result<TR|undefined> = c.parser.parse(message).onSuccess((parsed) => {
-                return (parsed !== undefined) ? c.handleCommand(parsed, c) : succeed(undefined);
-            }).onSuccess((processed) => {
-                if ((processed !== undefined) && (this._validator !== undefined)) {
-                    return this._validator(processed);
-                }
-                return succeed(processed);
-            }).onSuccess((processed) => {
-                if (processed !== undefined) {
-                    results.push({ command: c, result: processed });
-                }
-                return succeed(processed);
-            });
+    public report<T2>(value: T2): Result<T2 & { keys: (keyof T)[]}> {
+        if (this.failed) {
+            return fail(this.errors.join('\n'));
+        }
+        return succeed({ keys: this.keys, ...value });
+    }
+}
 
-            if (result.isFailure()) {
-                errors.push(fail(result.message));
+export class CommandProcessor<TCMDS> {
+    public readonly commands: Commands<TCMDS>;
+    public readonly displayOrder: (keyof TCMDS)[];
+    private readonly _evalOrder: (keyof TCMDS)[];
+
+    public constructor(commands: Commands<TCMDS>, evalOrder?: (keyof TCMDS)[], displayOrder?: (keyof TCMDS)[]) {
+        this.commands = commands;
+
+        this._evalOrder = CommandProcessor._validateOrder('evaluation order', commands, evalOrder).getValueOrThrow();
+        this.displayOrder = ((displayOrder === undefined) || (displayOrder.length === 0))
+            ? this._evalOrder
+            : CommandProcessor._validateOrder('display order', commands, displayOrder).getValueOrThrow();
+    }
+
+    protected static _validateOrder<TCMDS>(description: string, commands: Commands<TCMDS>, order?: (keyof TCMDS)[]): Result<(keyof TCMDS)[]> {
+        if ((order !== undefined) && (order.length > 0)) {
+            for (const key of order) {
+                if (commands[key] === undefined) {
+                    return fail(`Key ${key} is present in ${description} but not in commands.`);
+                }
+            }
+
+            for (const key in commands) {
+                if (!order.includes(key)) {
+                    return fail(`Command ${key} is present in commands but not in ${description}`);
+                }
+            }
+        }
+        else {
+            order = [];
+            for (const key in commands) {
+                if (commands[key] !== undefined) {
+                    order.push(key);
+                }
+            }
+        }
+        return succeed(order);
+    }
+
+    public validateAll(command: string): Result<ValidatedCommandsResult<TCMDS>> {
+        const tracker = new FieldTracker<TCMDS>();
+        const validated: Partial<ValidatedCommands<TCMDS>> = {};
+
+        for (const key of this._evalOrder) {
+            tracker.add(key, this.commands[key]?.validate(command)?.onSuccess((value) => {
+                if (value !== undefined) {
+                    validated[key] = value;
+                }
+                return succeed(value);
+            }));
+        }
+
+        return tracker.report({ validated, validationErrors: tracker.errors });
+    }
+
+    public processAll(command: string): Result<ExecutedCommandsResult<TCMDS>> {
+        const validateResult = this.validateAll(command);
+        if (validateResult.isFailure()) {
+            return fail(validateResult.message);
+        }
+
+        const { keys, validated } = validateResult.value;
+        const tracker = new FieldTracker<TCMDS>();
+        const executed: Partial<ExecutedResult<TCMDS>> = {};
+
+        for (const key of keys) {
+            tracker.add(key, validated[key]?.execute()?.onSuccess((value) => {
+                executed[key] = value;
+                return succeed(value);
+            }));
+        }
+
+        return tracker.report({ executed });
+    }
+
+    public processFirst(command: string): Result<ExecutedCommandsResult<TCMDS>> {
+        const validateResult = this.validateAll(command);
+        if (validateResult.isFailure()) {
+            return fail(validateResult.message);
+        }
+
+        const { keys, validated } = validateResult.value;
+        const tracker = new FieldTracker<TCMDS>();
+        const executed: Partial<ExecutedResult<TCMDS>> = {};
+
+        for (const key of keys) {
+            const validator = validated[key];
+            // istanbul ignore else
+            if (validator !== undefined) {
+                tracker.add(key, validator.execute().onSuccess((value) => {
+                    executed[key] = value;
+                    return succeed(value);
+                }));
+
+                if (tracker.keys.length === 1) {
+                    return tracker.report({ executed });
+                }
             }
         }
 
-        if (results.length < 1) {
-            const errorText = (errors.length > 0) ? `\n${errors.join('\n')}` : '';
-            return fail(`No command matched ${message}${errorText}`);
+        return tracker.getFailure(`No command matched "${command}"`);
+    }
+
+    public processOne(command: string): Result<ExecutedCommandsResult<TCMDS>> {
+        const validateResult = this.validateAll(command);
+        if (validateResult.isFailure()) {
+            return fail(validateResult.message);
         }
-        else if (results.length > 1) {
-            const candidates = results.map((r) => r.command.name).join(', ');
-            return fail(`Ambiguous command ${message} could be any of: [${candidates}]`);
+
+        const { keys, validated, validationErrors } = validateResult.value;
+
+        if (keys.length < 1) {
+            const errorText = (validationErrors.length > 0) ? `\n${validationErrors.join('\n')}` : '';
+            return fail(`No command matched ${command}${errorText}`);
         }
-        return succeed(results[0].result);
+        else if (keys.length > 1) {
+            const candidates = keys.map((k) => validated[k]?.command).join(', ');
+            return fail(`Ambiguous command ${command} could be any of: [${candidates}]`);
+        }
+
+        const executeResult = validated[keys[0]]?.execute();
+        if (executeResult?.isSuccess()) {
+            const executed: Partial<ExecutedResult<TCMDS>> = {};
+            executed[keys[0]] = executeResult.value;
+            return succeed({ keys, executed });
+        }
+        const message = executeResult?.isFailure() ? executeResult.message : `Unknown execution failure for ${command})`;
+        return fail(message);
+    }
+
+    public formatAll(
+        executedResult: ExecutedCommandsResult<TCMDS>,
+        formatters: Partial<ResultFormatters<TCMDS>>,
+    ): Result<FormattedCommandsResult<TCMDS>> {
+        const { keys, executed } = executedResult;
+        const tracker = new FieldTracker<TCMDS>();
+        const formatted: Partial<FormattedResult<TCMDS>> = {};
+
+        for (const key of keys) {
+            const result = executed[key];
+            const formatter = formatters[key];
+            if ((result !== undefined) && (formatter !== undefined)) {
+                tracker.add(key, formatter(result.message, result.result).onSuccess((message: string) => {
+                    formatted[key] = message;
+                    return succeed(message);
+                }));
+            }
+        }
+
+        return tracker.report({ formatted });
+    }
+
+    public format(
+        key: keyof TCMDS,
+        executedResult: ExecutedCommandsResult<TCMDS>,
+        formatters: Partial<ResultFormatters<TCMDS>>,
+    ): Result<string> {
+        const result = executedResult.executed[key];
+        const formatter = formatters[key];
+        if ((!executedResult.keys.includes(key)) || (result === undefined)) {
+            return fail(`CommandProcessor.format: No result for ${key}`);
+        }
+
+        if (formatter === undefined) {
+            return fail(`CommandProcessor.format: no formatter for ${key}`);
+        }
+
+        return formatter(result.message, result.result);
     }
 
     public get numCommands(): number {
-        return this._commands.length;
+        return this._evalOrder.length;
     }
 
-    private _validateSpec(cmd: CommandSpec<TP, TR>): Result<boolean> {
-        if ((!cmd.name) || (!cmd.description) || (!cmd.parser) || (!cmd.handleCommand)) {
-            return fail('Command must have name, description, parser and handleCommand.');
+    public getHelp(): string[] {
+        const lines: string[] = [];
+        for (const key of this.displayOrder) {
+            lines.push(...this.commands[key].getHelpLines());
         }
+        return lines;
+    }
 
-        if (typeof cmd.handleCommand !== 'function') {
-            return fail('Command handler must be a function.');
+    public getDefaultFormatters(target: FormatTargets, keys?: (keyof TCMDS)[]): Result<Partial<ResultFormatters<TCMDS>>> {
+        keys = keys ?? this.displayOrder;
+        const formatters: Partial<ResultFormatters<TCMDS>> = {};
+        for (const key of keys) {
+            formatters[key] = this.commands[key].getDefaultFormatter(target).getValueOrDefault();
         }
-
-        if (this._commands.find((c) => c.name === cmd.name) !== undefined) {
-            return fail(`Duplicate command name '${cmd.name}'.`);
-        }
-        return succeed(true);
+        return succeed(formatters);
     }
 }

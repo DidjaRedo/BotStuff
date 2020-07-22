@@ -20,17 +20,6 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
-import { validatePokemonType, validateRaidTier, validateWeather } from './pogo';
-import { Converter } from '../utils/converter';
-
-export const pokemonType = new Converter(validatePokemonType);
-export const pokemonTypeArray = Converters.arrayOf(pokemonType);
-
-export const pokemonTypes = Converters.oneOf([
-    pokemonTypeArray,
-    Converters.delimitedString('|').mapConvert(pokemonTypeArray),
-]);
-
-export const raidTier = new Converter(validateRaidTier);
-export const weather = new Converter(validateWeather);
+export * from './geoConverters';
+export * from './placeConverters';
+export * from './poiConverter';

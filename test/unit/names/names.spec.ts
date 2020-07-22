@@ -30,7 +30,7 @@ describe('Names static class', (): void => {
         });
 
         it('should return false for empty strings or whitespace strings', (): void => {
-            ['', undefined, '   '].forEach((str: string): void => {
+            ['', undefined, '   '].forEach((str?: string): void => {
                 expect(Names.isValidName(str)).toBe(false);
             });
         });
@@ -45,7 +45,7 @@ describe('Names static class', (): void => {
             });
 
             it('should throw for empty strings or whitespace strings', (): void => {
-                ['', undefined, '   '].forEach((str: string): void => {
+                ['', undefined, '   '].forEach((str?: string): void => {
                     expect((): void => Names.throwOnInvalidName(str, 'some field')).toThrowError(/non-empty/i);
                 });
             });

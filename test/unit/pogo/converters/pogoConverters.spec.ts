@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import * as PogoConverters from '../../../src/pogo/pogoConverters';
-import { PokemonType, RaidTier, Weather } from '../../../src/pogo/pogo';
+import * as PogoConverters from '../../../../src/pogo/converters/pogoConverters';
+import { PokemonType, RaidTier, Weather } from '../../../../src/pogo/game';
 
 describe('PogoConverters Module', () => {
     describe('pokemonType converter', () => {

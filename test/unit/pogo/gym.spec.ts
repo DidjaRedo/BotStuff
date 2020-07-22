@@ -21,9 +21,10 @@
  */
 
 import '../../helpers/jestHelpers';
-import * as Gym from '../../../src/pogo/gym';
+import * as GymConverters from '../../../src/pogo/converters/gymConverters';
+import { loadJsonFile, saveJsonFile } from '../../../src/utils/jsonHelpers';
+import { Gym } from '../../../src/pogo/gym';
 import { MockFileSystem } from '../../helpers/dataHelpers';
-import { saveJsonFile } from '../../../src/utils/jsonHelpers';
 
 describe('PoGo Gym module', () => {
     describe('Gym class', () => {
@@ -55,8 +56,8 @@ describe('PoGo Gym module', () => {
             it('should construct a gym from a valid initializer', () => {
                 for (const init of good) {
                     [
-                        new Gym.Gym(init),
-                        Gym.Gym.createGym(init).getValueOrDefault(),
+                        new Gym(init),
+                        Gym.createGym(init).getValueOrDefault(),
                     ].forEach((gym) => {
                         expect(gym).toBeDefined();
                         if (gym !== undefined) {
@@ -75,7 +76,7 @@ describe('PoGo Gym module', () => {
         describe('toString method', () => {
             it('should match primaryKey', () => {
                 for (const init of good) {
-                    const gym = new Gym.Gym(init);
+                    const gym = new Gym(init);
                     expect(gym.toString()).toEqual(gym.primaryKey);
                 }
             });
@@ -130,27 +131,27 @@ describe('PoGo Gym module', () => {
 
         it('should convert valid arrays', () => {
             tests.forEach((test) => {
-                expect(Gym.gymPropertiesFromArray.convert(test.source)).toSucceedWith(test.expect);
+                expect(GymConverters.gymPropertiesFromArray.convert(test.source)).toSucceedWith(test.expect);
             });
         });
 
         it('should round trip through toArray', () => {
             tests.forEach((test) => {
-                expect(Gym.gym.convert(test.source)).toSucceedWithCallback((gym: Gym.Gym) => {
-                    expect(Gym.gym.convert(gym.toArray())).toSucceedWith(gym);
+                expect(GymConverters.gym.convert(test.source)).toSucceedWithCallback((gym: Gym) => {
+                    expect(GymConverters.gym.convert(gym.toArray())).toSucceedWith(gym);
                 });
             });
         });
 
         it('should round trip through toJson', () => {
             tests.forEach((test) => {
-                expect(Gym.gym.convert(test.source)).toSucceedWithCallback((gym: Gym.Gym) => {
+                expect(GymConverters.gym.convert(test.source)).toSucceedWithCallback((gym: Gym) => {
                     const json = gym.toJson();
-                    expect(Gym.gym.convert(json)).toSucceedWith(gym);
+                    expect(GymConverters.gym.convert(json)).toSucceedWith(gym);
                 });
-                const gym = Gym.gym.convert(test.source).getValueOrThrow();
+                const gym = GymConverters.gym.convert(test.source).getValueOrThrow();
                 const json = gym.toJson();
-                const gym2 = Gym.gym.convert(json).getValueOrDefault();
+                const gym2 = GymConverters.gym.convert(json).getValueOrDefault();
                 expect(gym).toEqual(gym2);
             });
         });
@@ -168,7 +169,7 @@ describe('PoGo Gym module', () => {
                     expect: /invalid ex status/i,
                 },
             ].forEach((test) => {
-                expect(Gym.gymPropertiesFromArray.convert(test.source)).toFailWith(test.expect);
+                expect(GymConverters.gymPropertiesFromArray.convert(test.source)).toFailWith(test.expect);
             });
         });
     });
@@ -219,7 +220,7 @@ describe('PoGo Gym module', () => {
                     },
                 },
             ].forEach((test) => {
-                expect(Gym.gymPropertiesFromLegacyArray.convert(test.source)).toSucceedWith(test.expect);
+                expect(GymConverters.gymPropertiesFromLegacyArray.convert(test.source)).toSucceedWith(test.expect);
             });
         });
 
@@ -248,14 +249,14 @@ describe('PoGo Gym module', () => {
                     expect: /invalid ex status/i,
                 },
             ].forEach((test) => {
-                expect(Gym.gymPropertiesFromLegacyArray.convert(test.source)).toFailWith(test.expect);
+                expect(GymConverters.gymPropertiesFromLegacyArray.convert(test.source)).toFailWith(test.expect);
             });
         });
     });
 
     describe('loadLegacyGymsFile function', () => {
         it('should load a valid legacy gyms CSV file', () => {
-            expect(Gym.loadLegacyGymsFile('./test/unit/pogo/data/legacyGyms.csv')).toSucceedWith(
+            expect(GymConverters.loadLegacyGymsFile('./test/unit/pogo/data/legacyGyms.csv')).toSucceedWith(
                 expect.arrayContaining([
                     expect.objectContaining({ name: '128th Ave Trail Marker' }),
                     expect.objectContaining({ name: 'Northstar Park' }),
@@ -284,14 +285,23 @@ describe('PoGo Gym module', () => {
         it('should write legacy gyms to a json file as arrays', () => {
             const spies = mockFs.startSpies();
 
-            const gyms = Gym.loadLegacyGymsFile('legacyGyms.csv').getValueOrThrow();
+            const gyms = GymConverters.loadLegacyGymsFile('legacyGyms.csv').getValueOrThrow();
             const json = gyms.map((g) => g.toJson());
             expect(saveJsonFile('gymObjects.json', json)).toSucceed();
 
             const arrays = gyms.map((g) => g.toArray());
             expect(saveJsonFile('gymArrays.json', arrays)).toSucceed();
 
+            const arrayJsonResult = loadJsonFile('gymArrays.json');
+            expect(arrayJsonResult).toSucceed();
+            const objectJsonResult = loadJsonFile('gymObjects.json');
+            expect(objectJsonResult).toSucceed();
+
             spies.restore();
+
+            // Uncomment to so save updated arrays and objects if legacyGyms change
+            // saveJsonFile('./test/unit/pogo/data/gymArrays.json', arrayJsonResult.getValueOrThrow());
+            // saveJsonFile('./test/unit/pogo/data/gymObjects.json', objectJsonResult.getValueOrThrow());
         });
     });
 });

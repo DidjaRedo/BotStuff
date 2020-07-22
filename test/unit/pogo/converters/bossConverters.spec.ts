@@ -20,9 +20,12 @@
  * SOFTWARE.
  */
 
-import '../../helpers/jestHelpers';
-import { Boss, BossProperties } from '../../../src/pogo/boss';
-import { bossPropertiesFromArray, bossPropertiesFromLegacyArray } from '../../../src/pogo/bossConverters';
+import '../../../helpers/jestHelpers';
+import { Boss, BossProperties } from '../../../../src/pogo/boss';
+import {
+    bossPropertiesFromArray,
+    bossPropertiesFromLegacyArray,
+} from '../../../../src/pogo/converters/bossConverters';
 
 describe('Pogo BossConverters module', () => {
     describe('bossPropertiesFromLegacyArray converter', () => {
@@ -181,7 +184,7 @@ describe('Pogo BossConverters module', () => {
                     { name: 'name' },
                     { name: 'alternateNames' },
                 ],
-                alternateKeys: ['alternateNames'],
+                alternateKeys: ['name', 'alternateNames'],
             });
         });
     });

@@ -20,18 +20,11 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
-import * as PogoConverters from './pogoConverters';
-import * as TimeConverters from '../time/timeConverters';
 import { Boss, BossKeys, BossProperties } from './boss';
 import { DirectoryBase, DirectoryFilter, DirectoryLookupOptions, SearchResult } from '../names/directory';
-import { Result, captureResult, fail, mapResults, succeed } from '../utils/result';
-import { noTierBossPropertiesFromArray, noTierBossPropertiesFromObject } from './bossConverters';
-import { Converter } from '../utils/converter';
 import { DateRange } from '../time/dateRange';
 import { NormalizedMap } from '../names/normalizedMap';
-import { RaidTier } from './pogo';
-import { loadJsonFile } from '../utils/jsonHelpers';
+import { RaidTier } from './game';
 
 export interface BossNamesByStatus {
     active: boolean|DateRange;
@@ -118,49 +111,4 @@ export class BossDirectory extends DirectoryBase<Boss, BossProperties, BossKeys,
         }
         return results;
     }
-}
-
-export const bossNamesByStatus = Converters.object<BossNamesByStatus>({
-    active: Converters.oneOf<boolean|DateRange>([
-        Converters.boolean,
-        TimeConverters.dateRange,
-    ]),
-    bosses: Converters.arrayOf(Converters.string),
-});
-
-
-export const bossPropertiesByTier = Converters.object<BossPropertiesByTier>({
-    tier: PogoConverters.raidTier,
-    status: Converters.arrayOf(bossNamesByStatus),
-    bosses: Converters.arrayOf(Converters.oneOf([
-        noTierBossPropertiesFromObject,
-        noTierBossPropertiesFromArray,
-    ])),
-}, ['status']);
-
-export const bossDirectoryInitializer = Converters.arrayOf(bossPropertiesByTier);
-
-export const bossDirectory = new Converter((from: unknown): Result<BossDirectory> => {
-    const initResult = bossDirectoryInitializer.convert(from);
-    if (initResult.isFailure()) {
-        return fail(initResult.message);
-    }
-
-    const dir = new BossDirectory();
-
-    const added = mapResults(initResult.value.map((tier) => {
-        return captureResult(() => dir.addTier(tier));
-    }));
-
-    if (added.isFailure()) {
-        return fail(added.message);
-    }
-
-    return succeed(dir);
-});
-
-export function loadBossDirectorySync(path: string): Result<BossDirectory> {
-    return loadJsonFile(path).onSuccess((json) => {
-        return bossDirectory.convert(json);
-    });
 }

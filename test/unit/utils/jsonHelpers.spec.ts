@@ -29,7 +29,10 @@ describe('JsonHelpers module', () => {
         it('should return a requested json file', () => {
             const path = 'path/to/some/file.json';
             const payload = { someProperty: 'some value', prop: [1, 2] };
-            jest.spyOn(fs, 'readFileSync').mockImplementation((gotPath: string) => {
+            jest.spyOn(fs, 'readFileSync').mockImplementation((gotPath: unknown) => {
+                if (typeof gotPath !== 'string') {
+                    throw new Error('Mock implementation only accepts string');
+                }
                 expect(gotPath).toContain(path);
                 return JSON.stringify(payload);
             });
@@ -39,7 +42,10 @@ describe('JsonHelpers module', () => {
 
         it('should propagate an error', () => {
             const path = 'path/to/some/file.json';
-            jest.spyOn(fs, 'readFileSync').mockImplementation((gotPath: string) => {
+            jest.spyOn(fs, 'readFileSync').mockImplementation((gotPath: unknown) => {
+                if (typeof gotPath !== 'string') {
+                    throw new Error('Mock implementation only accepts string');
+                }
                 expect(gotPath).toContain(path);
                 throw new Error('Mock Error!');
             });
@@ -52,7 +58,10 @@ describe('JsonHelpers module', () => {
         it('should save to the requested json file', () => {
             const path = 'path/to/some/file.json';
             const payload = { someProperty: 'some value', prop: [1, 2] };
-            jest.spyOn(fs, 'writeFileSync').mockImplementation((gotPath: string, gotPayload: string) => {
+            jest.spyOn(fs, 'writeFileSync').mockImplementation((gotPath: unknown, gotPayload: unknown) => {
+                if ((typeof gotPath !== 'string') || (typeof gotPayload !== 'string')) {
+                    throw new Error('Mock implementation only accepts string');
+                }
                 expect(gotPath).toContain(path);
                 expect(JSON.parse(gotPayload)).toEqual(payload);
             });
@@ -63,7 +72,10 @@ describe('JsonHelpers module', () => {
         it('should propagate an error', () => {
             const path = 'path/to/some/file.json';
             const payload = { someProperty: 'some value', prop: [1, 2] };
-            jest.spyOn(fs, 'writeFileSync').mockImplementation((gotPath: string) => {
+            jest.spyOn(fs, 'writeFileSync').mockImplementation((gotPath: unknown) => {
+                if (typeof gotPath !== 'string') {
+                    throw new Error('Mock implementation only accepts string');
+                }
                 expect(gotPath).toContain(path);
                 throw new Error('Mock Error!');
             });

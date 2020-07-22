@@ -26,19 +26,19 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace jest {
         interface Matchers<R> {
-            toFail();
-            toFailWith(message: string|RegExp|undefined);
-            toSucceed();
-            toSucceedWithCallback<T>(cb: (value: T) => void);
-            toSucceedWith<T>(value: T);
-            toBeInRange(min: number, max: number);
-            toBeOneOf(values: unknown[]);
+            toFail(): jest.CustomMatcherResult;
+            toFailWith(message: string|RegExp|undefined): jest.CustomMatcherResult;
+            toSucceed(): jest.CustomMatcherResult;
+            toSucceedWithCallback<T>(cb: (value: T) => void): jest.CustomMatcherResult;
+            toSucceedWith<T>(value: T): jest.CustomMatcherResult;
+            toBeInRange(min: number, max: number): jest.CustomMatcherResult;
+            toBeOneOf(values: unknown[]): jest.CustomMatcherResult;
         }
     }
 }
 
 expect.extend({
-    toFail<T>(received: Result<T>) {
+    toFail<T>(this: jest.MatcherContext, received: Result<T>): jest.CustomMatcherResult {
         if (received.isFailure()) {
             return {
                 message: () => 'expected not to fail',
@@ -52,33 +52,44 @@ expect.extend({
             };
         }
     },
-    toFailWith<T>(received: Result<T>, message: string|RegExp|undefined) {
-        if (!received.isFailure()) {
-            return {
-                message: () => 'expected to fail',
-                pass: false,
-            };
-        }
-        if (this.isNot) {
-            if (message === undefined) {
-                expect(received.message).not.toBeUndefined();
+    toFailWith<T>(this: jest.MatcherContext, received: Result<T>, message: string|RegExp|undefined): jest.CustomMatcherResult {
+        const options = {
+            comment: 'Result.is failure',
+            isNot: this.isNot,
+            promise: this.promise,
+        };
+
+        const header = `${this.utils.matcherHint('toFailWith', undefined, undefined, options)}\n\n`;
+        const expected = `Expected: ${this.isNot ? ' not ' : ''} failure with ${this.utils.printExpected(message)}`;
+        if (received.isFailure()) {
+            if (this.isNot) {
+                if (message === undefined) {
+                    expect(received.message).toBeDefined();
+                }
+                else {
+                    expect(received.message).not.toMatch(message);
+                }
+            }
+            else if (message === undefined) {
+                expect(received.message).toBeUndefined();
             }
             else {
-                expect(received.message).not.toEqual(expect.stringMatching(message));
+                expect(received.message).toMatch(message);
             }
-        }
-        else if (message === undefined) {
-            expect(received.message).toBeUndefined();
-        }
-        else {
-            expect(received.message).toEqual(expect.stringMatching(message));
+
+            return {
+                message: () =>
+                    `${header}${expected}\nReceived: failure with ${this.utils.printReceived(received.message)}`,
+                pass: !this.isNot,
+            };
         }
         return {
-            message: () => 'expected to fail',
-            pass: !this.isNot,
+            message: () =>
+                `${header}${expected}\nReceived: success with ${this.utils.printReceived(received.value)}`,
+            pass: false,
         };
     },
-    toSucceed<T>(received: Result<T>) {
+    toSucceed<T>(this: jest.MatcherContext, received: Result<T>): jest.CustomMatcherResult {
         const options = {
             comment: 'Result.is success',
             isNot: this.isNot,
@@ -89,27 +100,31 @@ expect.extend({
         if (received.isSuccess()) {
             return {
                 message: () =>
-                    `${header}Expected: not to succeed\nReceived: success with ${this.utils.stringify(received.value)}`,
+                    `${header}Expected: not to succeed\nReceived: success with ${this.utils.printReceived(received.value)}`,
                 pass: true,
             };
         }
         else {
             return {
                 message: () =>
-                    `${header}Expected: success\nReceived: failure with ${this.utils.stringify(received.message)}`,
+                    `${header}Expected: success\nReceived: failure with ${this.utils.printReceived(received.message)}`,
                 pass: false,
             };
         }
     },
-    toSucceedWith<T>(received: Result<T>, match: unknown) {
+    toSucceedWith<T>(this: jest.MatcherContext, received: Result<T>, match: unknown): jest.CustomMatcherResult {
         const options = {
             // comment: 'Result.is success with',
             isNot: this.isNot,
             promise: this.promise,
         };
 
+        if (match instanceof RegExp) {
+            match = expect.stringMatching(match);
+        }
+
         const header = `${this.utils.matcherHint('toSucceedWith', undefined, undefined, options)}\n\n`;
-        const expected = `Expected: ${this.isNot ? ' not ' : ''} success with ${this.utils.stringify(match)}`;
+        const expected = `Expected: ${this.isNot ? ' not ' : ''} success with ${this.utils.printExpected(match)}`;
         if (received.isSuccess()) {
             if (this.isNot) {
                 expect(received.value).not.toEqual(match);
@@ -119,7 +134,7 @@ expect.extend({
             }
             return {
                 message: () =>
-                    `${header}${expected}\nReceived: success with ${this.utils.stringify(received.value)}`,
+                    `${header}${expected}\nReceived: success with ${this.utils.printReceived(received.value)}`,
                 pass: !this.isNot,
             };
         }
@@ -131,7 +146,7 @@ expect.extend({
             };
         }
     },
-    toSucceedWithCallback<T>(received: Result<T>, cb: (value: T) => void) {
+    toSucceedWithCallback<T>(this: jest.MatcherContext, received: Result<T>, cb: (value: T) => void): jest.CustomMatcherResult {
         const options = {
             // comment: 'Result.is success with callback',
             isNot: this.isNot,
@@ -143,7 +158,7 @@ expect.extend({
             cb(received.value);
             return {
                 message: () =>
-                    `${header}${expected}\nReceived: success with ${this.utils.stringify(received.value)}`,
+                    `${header}${expected}\nReceived: success with ${this.utils.printReceived(received.value)}`,
                 pass: !this.isNot,
             };
         }
@@ -154,7 +169,7 @@ expect.extend({
             };
         }
     },
-    toBeInRange(received: number, min: number, max: number) {
+    toBeInRange(this: jest.MatcherContext, received: number, min: number, max: number): jest.CustomMatcherResult {
         const pass = (received >= min) && (received <= max);
         if (pass) {
             return {
@@ -169,7 +184,7 @@ expect.extend({
             };
         }
     },
-    toBeOneOf(received: unknown, expected: unknown[]) {
+    toBeOneOf(this: jest.MatcherContext, received: unknown, expected: unknown[]): jest.CustomMatcherResult {
         let pass = false;
         for (const candidate of expected) {
             pass = pass || this.equals(received, candidate);
@@ -177,13 +192,13 @@ expect.extend({
 
         if (pass) {
             return {
-                message: () => `expected ${JSON.stringify(received)} not to be one of ${JSON.stringify(expected)}`,
+                message: () => `expected ${this.utils.printReceived(received)} not to be one of ${this.utils.printExpected(expected)}`,
                 pass: true,
             };
         }
         else {
             return {
-                message: () => `expected ${JSON.stringify(received)} to be one of ${JSON.stringify(expected)}`,
+                message: () => `expected ${this.utils.printReceived(received)} to be one of ${this.utils.printExpected(expected)}`,
                 pass: false,
             };
         }

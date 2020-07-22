@@ -41,19 +41,12 @@ export function validateRaidTier(value?: unknown): Result<RaidTier> {
         }
     }
     else if (typeof value === 'string') {
-        switch (value.trim().toLowerCase()) {
-            case '1': case 'tier 1':
-                return succeed(1);
-            case '2': case 'tier 2':
-                return succeed(2);
-            case '3': case 'tier 3':
-                return succeed(3);
-            case '4': case 'tier 4':
-                return succeed(4);
-            case '5': case 'tier 5':
-                return succeed(5);
-            case '6': case 'tier 6':
-                return succeed(6);
+        const normalized = value.trim().toLowerCase();
+        const tiers: RaidTier[] = [1, 2, 3, 4, 5, 6];
+        for (const tier of tiers) {
+            if ([`${tier}`, `tier ${tier}`, `t${tier}`, `l${tier}`].includes(normalized)) {
+                return succeed(tier);
+            }
         }
     }
     return fail(`Invalid raid tier ${JSON.stringify(value)} must be ${MIN_RAID_TIER}...${MAX_RAID_TIER}`);

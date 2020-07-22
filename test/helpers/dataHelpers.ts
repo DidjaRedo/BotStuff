@@ -32,6 +32,7 @@ export function loadJson(srcPath: string): unknown {
 export interface MockFileConfig {
     path: string;
     backingFile?: string;
+    payload?: string;
     writable?: boolean;
 }
 
@@ -58,8 +59,6 @@ export class ReadWriteSpies {
 export class MockFileSystem {
     protected readonly _config: Map<string, MockFileConfig>;
     protected readonly _data: Map<string, string>;
-    protected _readMock;
-    protected _writeMock;
 
     public constructor(configs: Iterable<MockFileConfig>) {
         this._config = new Map<string, MockFileConfig>();
@@ -70,6 +69,9 @@ export class MockFileSystem {
             this._config.set(fullPath, config);
             if (config.backingFile) {
                 this.readMockFileSync(fullPath);
+            }
+            else if (config.payload) {
+                this._data.set(fullPath, config.payload);
             }
         }
     }
@@ -114,10 +116,16 @@ export class MockFileSystem {
 
     public startSpies(): ReadWriteSpies {
         return new ReadWriteSpies(
-            jest.spyOn(fs, 'readFileSync').mockImplementation((wanted: string) => {
+            jest.spyOn(fs, 'readFileSync').mockImplementation((wanted: string|number|Buffer|URL) => {
+                if (typeof wanted !== 'string') {
+                    throw new Error('readFileSync mock supports only string parameters');
+                }
                 return this.readMockFileSync(wanted);
             }),
-            jest.spyOn(fs, 'writeFileSync').mockImplementation((wanted: string, payload: string) => {
+            jest.spyOn(fs, 'writeFileSync').mockImplementation((wanted: string|number|Buffer|URL, payload: unknown) => {
+                if ((typeof wanted !== 'string') || (typeof payload !== 'string')) {
+                    throw new Error('writeFileSync mock supports only string parameters');
+                }
                 return this.writeMockFileSync(wanted, payload);
             }),
         );

@@ -36,12 +36,12 @@ describe('RaidManager class', () => {
 
     const testRaids = [
         'northstar|future|4',
-        'jillyann|egg|5',
-        'prescott|hatched|5|boss',
-        'smith woods|hatched|2',
-        'bellevue starbucks|hatched|4|boss',
-        'evergreen starbucks|egg|3',
-        'overlake starbucks|hatched|3|boss',
+        'jillyann|upcoming|5',
+        'prescott|active|5|boss',
+        'smith woods|active|2',
+        'bellevue starbucks|active|4|boss',
+        'evergreen village starbucks|upcoming|3',
+        'overlake starbucks|active|3|boss',
         'painted parking lot|expired|5|boss',
     ];
     const testRaidData = TestRaidGenerator.generateForDirectory(testRaids, gyms, bosses);
@@ -194,7 +194,7 @@ describe('RaidManager class', () => {
                     listener.reset();
                     expect(rm.addFutureRaid(start as number, gym as string, 5))
                         .toSucceedWithCallback((raid: Raid) => {
-                            expect(raid.state).toEqual('egg');
+                            expect(raid.state).toEqual('upcoming');
                             expect(raid.tier).toEqual(5);
                             expect(raid.gym).toBe(prescott);
                             expect(raid.boss).toBeUndefined();
@@ -270,7 +270,7 @@ describe('RaidManager class', () => {
                 ].forEach((gym) => {
                     expect(rm.addActiveRaid(30, gym as string, boss as string))
                         .toSucceedWithCallback((raid: Raid) => {
-                            expect(raid.state).toEqual('hatched');
+                            expect(raid.state).toEqual('active');
                             expect(raid.tier).toEqual(5);
                             expect(raid.gym).toBe(prescott);
                             expect(raid.boss).toBe(latias);
@@ -336,7 +336,7 @@ describe('RaidManager class', () => {
                     'prescott',
                     prescott,
                 ].forEach((gym) => {
-                    const { rm } = TestRaidManager.setup(['prescott|hatched|5|boss']);
+                    const { rm } = TestRaidManager.setup(['prescott|active|5|boss']);
                     expect(rm.updateRaid(gym, boss)).toSucceedWith(expect.objectContaining({
                         // eslint-disable-next-line @typescript-eslint/naming-convention
                         _boss: expect.objectContaining({ name: 'Latias' }),
@@ -361,7 +361,7 @@ describe('RaidManager class', () => {
                     'prescott',
                     prescott,
                 ].forEach((gym) => {
-                    const { rm } = TestRaidManager.setup(['prescott|egg|5|boss']);
+                    const { rm } = TestRaidManager.setup(['prescott|upcoming|5|boss']);
                     expect(rm.updateRaid(gym, boss)).toFailWith(/cannot assign.*future raid/i);
                 });
             });
@@ -456,10 +456,10 @@ describe('RaidManager class', () => {
             const { rm, logger } = TestRaidManager.setup(testRaids, undefined, stateRelativeTo);
             const listener = new TestListener();
 
-            ['jillyann', 'evergreen starbucks'].forEach((gymName) => {
+            ['jillyann', 'evergreen village starbucks'].forEach((gymName) => {
                 expect(rm.getRaid(gymName)).toSucceedWith(expect.objectContaining({
                     // eslint-disable-next-line @typescript-eslint/naming-convention
-                    _state: 'egg',
+                    _state: 'upcoming',
                 }));
             });
 
@@ -472,14 +472,14 @@ describe('RaidManager class', () => {
 
             // Only one tier 5 boss
             expect(rm.getRaid('jillyann')).toSucceedWithCallback((raid: Raid) => {
-                expect(raid.state).toBe('hatched');
+                expect(raid.state).toBe('active');
                 expect(raid.boss).toBeDefined();
                 expect(raid.boss?.tier).toBe(raid.tier);
             });
 
             // Many tier 3 bosses
-            expect(rm.getRaid('evergreen starbucks')).toSucceedWithCallback((raid: Raid) => {
-                expect(raid.state).toBe('hatched');
+            expect(rm.getRaid('evergreen village starbucks')).toSucceedWithCallback((raid: Raid) => {
+                expect(raid.state).toBe('active');
                 expect(raid.boss).not.toBeDefined();
             });
 

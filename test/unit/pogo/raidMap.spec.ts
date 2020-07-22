@@ -22,21 +22,25 @@
 
 import '../../helpers/jestHelpers';
 import { Raid, RaidJson } from '../../../src/pogo/raid';
-import { RaidMap, loadRaidMapSync } from '../../../src/pogo/raidMap';
 import { TestRaid, TestRaidGenerator } from '../../helpers/pogoHelpers';
+import {
+    loadBossDirectorySync,
+    loadGlobalGymDirectorySync,
+    loadRaidMapSync,
+} from '../../../src/pogo/converters';
+
 import { Gym } from '../../../src/pogo/gym';
+import { RaidMap } from '../../../src/pogo/raidMap';
 import fs from 'fs';
-import { loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
-import { loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
 import moment from 'moment';
 
 describe('RaidMap module', () => {
     const testRaids = TestRaidGenerator.generate([
         'A12|ex|future|3',
-        'A23|nonex|egg|4',
-        'B34|ex|hatched|5|boss',
+        'A23|nonex|upcoming|4',
+        'B34|ex|active|5|boss',
         'B23|nonex',
-        'A3|nonex|hatched|2|boss',
+        'A3|nonex|active|2|boss',
         'B4|ex|expired|3',
         'B23|ex|expired|4|boss',
     ]);

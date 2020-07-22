@@ -20,10 +20,30 @@
  * SOFTWARE.
  */
 
-import { RaidLookupOptions } from '../raidDirectory';
-import { RaidManager } from '../raidManager';
-import { RegExpProperties } from '../../commands/regExpBuilder';
-import { Result } from '../../utils/result';
+import {
+    Boss,
+    CategorizedRaids,
+    Raid,
+    RaidLookupOptions,
+    RaidManager,
+} from '..';
+import { CommandBase, CommandProperties } from '../../commands';
+import {
+    FormatTargets,
+    Formatter,
+    Range,
+    Result,
+    succeed,
+} from '../../utils';
+import {
+    bossesFormatters,
+    categorizedRaidsFormatters,
+    raidFormatters,
+} from '../formatters';
+
+import { RaidTier } from '../game';
+
+const tierNoCapture = '(?:(?:L|T|l|t)?\\d)';
 
 const baseFormats: Record<string, string> = {
     alphaName: '[a-zA-Z]+',
@@ -33,12 +53,15 @@ const baseFormats: Record<string, string> = {
     time: '(?:\\d?\\d):?(?:\\d\\d)\\s*(?:a|A|am|AM|p|P|pm|PM)?',
     timer: '\\d?\\d',
     tier: '(?:(?:L|T|l|t)?(\\d+))',
+    minTier: `(?:${tierNoCapture}\\s*\\+)`,
+    tierMinMax: `(?:${tierNoCapture}\\s*-\\s*${tierNoCapture})`,
 };
 
 export const commonFormats: Record<string, string> = {
     ...baseFormats,
     csv: `(?:${baseFormats.names})(?:,\\s*${baseFormats.names})*`,
-    alphaCsv: `(?:${baseFormats.alphaNames}($?:,\\s*${baseFormats.alphaNames}))`,
+    alphaCsv: `(?:${baseFormats.alphaNames})(?:,\\s*${baseFormats.alphaNames})*`,
+    tierRange: `(?:${tierNoCapture}|${baseFormats.minTier}|${baseFormats.tierMinMax})`,
 };
 
 export interface CommonProperties {
@@ -49,18 +72,41 @@ export interface CommonProperties {
     time: Date;
     timer: number;
     tier: number;
+    tierRange: Range<RaidTier>,
+    maxTier: number;
 }
 
-export const commonProperties: RegExpProperties<CommonProperties> = {
+export const commonProperties: CommandProperties<CommonProperties> = {
     boss: { value: commonFormats.alphaNames },
-    bosses: { value: commonFormats.csv },
+    bosses: { value: commonFormats.alphaCsv },
     place: { value: commonFormats.names },
     places: { value: commonFormats.csv },
     time: { value: commonFormats.time },
     timer: { value: commonFormats.timer },
     tier: { value: commonFormats.tier, hasEmbeddedCapture: true },
+    tierRange: { value: commonFormats.tierRange },
+    maxTier: { value: commonFormats.maxTier, hasEmbeddedCapture: true },
 };
 
 export interface PogoCommandHandler {
     execute(rm: RaidManager, options?: Partial<RaidLookupOptions>): Result<string>;
 }
+
+export class BossesCommand<TNAME, TRAW, TPROPS> extends CommandBase<TNAME, TRAW, TPROPS, Boss[]> {
+    public getDefaultFormatter(target: FormatTargets): Result<Formatter<Boss[]>> {
+        return succeed(bossesFormatters[target]);
+    }
+}
+
+export class CategorizedRaidsCommand<TNAME, TRAW, TPROPS> extends CommandBase<TNAME, TRAW, TPROPS, CategorizedRaids> {
+    public getDefaultFormatter(target: FormatTargets): Result<Formatter<CategorizedRaids>> {
+        return succeed(categorizedRaidsFormatters[target]);
+    }
+}
+
+export class RaidCommand<TNAME, TRAW, TPROPS> extends CommandBase<TNAME, TRAW, TPROPS, Raid> {
+    public getDefaultFormatter(target: FormatTargets): Result<Formatter<Raid>> {
+        return succeed(raidFormatters[target]);
+    }
+}
+

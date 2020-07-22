@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
+import { Range, RangeProperties } from '../utils/range';
 import { Result, captureResult, fail, succeed } from '../utils/result';
-import { Range } from '../utils/range';
 import moment from 'moment';
 
-export interface DateRangeProperties {
+export interface DateRangeProperties extends RangeProperties<Date> {
     readonly start?: Date;
     readonly end?: Date;
 }

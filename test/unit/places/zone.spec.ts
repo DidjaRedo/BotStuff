@@ -30,16 +30,16 @@ describe('Zone class', () => {
     describe('constructor', () => {
         it('should construct a zone with a valid name', () => {
             validZoneNames.forEach((name) => {
-                let zone;
+                let zone: Zone|undefined;
                 expect(() => { zone = new Zone(name); }).not.toThrow();
                 expect(zone).toBeDefined();
-                expect(zone.name).toBe(name);
-                expect(zone.primaryKey).toBe(Names.normalizeOrThrow(name));
-                expect(zone.keys).toEqual({
+                expect(zone?.name).toBe(name);
+                expect(zone?.primaryKey).toBe(Names.normalizeOrThrow(name));
+                expect(zone?.keys).toEqual({
                     name: Names.normalizeOrThrow(name),
                 });
-                expect(zone.cities.size).toBe(0);
-                expect(zone.pois.size).toBe(0);
+                expect(zone?.cities.size).toBe(0);
+                expect(zone?.pois.size).toBe(0);
             });
         });
 

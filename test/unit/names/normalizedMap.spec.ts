@@ -179,7 +179,7 @@ describe('NormalizedMap class', (): void => {
     });
 
     describe('getters', () => {
-        const map = new NormalizedMap();
+        const map = new NormalizedMap<{ originalName: string }>();
         const names = ['NAME', 'Other NAME', 'Name_3'];
         names.forEach((n) => map.set(n, { originalName: n }));
 
@@ -209,18 +209,18 @@ describe('NormalizedMap class', (): void => {
             it('should return an element that exists using normalized lookup', () => {
                 expect.assertions(names.length * 8);
                 for (const name of names) {
-                    let got;
+                    let got: { originalName: string }|undefined;
                     expect(() => { got = map.get(name); }).not.toThrow();
-                    expect(got.originalName).toBe(name);
+                    expect(got?.originalName).toBe(name);
 
                     expect(() => { got = map.get(` ${name.toUpperCase()} `); }).not.toThrow();
-                    expect(got.originalName).toBe(name);
+                    expect(got?.originalName).toBe(name);
 
                     expect(() => { got = map.tryGet(name); }).not.toThrow();
-                    expect(got.originalName).toBe(name);
+                    expect(got?.originalName).toBe(name);
 
                     expect(() => { got = map.tryGet(` ${name.toUpperCase()} `); }).not.toThrow();
-                    expect(got.originalName).toBe(name);
+                    expect(got?.originalName).toBe(name);
                 }
             });
 

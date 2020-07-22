@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-import { BossDirectory, loadBossDirectorySync } from '../../src/pogo/bossDirectory';
 import {
     DEFAULT_BOSSES_FILE,
     DEFAULT_GYMS_FILE,
@@ -30,16 +29,19 @@ import {
     RaidManagerOptions,
 } from '../../src/pogo/raidManager';
 import { DateRange, ExplicitDateRange } from '../../src/time/dateRange';
-import { GlobalGymDirectory, loadGlobalGymDirectorySync } from '../../src/pogo/gymDirectory';
 import { Gym, GymProperties } from '../../src/pogo/gym';
 import { PoiGeneratorBase, PoiTestDataBase, PoiTestDataInitializer } from './placeHelpers';
 import { Raid, RaidInitializer, RaidState } from '../../src/pogo/raid';
-import { RaidTier, validateRaidTier } from '../../src/pogo/pogo';
+import { RaidTier, validateRaidTier } from '../../src/pogo/game';
 import { Result, captureResult, succeed } from '../../src/utils/result';
 import { Boss } from '../../src/pogo/boss';
+import { BossDirectory } from '../../src/pogo/bossDirectory';
+import { GlobalGymDirectory } from '../../src/pogo/gymDirectory';
 import { InMemoryLogger } from '../../src/utils/logger';
 import { MockFileSystem } from './dataHelpers';
 import { RaidMap } from '../../src/pogo/raidMap';
+import { loadBossDirectorySync } from '../../src/pogo/converters/bossConverters';
+import { loadGlobalGymDirectorySync } from '../../src/pogo/converters/gymConverters';
 import moment from 'moment';
 
 export class TestGymData extends PoiTestDataBase<GymProperties> {
@@ -155,8 +157,8 @@ export class TestRaid extends Raid {
         relativeTo = relativeTo ?? new Date();
         return {
             future: TestRaid.getTime('future', relativeTo),
-            egg: TestRaid.getTime('egg', relativeTo),
-            hatched: TestRaid.getTime('hatched', relativeTo),
+            upcoming: TestRaid.getTime('upcoming', relativeTo),
+            active: TestRaid.getTime('active', relativeTo),
             expired: TestRaid.getTime('expired', relativeTo),
         };
     }
@@ -166,9 +168,9 @@ export class TestRaid extends Raid {
         switch (state) {
             case 'future':
                 return moment(relativeTo).add(this.futureOffset, 'minutes').toDate();
-            case 'egg':
+            case 'upcoming':
                 return moment(relativeTo).add(this.eggOffset, 'minutes').toDate();
-            case 'hatched':
+            case 'active':
                 return moment(relativeTo).add(this.hatchedOffset, 'minutes').toDate();
             case 'expired':
                 return moment(relativeTo).add(this.expiredOffset, 'minutes').toDate();
@@ -200,7 +202,7 @@ export class TestRaidData extends TestGymData {
     }
 
     protected _raidGyms?: Gym[];
-    protected _raids: TestRaid[];
+    protected _raids?: TestRaid[];
     protected readonly _bosses: Record<RaidTier, Boss>;
 
     public constructor(

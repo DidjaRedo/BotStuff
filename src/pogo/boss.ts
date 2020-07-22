@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-import * as Pogo from './pogo';
+import * as Pogo from './game';
 import { DateRange, DateRangeProperties } from '../time/dateRange';
 import { Range, RangeProperties } from '../utils/range';
 import { DirectoryOptions } from '../names/directory';
 import { KeyedThing } from '../names/keyedThing';
 import { Names } from '../names/names';
-import { RaidTier } from './pogo';
+import { RaidTier } from './game';
 
 export interface BossKeys {
     name: string;
@@ -86,6 +86,7 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
         this.numRaiders = init.numRaiders;
         this.cpRange = Range.createRange(init.cpRange).getValueOrDefault();
         this.boostedCpRange = Range.createRange(init.boostedCpRange).getValueOrDefault();
+        this.types = init.types;
 
         if (init.raidGuideName) {
             this.raidGuideName = init.raidGuideName;
@@ -113,7 +114,7 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
     }
 
     public static getGuideUrl(boss?: Boss): string {
-        return boss?.raidGuideUrl ?? 'http://www.pokebattler.com/raids';
+        return boss?.raidGuideUrl ?? 'https://www.pokebattler.com/raids';
     }
 
     public static getDirectoryOptions(): DirectoryOptions<Boss, BossProperties, BossKeys> {
@@ -122,19 +123,19 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
             textSearchKeys: [
                 {
                     name: 'displayName',
-                    weight: 3,
+                    weight: 0.35,
                 },
                 {
                     name: 'name',
-                    weight: 3,
+                    weight: 0.35,
                 },
                 {
                     name: 'alternateNames',
-                    weight: 2,
+                    weight: 0.3,
                 },
             ],
-            alternateKeys: ['alternateNames'],
-            enforceAlternateKeyUniqueness: ['name'],
+            alternateKeys: ['name', 'alternateNames'],
+            enforceAlternateKeyUniqueness: [],
         };
     }
 
@@ -153,7 +154,7 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
     }
 
     public get raidGuideUrl(): string {
-        return `http://www.pokebattler.com/raids/${this.raidGuideName.toUpperCase()}`;
+        return `https://www.pokebattler.com/raids/${this.raidGuideName.toUpperCase()}`;
     }
 
     protected _normalize(): BossKeys {

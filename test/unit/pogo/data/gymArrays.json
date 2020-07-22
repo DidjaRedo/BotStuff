@@ -3242,6 +3242,14 @@
   [
     "Rain City",
     "Redmond",
+    "Juel Powerline Trail Post|Powerline Trail Post",
+    47.698715,
+    -122.084098,
+    "nonEx"
+  ],
+  [
+    "Rain City",
+    "Redmond",
     "Mattress Firm|Kids Playing Baseball Mural",
     47.67262,
     -122.116819,
@@ -3536,12 +3544,12 @@
     "nonEx"
   ],
   [
-      "Rain City",
-      "Redmond",
-      "English Landing Park and Playground",
-      47.709692,
-      -122.101396,
-      "nonEx"
+    "Rain City",
+    "Redmond",
+    "English Landing Park and Playground",
+    47.709692,
+    -122.101396,
+    "nonEx"
   ],
   [
     "Rain City",
@@ -3606,6 +3614,14 @@
     47.685724,
     -122.096028,
     "ex"
+  ],
+  [
+    "Rain City",
+    "Redmond",
+    "Basketball Court",
+    47.687505,
+    -122.098902,
+    "nonEx"
   ],
   [
     "Rain City",
@@ -3693,6 +3709,14 @@
     "Vesta Fountain",
     47.658175,
     -122.08833,
+    "nonEx"
+  ],
+  [
+    "Rain City",
+    "Redmond",
+    "Woodbridge Playground",
+    47.676571,
+    -122.1127492,
     "nonEx"
   ],
   [
@@ -4290,7 +4314,7 @@
   [
     "Rain City",
     "Overlake",
-    "Coffee Shop|CoffeeShop|Coffee Shop Bus Stop",
+    "Coffee Shop Bus Stop|Coffee Shop",
     47.635695,
     -122.132163,
     "nonEx"

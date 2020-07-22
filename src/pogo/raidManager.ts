@@ -20,17 +20,23 @@
  * SOFTWARE.
  */
 
-import { BossDirectory, BossLookupOptions, loadBossDirectorySync } from './bossDirectory';
-import { GlobalGymDirectory, loadGlobalGymDirectorySync } from './gymDirectory';
+import { BossDirectory, BossLookupOptions } from './bossDirectory';
 import { Logger, NoOpLogger } from '../utils/logger';
 import { Raid, RaidType } from './raid';
-import { RaidMap, loadRaidMapSync } from './raidMap';
 import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
+import {
+    loadBossDirectorySync,
+    loadGlobalGymDirectorySync,
+    loadRaidMapSync,
+} from './converters';
+
 import { Boss } from './boss';
+import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
 import { ItemArray } from '../utils/utils';
-import { RaidLookupOptions } from './raidDirectory';
-import { RaidTier } from './pogo';
+import { RaidLookupOptions } from './raidMap';
+import { RaidMap } from './raidMap';
+import { RaidTier } from './game';
 import { ResultArray } from '../names/directory';
 import { saveJsonFile } from '../utils/jsonHelpers';
 
@@ -124,6 +130,11 @@ export class RaidManager {
         return this.bosses.lookup(want, options);
     }
 
+    public getAllRaids(options?: Partial<RaidLookupOptions>): Result<ItemArray<Raid>> {
+        const raids = this._raids.getAll(options).sort(Raid.compare);
+        return (raids.length > 0) ? succeed(raids) : fail('No matching raids found');
+    }
+
     public getRaids(
         want: string,
         options?: RaidLookupOptions,
@@ -160,7 +171,7 @@ export class RaidManager {
             if (this._strict && this._raids.has(raid.gymName)) {
                 return fail(`Raid already reported at ${raid.gymName}`);
             }
-            return this._raids.swap(raid).onSuccess((prior: Raid) => {
+            return this._raids.swap(raid).onSuccess((prior?: Raid) => {
                 const change = (prior === undefined) ? 'added' : 'updated';
                 this._reportRaidUpdate(raid, change, prior);
                 this._reportRaidListUpdate();
@@ -178,7 +189,7 @@ export class RaidManager {
             if (this._strict && this._raids.has(args.raid.gymName)) {
                 return fail(`Raid already reported at ${args.raid.gymName}`);
             }
-            return this._raids.swap(args.raid).onSuccess((prior: Raid) => {
+            return this._raids.swap(args.raid).onSuccess((prior?: Raid) => {
                 const change = (prior === undefined) ? 'added' : 'updated';
                 this._reportRaidUpdate(args.raid, change, prior);
                 this._reportRaidListUpdate();
@@ -268,7 +279,7 @@ export class RaidManager {
             const priorState = raid.refreshState().getValueOrThrow();
             changed = changed || (priorState !== raid.state);
 
-            if (raid.state === 'hatched') {
+            if (raid.state === 'active') {
                 const boss = this.bosses.getAll({ tier: raid.tier, isActive: true }).single().getValueOrDefault();
                 const bossName = boss?.displayName ?? `unknown T${raid.tier}`;
                 if (boss !== undefined) {

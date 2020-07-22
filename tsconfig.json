@@ -1,11 +1,14 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "declaration": true,
+        "target": "es2018",
         "module": "commonjs",
         "outDir": "dist",
-        "sourceMap": true,
+        "inlineSourceMap": true,
+        "inlineSources": true,
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
+        "strict": true,
         "strictNullChecks": true,
         "esModuleInterop": true,
         "paths": {
@@ -18,7 +21,7 @@
         },
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
     ],
     "exclude": [
         "src/test/**/*.spec.ts"

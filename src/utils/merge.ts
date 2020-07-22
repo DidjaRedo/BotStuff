@@ -56,7 +56,7 @@ export const defaultMergeOptions: MergeOptions = {
     ...defaultFieldMergeOptions,
 };
 
-export type MergeFunction<TB, TM, TO> = (base?: TB, merge?: TM, options?: TO) => Result<TB|undefined>;
+export type MergeFunction<TB, TM, TO> = (base?: TB, merge?: TM, options?: Partial<TO>) => Result<TB|undefined>;
 
 export class Merger<TB, TM, TO> {
     private _mergeFunction: MergeFunction<TB, TM, TO>;
@@ -65,7 +65,7 @@ export class Merger<TB, TM, TO> {
         this._mergeFunction = mergeFunction;
     }
 
-    public merge(base?: TB, merge?: TM, options?: TO): Result<TB|undefined> {
+    public merge(base?: TB, merge?: TM, options?: Partial<TO>): Result<TB|undefined> {
         return this._mergeFunction(base, merge, options);
     }
 }
@@ -76,7 +76,7 @@ export class ItemMerger<T> extends Merger<T, T, ItemMergeOptions> {
     }
 }
 
-export function mergeItem<T>(base?: T, merge?: T, options?: ItemMergeOptions): Result<T|undefined> {
+export function mergeItem<T>(base?: T, merge?: T, options?: Partial<ItemMergeOptions>): Result<T|undefined> {
     options = options ?? defaultItemMergeOptions;
     if (merge !== undefined) {
         if (base !== undefined) {
@@ -90,7 +90,7 @@ export function mergeItem<T>(base?: T, merge?: T, options?: ItemMergeOptions): R
     return succeed(base);
 }
 
-export function mergeArray<T>(base?: T[]|undefined, merge?: T[], options?: ArrayMergeOptions): Result<T[]> {
+export function mergeArray<T>(base?: T[]|undefined, merge?: T[], options?: Partial<ArrayMergeOptions>): Result<T[]> {
     options = options ?? defaultArrayMergeOptions;
     if ((merge !== undefined) && (merge.length > 0)) {
         if ((base !== undefined) && (base.length > 0)) {
@@ -115,7 +115,7 @@ export function mergeArray<T>(base?: T[]|undefined, merge?: T[], options?: Array
 }
 
 export function array<T>(): Merger<T[], T[], ArrayMergeOptions> {
-    return new Merger((base: T[], toMerge?: T[], options?: ArrayMergeOptions): Result<T[]> => {
+    return new Merger((base?: T[], toMerge?: T[]|undefined, options?: Partial<ArrayMergeOptions>): Result<T[]> => {
         return mergeArray(base, toMerge, options);
     });
 }
@@ -132,7 +132,7 @@ export const optionalString = new ItemMerger<string|undefined>(mergeItem);
 export const optionalNumber = new ItemMerger<number|undefined>(mergeItem);
 export const optionalBoolean = new ItemMerger<boolean|undefined>(mergeItem);
 
-export const normalizedString = new ItemMerger<string>((base?: string, toMerge?: string, options?: MergeOptions): Result<string|undefined> => {
+export const normalizedString = new ItemMerger<string>((base?: string, toMerge?: string, options?: Partial<MergeOptions>): Result<string|undefined> => {
     if (toMerge !== undefined) {
         const result = Names.normalize(toMerge);
         if (result.isFailure()) {
@@ -144,7 +144,7 @@ export const normalizedString = new ItemMerger<string>((base?: string, toMerge?:
 });
 
 export const stringArray = array<string>();
-export const normalizedStringArray = new Merger((base?: string[], toMerge?: string[], options?: MergeOptions): Result<string[]> => {
+export const normalizedStringArray = new Merger((base?: string[], toMerge?: string[], options?: Partial<MergeOptions>): Result<string[]> => {
     if ((toMerge !== undefined) && (toMerge.length > 0)) {
         const result = Names.normalize(toMerge);
         if (result.isFailure()) {
@@ -156,13 +156,22 @@ export const normalizedStringArray = new Merger((base?: string[], toMerge?: stri
 });
 
 export interface FieldMergers<FT, OT extends MergeOptions> {
-    options?: OT;
+    options?: Partial<OT>;
     mergers: Partial<{ [key in keyof FT]: Merger<FT[key], FT[key], OT> }>;
 }
 
-export function getMergedFields<FT, OT extends MergeOptions>(base: FT, toMerge: Partial<FT>, mergers: FieldMergers<FT, OT>, options?: OT): Result<Partial<FT>> {
+export function getMergedFields<FT, OT extends MergeOptions>(
+    base: FT|undefined,
+    toMerge: Partial<FT>|undefined,
+    mergers: FieldMergers<FT, OT>,
+    options?: Partial<OT>
+): Result<Partial<FT>> {
     const merged: Partial<FT> = {};
     const errors: string[] = [];
+
+    if (base === undefined) {
+        return fail('Cannot merge into undefined base object');
+    }
 
     options = options ?? mergers.options;
 
@@ -192,7 +201,11 @@ export function getMergedFields<FT, OT extends MergeOptions>(base: FT, toMerge: 
 }
 
 export function objectInPlace<T, OT extends MergeOptions>(fields: FieldMergers<T, OT>): Merger<T, Partial<T>, OT> {
-    return new Merger((base: T, toMerge?: Partial<T>, options?: OT): Result<T> => {
+    return new Merger((base?: T, toMerge?: Partial<T>, options?: Partial<OT>): Result<T> => {
+        if (base === undefined) {
+            return fail('Cannot merge into an undefined base object.');
+        }
+
         // istanbul ignore next
         const result = getMergedFields(base, toMerge ?? {}, fields, options);
         if (result.isFailure()) {
@@ -213,8 +226,11 @@ export function objectInPlace<T, OT extends MergeOptions>(fields: FieldMergers<T
     });
 }
 
-export function objectNew<T, OT extends MergeOptions>(fields: FieldMergers<T, OT>): Merger<T, Partial<T>, OT> {
-    return new Merger((base: T, toMerge?: T, options?: OT): Result<T> => {
+export function objectNew<T, OT extends MergeOptions>(
+    fields: FieldMergers<T, OT>,
+    clone: (base?: T) => T,
+): Merger<T, Partial<T>, OT> {
+    return new Merger((base?: T, toMerge?: Partial<T>, options?: Partial<OT>): Result<T> => {
         // istanbul ignore next
         const result = getMergedFields(base, toMerge ?? {}, fields, options);
 
@@ -222,7 +238,7 @@ export function objectNew<T, OT extends MergeOptions>(fields: FieldMergers<T, OT
             return fail(result.message);
         }
 
-        const rtrn: T = { ...base };
+        const rtrn: T = clone(base);
         const merged = result.value;
         for (const key in merged) {
             /* istanbul ignore else */
@@ -243,11 +259,11 @@ export class ObjectMerger<T, OT extends MergeOptions> {
     private _inPlaceMerger: Merger<T, Partial<T>, OT>;
     private _copyMerger: Merger<T, Partial<T>, OT>;
 
-    public constructor(fields: FieldMergers<T, OT>, options?: OT) {
+    public constructor(fields: FieldMergers<T, OT>, clone: (base?: T) => T, options?: OT) {
         this._fields = fields;
         this._options = options;
         this._inPlaceMerger = objectInPlace(fields);
-        this._copyMerger = objectNew(fields);
+        this._copyMerger = objectNew(fields, clone);
     }
 
     public mergeInPlace(base: T, merge?: Partial<T>, options?: OT): Result<T|undefined> {

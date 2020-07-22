@@ -150,7 +150,7 @@ describe('Pogo Boss Module', () => {
         });
 
         it('should return a default URL if boss is undefined', () => {
-            expect(Boss.getGuideUrl(undefined)).toEqual('http://www.pokebattler.com/raids');
+            expect(Boss.getGuideUrl(undefined)).toEqual('https://www.pokebattler.com/raids');
         });
     });
 
@@ -162,7 +162,7 @@ describe('Pogo Boss Module', () => {
                     { name: 'name' },
                     { name: 'alternateNames' },
                 ],
-                alternateKeys: ['alternateNames'],
+                alternateKeys: ['name', 'alternateNames'],
             });
         });
     });

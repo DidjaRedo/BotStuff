@@ -22,7 +22,7 @@
 
 import * as Converters from '../../utils/converters';
 
-import { ParsedCommand, ParserBuilder } from '../../commands/regExpBuilder';
+import { ParsedCommand, ParserBuilder } from '../../commands/commandParser';
 import { RaidManagerCommandHandler, RaidManagerCommandProcessor } from './raidManagerCommand';
 import { Result, captureResult, succeed } from '../../utils/result';
 import { CommandSpec } from '../../commands/commandProcessor';

@@ -21,8 +21,10 @@
  * SOFTWARE.
  */
 import { Range, RangeProperties } from './range';
-import { Result, fail, succeed } from './result';
+import { Result, captureResult, fail, succeed } from './result';
 import { Converter } from './converter';
+import { ItemArray } from './utils';
+import { isKey } from './utils';
 
 type OnError = 'failOnError' | 'ignoreErrors';
 
@@ -184,6 +186,19 @@ export function arrayOf<T>(converter: Converter<T>, onError: OnError = 'failOnEr
 }
 
 /**
+ * A helper wrapper for converting to Itemrray<T>.  If onError is 'failOnError' (default),
+ * then the entire conversion fails if any element cannot be converted.  If onError
+ * is 'ignoreErrors', failing elements are silently ignored.
+ * @param converter Converter used to convert each item in the array
+ * @param ignoreErrors Specifies treatment of unconvertable elements
+ */
+export function itemArrayOf<T>(label: string, converter: Converter<T>, onError: OnError = 'failOnError'): Converter<ItemArray<T>> {
+    return arrayOf(converter, onError).map((items: T[]) => {
+        return captureResult(() => new ItemArray(label, ...items));
+    });
+}
+
+/**
  * A helper wrapper to convert the string-keyed properties of an object to a Record of T.
  * If onError is 'fail' (default),  then the entire conversion fails if any element
  * cannot be converted.  If onError is 'ignore' failing elements are silently ignored.
@@ -200,8 +215,8 @@ export function recordOf<T>(converter: Converter<T>, onError: 'fail'|'ignore' = 
         const errors: string[] = [];
 
         for (const key in from) {
-            if (from.hasOwnProperty(key)) {
-                const result = converter.convert(from[key]);
+            if (isKey(key, from)) {
+                const result = converter.convert(from[key] as unknown);
                 if (result.isSuccess()) {
                     record[key] = result.value;
                 }
@@ -227,7 +242,7 @@ export function recordOf<T>(converter: Converter<T>, onError: 'fail'|'ignore' = 
 export function field<T>(name: string, converter: Converter<T>): Converter<T> {
     return new Converter((from: unknown) => {
         if (typeof from === 'object' && from !== null) {
-            if (name in from) {
+            if (isKey(name, from)) {
                 return converter.convert(from[name]).onFailure((message) => {
                     return fail(`Field ${name}: ${message}`);
                 });
@@ -249,9 +264,9 @@ export function field<T>(name: string, converter: Converter<T>): Converter<T> {
 export function optionalField<T>(name: string, converter: Converter<T>): Converter<T|undefined> {
     return new Converter((from: unknown) => {
         if (typeof from === 'object' && from !== null) {
-            if (name in from) {
+            if (isKey(name, from)) {
                 const result = converter.convert(from[name]).onFailure((message) => {
-                    return fail(`Field ${name}: ${message}`);
+                    return fail(`${name}: ${message}`);
                 });
 
                 // if conversion was successful or input was undefined we

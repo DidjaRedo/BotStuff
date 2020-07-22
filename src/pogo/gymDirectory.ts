@@ -20,14 +20,11 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
 import * as Gym from './gym';
 import * as Merge from '../utils/merge';
 import * as PoiLookupOptions from '../places/poiLookupOptions';
 import { Result, captureResult } from '../utils/result';
-import { Converter } from '../utils/converter';
 import { GlobalPoiDirectoryBase } from '../places/globalPoiDirectory';
-import { loadJsonFile } from '../utils/jsonHelpers';
 
 export interface GymLookupOptionsProperties extends PoiLookupOptions.Properties {
     exFilter?: 'nonEx'|'exEligible';
@@ -44,7 +41,11 @@ export const optionsFieldMergers: Merge.FieldMergers<GymLookupOptionsProperties,
     },
 };
 
-export const optionsMerger = new Merge.ObjectMerger(optionsFieldMergers);
+function cloneGymLookupProperties(base?: GymLookupOptionsProperties): GymLookupOptionsProperties {
+    return base ? { ...base } : PoiLookupOptions.defaultProperties;
+}
+
+export const optionsMerger = new Merge.ObjectMerger(optionsFieldMergers, cloneGymLookupProperties);
 
 export class GlobalGymDirectory extends GlobalPoiDirectoryBase<Gym.Gym, GymLookupOptionsProperties> {
     public constructor(options?: Partial<GymLookupOptionsProperties>, gyms?: Iterable<Gym.Gym>) {
@@ -56,11 +57,13 @@ export class GlobalGymDirectory extends GlobalPoiDirectoryBase<Gym.Gym, GymLooku
     }
 
     public static filter(gym: Gym.Gym, options?: Partial<GymLookupOptionsProperties>): boolean {
-        switch (options?.exFilter) {
-            case 'exEligible': return gym.isExEligible;
-            case 'nonEx': return !gym.isExEligible;
+        if (options?.exFilter !== undefined) {
+            if ((options.exFilter === 'exEligible' && !gym.isExEligible)
+                || (options.exFilter === 'nonEx' && gym.isExEligible)) {
+                return false;
+            }
         }
-        return true;
+        return PoiLookupOptions.filterPoi(gym, options);
     }
 
     protected _getEffectiveOptions(user: Partial<GymLookupOptionsProperties>): GymLookupOptionsProperties {
@@ -75,14 +78,4 @@ export class GlobalGymDirectory extends GlobalPoiDirectoryBase<Gym.Gym, GymLooku
     protected _filterPoi(gym: Gym.Gym, options: GymLookupOptionsProperties): boolean {
         return GlobalGymDirectory.filter(gym, options);
     }
-}
-
-export function globalGymDirectory(options?: Partial<GymLookupOptionsProperties>): Converter<GlobalGymDirectory> {
-    return Converters.arrayOf(Gym.gym).map((gyms) => GlobalGymDirectory.createGymDirectory(options, gyms));
-}
-
-export function loadGlobalGymDirectorySync(path: string, options?: Partial<GymLookupOptionsProperties>): Result<GlobalGymDirectory> {
-    return loadJsonFile(path).onSuccess((json) => {
-        return globalGymDirectory(options).convert(json);
-    });
 }

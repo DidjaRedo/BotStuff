@@ -22,8 +22,9 @@
 
 import '../../helpers/jestHelpers';
 import { Boss, BossProperties } from '../../../src/pogo/boss';
-import { BossDirectory, bossDirectory, loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
-import { RaidTier } from '../../../src/pogo/pogo';
+import { bossDirectory, loadBossDirectorySync } from '../../../src/pogo/converters/bossConverters';
+import { BossDirectory } from '../../../src/pogo/bossDirectory';
+import { RaidTier } from '../../../src/pogo/game';
 import { loadJson } from '../../helpers/dataHelpers';
 
 describe('BossDirectory module', () => {

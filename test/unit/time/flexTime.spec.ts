@@ -29,7 +29,7 @@ function makeAmbiguousTimeString(date: Date): string {
 }
 
 interface UnambiguousParseTest {
-    string: string;
+    string?: string;
     hour: number;
     minutes: number;
 }

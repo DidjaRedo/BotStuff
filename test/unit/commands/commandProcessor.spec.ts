@@ -20,11 +20,14 @@
  * SOFTWARE.
  */
 import '../../helpers/jestHelpers';
-import { CommandProcessor, CommandSpec } from '../../../src/commands/commandProcessor';
-import { ParserBuilder, RegExpProperties } from '../../../src/commands/regExpBuilder';
+import * as Converters from '../../../src/utils/converters';
+import { CommandBase, CommandInitializer, Commands } from '../../../src/commands/command';
+import { CommandProperties, ParserBuilder } from '../../../src/commands/commandParser';
+import { FormatTargets, Formatter } from '../../../src/utils/formatter';
 import { Result, fail, succeed } from '../../../src/utils/result';
+import { CommandProcessor } from '../../../src/commands/commandProcessor';
 
-describe('commands', (): void => {
+describe('CommandProcessor class', (): void => {
     interface TestFields {
         word: string;
         words: string;
@@ -32,8 +35,9 @@ describe('commands', (): void => {
         time: string;
         broken: string;
     }
+    type ParsedTestFields = Record<keyof TestFields, string|number|Date>;
 
-    const fields: RegExpProperties<TestFields> = {
+    const fields: CommandProperties<TestFields> = {
         word: { value: '\\w+' },
         words: { value: '\\w+(?:\\s|\\w|\\d|`|\'|-|\\.)*' },
         testPhrase: { value: '.*test.*' },
@@ -41,156 +45,279 @@ describe('commands', (): void => {
         broken: { value: '(\\w)(\\w)(\\w)(\\w)' },
     };
     const builder = new ParserBuilder(fields);
-    const specific = builder.build('This is a {{word}}').getValueOrThrow();
-    const general = builder.build('{{testPhrase}}').getValueOrThrow();
-    const broken = builder.build('bad {{broken}}').getValueOrThrow();
 
-    const goodCommands: CommandSpec<typeof fields, string|undefined>[] = [
-        { name: 'Command 1', description: 'Specific command', parser: specific, handleCommand: (matches) => succeed(matches.word) },
-        { name: 'Command 2', description: 'Catch all command', parser: general, handleCommand: (matches) => succeed(matches.testPhrase) },
-        { name: 'Command 3', description: 'Broken command definition', parser: broken, handleCommand: (matches) => succeed(matches.broken) },
-    ];
-    const badCommands = {
-        'missing name': {
-            cmd: { description: 'Description', pattern: /^.*$/, handleCommand: (matches): string => matches },
-            error: /command must have/i,
-        },
-        'missing description': {
-            cmd: { name: 'Command', pattern: /^.*$/, handleCommand: (matches): string => matches },
-            error: /command must have /i,
-        },
-        'missing pattern': {
-            cmd: { name: 'Command', description: 'Description', handleCommand: (matches): string => matches },
-            error: /command must have/i,
-        },
-        'missing handler': {
-            cmd: { name: 'Command', description: 'Description', pattern: /^.*$/ },
-            error: /command must have/i,
-        },
-        'non-function handleCommand': {
-            cmd: { name: 'Command', description: 'Description', parser: specific, handleCommand: '(matches) => matches' },
-            error: /must be a function/i,
-        },
-    };
+    interface TestCommands {
+        specific?: string;
+        general?: string;
+        broken?: string;
+        execFails?: string;
+    }
+    const testOrder: (keyof TestCommands)[] = ['specific', 'general', 'execFails', 'broken'];
 
-    const testCommands = [
-        {
-            description: 'should succeed with no commands',
-            cmds: undefined,
-        },
-        {
-            description: 'should succeed with a valid command',
-            cmds: [goodCommands[0]],
-        },
-        {
-            description: 'should succeed with multiple valid commands',
-            cmds: [goodCommands[0], goodCommands[1]],
-        },
-        {
-            description: 'should fail with duplicate command names',
-            cmds: [goodCommands[0], goodCommands[0]],
-            error: `Duplicate command name '${goodCommands[0].name}'.`,
-        },
-    ];
+    type TestSpecificFields = Required<Pick<TestFields, 'word'>>;
+    type TestGeneralFields = Required<Pick<TestFields, 'testPhrase'>>;
+    type TestBrokenFields = Required<Pick<TestFields, 'broken'>>;
+    type TestExecFailsFields = Required<Pick<TestFields, 'word'>>;
 
-    for (const c in badCommands) {
-        if (badCommands.hasOwnProperty(c)) {
-            testCommands.push({
-                description: `should fail with ${c}`,
-                cmds: [badCommands[c].cmd],
-                error: badCommands[c].error,
-            });
+    class TestCommand<TF> extends CommandBase<keyof TestCommands, ParsedTestFields, TF, string> {
+        public constructor(init: CommandInitializer<keyof TestCommands, ParsedTestFields, TF, string>) {
+            super(init);
+        }
+
+        public getDefaultFormatter(_target: FormatTargets): Result<Formatter<string|undefined>> {
+            return fail('No default formatter');
         }
     }
 
+    const testCommands: Commands<TestCommands> = {
+        specific: new TestCommand<TestSpecificFields>({
+            name: 'specific',
+            description: 'The specific test command',
+            parser: builder.build('This is a {{word}}').getValueOrThrow(),
+            converter: Converters.object<TestSpecificFields>({
+                word: Converters.string,
+            }),
+            executor: (params: TestSpecificFields): Result<string> => succeed(params.word),
+            formatter: (word: string): string => `The ${word} is the word`,
+        }),
+        general: new TestCommand<TestGeneralFields>({
+            name: 'general',
+            description: 'The general test command',
+            parser: builder.build('{{testPhrase}}').getValueOrThrow(),
+            converter: Converters.object<TestGeneralFields>({
+                testPhrase: Converters.string,
+            }),
+            executor: (params: TestGeneralFields): Result<string> => succeed(params.testPhrase),
+            formatter: (phrase: string): string => `The test phrase is ${phrase}`,
+        }),
+        broken: new TestCommand<TestBrokenFields>({
+            name: 'broken',
+            description: 'The broken test command',
+            parser: builder.build('bad {{broken}}').getValueOrThrow(),
+            converter: Converters.object<TestBrokenFields>({
+                broken: Converters.string,
+            }),
+            executor: (params: TestBrokenFields): Result<string> => succeed(params.broken),
+            formatter: (word: string): string => `The bad word is ${word}`,
+        }),
+        execFails: new TestCommand<TestExecFailsFields>({
+            name: 'execFails',
+            description: 'Test command with exec failure',
+            parser: builder.build('fail with {{word?}}').getValueOrThrow(),
+            converter: Converters.object<TestExecFailsFields>({
+                word: Converters.string,
+            }, ['word']),
+            executor: (params: TestExecFailsFields) => fail(params.word),
+            formatter: (word: string): string => `should have failed but got ${word}`,
+        }),
+    };
+
+    const commandTests = [
+        {
+            description: 'should succeed with no order specified',
+            commands: testCommands,
+            order: undefined,
+        },
+        {
+            description: 'should succeed with an order that lists all keys',
+            commands: testCommands,
+            order: testOrder,
+        },
+        {
+            description: 'should fail if order is missing any tests that are present',
+            commands: testCommands,
+            order: ['specific', 'general'] as (keyof TestCommands)[],
+            error: /present in commands but not in evaluation order/i,
+        },
+        {
+            description: 'should fail if order lists any keys that are missing',
+            commands: { specific: testCommands.specific, general: testCommands.broken },
+            order: ['specific', 'general', 'broken'] as (keyof TestCommands)[],
+            error: /present in evaluation order but not in commands/i,
+        },
+    ];
+
     describe('constructor', (): void => {
-        testCommands.forEach((test): void => {
+        commandTests.forEach((test): void => {
             it(test.description, (): void => {
                 if (test.error) {
-                    expect(() => new CommandProcessor<TestFields, string|undefined>(test.cmds)).toThrowError(test.error);
+                    expect(() =>
+                        new CommandProcessor<TestCommands>(test.commands, test.order)
+                    ).toThrowError(test.error);
                 }
                 else {
-                    const cmds = new CommandProcessor<TestFields, string|undefined>(test.cmds);
+                    const cmds = new CommandProcessor<TestCommands>(test.commands, test.order);
                     expect(cmds).toBeDefined();
-                    expect(cmds.numCommands).toBe((test.cmds ? test.cmds.length : 0));
                 }
             });
         });
     });
 
-    describe('addCommand', (): void => {
-        it('should add valid commands', (): void => {
-            const cmds = new CommandProcessor<TestFields, string|undefined>();
-            expect(cmds.numCommands).toBe(0);
-            cmds.addCommand(goodCommands[0]);
-            expect(cmds.numCommands).toBe(1);
-            cmds.addCommand(goodCommands[1]);
-            expect(cmds.numCommands).toBe(2);
+    describe('validateAll', (): void => {
+        const cmds = new CommandProcessor<TestCommands>(testCommands, testOrder);
+        it('should process only matching commands', (): void => {
+            expect(cmds.validateAll('A test, this is.')).toSucceedWith(
+                expect.objectContaining({
+                    keys: ['general'],
+                    validated: {
+                        general: expect.objectContaining({ command: 'general' }),
+                    },
+                    validationErrors: [],
+                }),
+            );
         });
 
-        it('should fail to add a duplicate command', (): void => {
-            const cmds = new CommandProcessor<TestFields, string|undefined>();
-            expect(cmds.numCommands).toBe(0);
-            cmds.addCommand(goodCommands[0]);
-            expect(cmds.numCommands).toBe(1);
-            expect(cmds.addCommand(goodCommands[0])).toFailWith(`Duplicate command name '${goodCommands[0].name}'.`);
-            expect(cmds.numCommands).toBe(1);
+        it('should process all matching commands', (): void => {
+            expect(cmds.validateAll('This is a test')).toSucceedWith(
+                expect.objectContaining({
+                    keys: ['specific', 'general'],
+                    validated: {
+                        general: expect.objectContaining({ command: 'general' }),
+                        specific: expect.objectContaining({ command: 'specific' }),
+                    },
+                    validationErrors: [],
+                }),
+            );
         });
 
-        describe('invalid commands', (): void => {
-            const cmds = new CommandProcessor<TestFields, string>();
-            for (const c in badCommands) {
-                if (badCommands.hasOwnProperty(c)) {
-                    it(`should fail to add a command with ${c}`, (): void => {
-                        expect(cmds.addCommand(badCommands[c].cmd)).toFailWith(badCommands[c].error);
-                        expect(cmds.numCommands).toBe(0);
-                    });
-                }
-            }
+        it('should return an empty result if no command matches', (): void => {
+            expect(cmds.validateAll('An example')).toSucceedWith({
+                keys: [],
+                validated: {},
+                validationErrors: [],
+            });
+        });
+
+        it('should fail if any of the commands fail', () => {
+            expect(cmds.validateAll('bad data')).toFailWith(/mismatched capture count/i);
         });
     });
 
     describe('processAll', (): void => {
-        const cmds = new CommandProcessor<TestFields, string|undefined>(goodCommands);
+        const cmds = new CommandProcessor<TestCommands>(testCommands, testOrder);
+
         it('should process only matching commands', (): void => {
-            expect(cmds.processAll('A test, this is.')).toSucceedWith(
-                ['A test, this is.']
-            );
-        });
-        it('should process all matching commands', (): void => {
-            expect(cmds.processAll('This is a test')).toSucceedWith(
-                ['test', 'This is a test']
-            );
-        });
-        it('should return an empty array if no command matches', (): void => {
-            expect(cmds.processAll('An example')).toSucceedWith([]);
+            expect(cmds.processAll('A test, this is.')).toSucceedWith({
+                keys: ['general'],
+                executed: {
+                    general: {
+                        command: 'general',
+                        result: 'A test, this is.',
+                        message: 'The test phrase is A test, this is.',
+                    },
+                },
+            });
         });
 
-        it('should fail if any of the commands fail', () => {
+        it('should process all matching commands', (): void => {
+            expect(cmds.processAll('This is a test')).toSucceedWith({
+                keys: ['specific', 'general'],
+                executed: {
+                    general: {
+                        command: 'general',
+                        result: 'This is a test',
+                        message: 'The test phrase is This is a test',
+                    },
+                    specific: {
+                        command: 'specific',
+                        result: 'test',
+                        message: 'The test is the word',
+                    },
+                },
+            });
+        });
+
+        it('should return an empty result if no command matches', (): void => {
+            expect(cmds.processAll('An example')).toSucceedWith({
+                keys: [],
+                executed: {},
+            });
+        });
+
+        // Actually, this seems wrong. It should propagate execution errors
+        it('should silently ignore failing commands if any commands pass', () => {
+            expect(cmds.processAll('fail with test')).toSucceedWith({
+                keys: ['general'],
+                executed: {
+                    general: {
+                        command: 'general',
+                        message: 'The test phrase is fail with test',
+                        result: 'fail with test',
+                    },
+                },
+            });
+        });
+
+        it('should fail if no commands succeed but some fail execution', () => {
+            expect(cmds.processAll('fail with error')).toFailWith(/error/i);
+        });
+
+        it('should fail if any of the commands fail validation', () => {
             expect(cmds.processAll('bad data')).toFailWith(/mismatched capture count/i);
         });
     });
 
     describe('processFirst', (): void => {
-        const cmds = new CommandProcessor(goodCommands);
+        const cmds = new CommandProcessor(testCommands, testOrder);
         it('should process only the first matching command', (): void => {
-            expect(cmds.processFirst('A test, this is.')).toSucceedWith('A test, this is.');
-            expect(cmds.processFirst('This is a test')).toSucceedWith('test');
+            expect(cmds.processFirst('A test, this is.')).toSucceedWith({
+                keys: ['general'],
+                executed: {
+                    general: {
+                        command: 'general',
+                        result: 'A test, this is.',
+                        message: 'The test phrase is A test, this is.',
+                    },
+                },
+            });
+            expect(cmds.processFirst('This is a test')).toSucceedWith({
+                keys: ['specific'],
+                executed: {
+                    specific: {
+                        command: 'specific',
+                        result: 'test',
+                        message: 'The test is the word',
+                    },
+                },
+            });
         });
 
         it('should fail if no command matches', (): void => {
             expect(cmds.processFirst('An example')).toFailWith(/no command matched/i);
         });
 
-        it('should fail if the first matching command fails', () => {
+        it('should fail if the first matching command fails validation', () => {
             expect(cmds.processFirst('bad data')).toFailWith(/mismatched capture count/i);
+        });
+
+        // Actually, this seems wrong. It should propagate execution errors
+        it('should silently ignore failing commands if any commands pass', () => {
+            expect(cmds.processFirst('fail with test')).toSucceedWith({
+                keys: ['general'],
+                executed: {
+                    general: {
+                        command: 'general',
+                        message: 'The test phrase is fail with test',
+                        result: 'fail with test',
+                    },
+                },
+            });
         });
     });
 
     describe('processOne', (): void => {
-        const cmds = new CommandProcessor(goodCommands);
+        const cmds = new CommandProcessor(testCommands, testOrder);
         it('should process exactly one matching command', (): void => {
-            expect(cmds.processOne('A test, this is.')).toSucceedWith('A test, this is.');
+            expect(cmds.processOne('A test, this is.')).toSucceedWith({
+                keys: ['general'],
+                executed: {
+                    general: {
+                        command: 'general',
+                        result: 'A test, this is.',
+                        message: 'The test phrase is A test, this is.',
+                    },
+                },
+            });
         });
 
         it('should fail if more than one command matches', (): void => {
@@ -204,78 +331,9 @@ describe('commands', (): void => {
         it('should fail if the any command fails', () => {
             expect(cmds.processOne('bad data')).toFailWith(/mismatched capture count/i);
         });
-    });
 
-    describe('with a validator', () => {
-        const failTest = (c: string): Result<string> => { return c === 'test' ? fail('filtered') : succeed(c); };
-        describe('processAll', (): void => {
-            const cmds = new CommandProcessor<TestFields, string|undefined>(goodCommands, failTest);
-            it('should process only matching commands', (): void => {
-                expect(cmds.processAll('A test, this is.')).toSucceedWith(
-                    ['A test, this is.']
-                );
-            });
-
-            it('should process all matching commands but ignore validation errors if any succeed', (): void => {
-                expect(cmds.processAll('This is a test')).toSucceedWith(
-                    ['This is a test']
-                );
-            });
-
-            it('should report any validation errors if all commands fail', (): void => {
-                expect(cmds.processAll('test')).toFailWith(/filtered/i);
-            });
-
-            it('should return an empty array if no command matches', (): void => {
-                expect(cmds.processAll('An example')).toSucceedWith([]);
-            });
-
-            it('should fail if any of the commands fail', () => {
-                expect(cmds.processAll('bad data')).toFailWith(/mismatched capture count/i);
-            });
-        });
-
-        describe('processFirst', (): void => {
-            const cmds = new CommandProcessor(goodCommands, failTest);
-            it('should process only the first matching command', (): void => {
-                expect(cmds.processFirst('A test, this is.')).toSucceedWith('A test, this is.');
-                expect(cmds.processFirst('This is a thing')).toSucceedWith('thing');
-            });
-
-            it('should report validation errors if no command succeeds', () => {
-                expect(cmds.processFirst('test')).toFailWith(/filtered/i);
-            });
-
-            it('should fail if no command matches', (): void => {
-                expect(cmds.processFirst('An example')).toFailWith(/no command matched/i);
-            });
-
-            it('should fail if the first matching command fails', () => {
-                expect(cmds.processFirst('bad data')).toFailWith(/mismatched capture count/i);
-            });
-        });
-
-        describe('processOne', (): void => {
-            const cmds = new CommandProcessor(goodCommands, failTest);
-            it('should process exactly one matching command', (): void => {
-                expect(cmds.processOne('A test, this is.')).toSucceedWith('A test, this is.');
-            });
-
-            it('should report validation errors if no command succeeds', () => {
-                expect(cmds.processFirst('test')).toFailWith(/filtered/i);
-            });
-
-            it('should succeed if more than one command matches but only one passes validation', (): void => {
-                expect(cmds.processOne('This is a test')).toSucceedWith(expect.stringMatching('This is a test'));
-            });
-
-            it('should fail if no command matches', (): void => {
-                expect(cmds.processOne('An example')).toFailWith(/no command matched/i);
-            });
-
-            it('should fail if the any command fails', () => {
-                expect(cmds.processOne('bad data')).toFailWith(/mismatched capture count/i);
-            });
+        it('should propagate execution errors from a single matching comand', () => {
+            expect(cmds.processOne('fail with ERROR')).toFailWith('ERROR');
         });
     });
 });

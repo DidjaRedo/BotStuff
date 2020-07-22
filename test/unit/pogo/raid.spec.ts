@@ -20,12 +20,16 @@
  * SOFTWARE.
  */
 import '../../helpers/jestHelpers';
-import { Raid, RaidJson, RaidState, RaidType, raid } from '../../../src/pogo/raid';
+import { Raid, RaidJson, RaidState, RaidType } from '../../../src/pogo/raid';
 import { TestBoss, TestRaid } from '../../helpers/pogoHelpers';
+import {
+    loadBossDirectorySync,
+    loadGlobalGymDirectorySync,
+    raid,
+} from '../../../src/pogo/converters';
+
 import { DateRange } from '../../../src/time/dateRange';
 import { Gym } from '../../../src/pogo/gym';
-import { loadBossDirectorySync } from '../../../src/pogo/bossDirectory';
-import { loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
 import moment from 'moment';
 
 describe('Raid class', () => {
@@ -41,7 +45,7 @@ describe('Raid class', () => {
 
     describe('protected constructor', () => {
         it('should fail to create a raid with a mismatched tier and boss tier', () => {
-            const raidTimes = TestRaid.getTime('hatched');
+            const raidTimes = TestRaid.getTime('active');
             const tier = 3;
             const boss = TestBoss.bosses[4];
             expect(TestRaid.create({ tier, gym, raidTimes, boss })).toFailWith(/mismatched tier/i);
@@ -70,18 +74,18 @@ describe('Raid class', () => {
             ).toSucceedWith('future');
         });
 
-        it('should return "egg" for a raid less than an hour out', () => {
+        it('should return "upcoming" for a raid less than an hour out', () => {
             const early = start.clone().subtract(45, 'minutes').toDate();
             expect(
                 Raid.getStateFromRaidTimes(range, early)
-            ).toSucceedWith('egg');
+            ).toSucceedWith('upcoming');
         });
 
-        it('should return "hatched" for a raid that is in progress', () => {
+        it('should return "active" for a raid that is in progress', () => {
             const midRaid = start.clone().add(30, 'minutes').toDate();
             expect(
                 Raid.getStateFromRaidTimes(range, midRaid)
-            ).toSucceedWith('hatched');
+            ).toSucceedWith('active');
         });
 
         it('should return "expired" for a raid that has ended', () => {
@@ -122,7 +126,7 @@ describe('Raid class', () => {
                     expect(raid.tier).toBe(tier);
                     expect(raid.raidTimes.timeUntil('start', new Date())).toBeInRange(timer - 1, timer);
                     expect(raid.raidTimes.duration()).toBe(45);
-                    expect(raid.state).toEqual('egg');
+                    expect(raid.state).toEqual('upcoming');
                 });
             });
 
@@ -164,7 +168,7 @@ describe('Raid class', () => {
                     expect(raid.tier).toBe(tier);
                     expect(raid.hatchTime).toEqual(start);
                     expect(raid.raidTimes.duration()).toBe(45);
-                    expect(raid.state).toEqual('egg');
+                    expect(raid.state).toEqual('upcoming');
                 });
             });
 
@@ -197,7 +201,7 @@ describe('Raid class', () => {
                 expect(raid.tier).toBe(boss.tier);
                 expect(raid.raidTimes.timeUntil('end', new Date())).toBeInRange(timeLeft - 1, timeLeft);
                 expect(raid.raidTimes.duration()).toBe(45);
-                expect(raid.state).toEqual('hatched');
+                expect(raid.state).toEqual('active');
             });
         });
 
@@ -213,7 +217,7 @@ describe('Raid class', () => {
                 expect(raid.tier).toBe(boss.tier);
                 expect(moment(raid.expiryTime).diff(moment(), 'minutes')).toBeInRange(timeLeft - 1, timeLeft);
                 expect(raid.raidTimes.duration()).toBe(60);
-                expect(raid.state).toEqual('hatched');
+                expect(raid.state).toEqual('active');
             });
         });
 
@@ -353,7 +357,7 @@ describe('Raid class', () => {
 
     describe('update method', () => {
         it('should update the tier of a raid in any state with no boss', () => {
-            const states: RaidState[] = ['future', 'egg', 'hatched', 'expired'];
+            const states: RaidState[] = ['future', 'upcoming', 'active', 'expired'];
             for (const state of states) {
                 const raid = new TestRaid({
                     tier: 1,
@@ -366,7 +370,7 @@ describe('Raid class', () => {
         });
 
         it('should fail to update the tier of a raid that already has a boss', () => {
-            const states: RaidState[] = ['hatched', 'expired'];
+            const states: RaidState[] = ['active', 'expired'];
             for (const state of states) {
                 const raidTimes = TestRaid.getTime(state);
                 const tier = 5;
@@ -376,8 +380,8 @@ describe('Raid class', () => {
             }
         });
 
-        it('should add or update a boss for a hatched or expired raid', () => {
-            const states: RaidState[] = ['hatched', 'expired'];
+        it('should add or update a boss for an active or expired raid', () => {
+            const states: RaidState[] = ['active', 'expired'];
             for (const state of states) {
                 const raidTimes = TestRaid.getTime(state);
                 const tier = 4;
@@ -395,7 +399,7 @@ describe('Raid class', () => {
         });
 
         it('should fail to add a boss for a raid in the future', () => {
-            const states: RaidState[] = ['future', 'egg'];
+            const states: RaidState[] = ['future', 'upcoming'];
             for (const state of states) {
                 const raidTimes = TestRaid.getTime(state);
                 const tier = 3;
@@ -408,7 +412,7 @@ describe('Raid class', () => {
 
     describe('refreshState', () => {
         it('should update to the correct state for a supplied or current time', () => {
-            const states: RaidState[] = ['future', 'egg', 'hatched', 'expired'];
+            const states: RaidState[] = ['future', 'upcoming', 'active', 'expired'];
             for (const state of states) {
                 const raidTimes = TestRaid.getTime(state);
                 const midPoint = moment(raidTimes.start).add(20, 'minutes').toDate();
@@ -416,8 +420,8 @@ describe('Raid class', () => {
                 const raid = new TestRaid({ tier, gym, raidTimes });
                 expect(raid.state).toBe(state);
                 expect(raid.refreshState(midPoint)).toSucceedWith(state);
-                expect(raid.state).toBe('hatched');
-                expect(raid.refreshState()).toSucceedWith('hatched');
+                expect(raid.state).toBe('active');
+                expect(raid.refreshState()).toSucceedWith('active');
                 expect(raid.state).toBe(state);
             }
         });
@@ -438,13 +442,13 @@ describe('Raid class', () => {
 
     describe('isValidRaidState static method', () => {
         it('should return true for exact string matches for a valid raid state', () => {
-            for (const state of ['future', 'egg', 'hatched', 'expired']) {
+            for (const state of ['future', 'upcoming', 'active', 'expired']) {
                 expect(Raid.isValidRaidState(state)).toBe(true);
             }
         });
 
         it('should return false for anything other than an exact string match for a valid raid state', () => {
-            for (const state of ['Future', ' egg', 'whatever']) {
+            for (const state of ['Future', ' upcoming', 'whatever']) {
                 expect(Raid.isValidRaidState(state)).toBe(false);
             }
         });
@@ -454,8 +458,8 @@ describe('Raid class', () => {
         it('should return a valid raid state for a matching string (normalized and trimmed)', () => {
             const tests: { tests: string[]; expected: RaidState }[] = [
                 { tests: ['future', 'Future', '  futURE '], expected: 'future' },
-                { tests: ['egg', 'EGG', 'egg'], expected: 'egg' },
-                { tests: ['hatched', ' hatched ', 'HATCHED'], expected: 'hatched' },
+                { tests: ['upcoming', 'UPCOMING', ' Upcoming'], expected: 'upcoming' },
+                { tests: ['active', ' active ', 'ACTIVE'], expected: 'active' },
                 { tests: ['expired', 'Expired ', 'eXpired'], expected: 'expired' },
             ];
 
@@ -467,7 +471,7 @@ describe('Raid class', () => {
         });
 
         it('should fail for anything else', () => {
-            for (const state of ['Hutched', '_egg', 0, 7, true, () => 'hatched']) {
+            for (const state of ['Hutched', '_egg', 0, 7, true, () => 'active']) {
                 expect(Raid.validateRaidState(state)).toFailWith(/invalid raid state/i);
             }
         });

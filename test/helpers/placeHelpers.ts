@@ -24,7 +24,7 @@ import * as Geo from '../../src/utils/geo';
 import * as PoiLookupOptions from '../../src/places/poiLookupOptions';
 import { Poi, PoiProperties } from '../../src/places/poi';
 
-export class TestPoiProperties implements PoiProperties {
+export interface TestPoiProperties extends PoiProperties {
     name: string;
     city: string;
     zones: string[];

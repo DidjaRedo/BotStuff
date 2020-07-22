@@ -73,8 +73,8 @@ export class ResultArray<T> extends ItemArray<SearchResult<T>> {
         return this.best().onSuccess((sr) => succeed(sr.item));
     }
 
-    public allItems(): T[] {
-        return Array.from(this.map((sr) => sr.item));
+    public allItems(): ItemArray<T> {
+        return new ItemArray(this._key, ...this.map((sr) => sr.item));
     }
 }
 
@@ -123,7 +123,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return this._options.alternateKeys || [];
     }
 
-    public forEach(callback: {(item: T, key?: string)}): void {
+    public forEach(callback: {(item: T, key?: string): void}): void {
         this._all.forEach((item: T): void => {
             callback(item, item.primaryKey);
         });
@@ -198,7 +198,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return new ResultArray(name, ...[]);
     }
 
-    public lookup(name: string, options?: TLO, filter?: DirectoryFilter<T, TLO>): ResultArray<T> {
+    public lookup(name: string, options?: Partial<TLO>, filter?: DirectoryFilter<T, TLO>): ResultArray<T> {
         const effectiveOptions: DirectoryLookupOptions = options ?? {};
         let candidates: SearchResult<T>[] = [];
 
@@ -209,7 +209,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         }
 
         if ((candidates.length < 1) && (effectiveOptions.noTextSearch !== true)) {
-            candidates = this.searchByTextFields(name);
+            candidates = this.searchByTextFields(name).filter((r) => r.score > 0.5);
         }
 
         if (candidates.length > 0) {
@@ -353,6 +353,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
     private _initSearch(): Fuse<T, Fuse.IFuseOptions<T>> {
         return new Fuse<T, Fuse.IFuseOptions<T>>(this._all, {
             shouldSort: true,
+            ignoreFieldNorm: false,
             isCaseSensitive: false,
             includeMatches: true,
             includeScore: true,

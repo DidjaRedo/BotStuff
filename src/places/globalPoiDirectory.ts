@@ -84,7 +84,7 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
         return this.pois.lookup(name, options, this._filterPoi);
     }
 
-    protected _filterPoi(poi: P, options: Partial<PO>): boolean {
+    protected _filterPoi(poi: P, options?: Partial<PoiLookupOptions.Properties>): boolean {
         return PoiLookupOptions.filterPoi(poi, options);
     }
 

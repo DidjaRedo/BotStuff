@@ -5240,7 +5240,9 @@
     ],
     "city": "Redmond",
     "name": "Brooke Jillyann Bennette Park",
-    "alternateNames": ["Jillyann"],
+    "alternateNames": [
+      "Jillyann"
+    ],
     "coord": {
       "latitude": 47.7065777,
       "longitude": -122.1129375
@@ -5542,6 +5544,21 @@
       "longitude": -122.089142
     },
     "isExEligible": "ex"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Juel Powerline Trail Post",
+    "alternateNames": [
+      "Powerline Trail Post"
+    ],
+    "coord": {
+      "latitude": 47.698715,
+      "longitude": -122.084098
+    },
+    "isExEligible": "nonEx"
   },
   {
     "zones": [
@@ -6217,6 +6234,19 @@
       "Rain City"
     ],
     "city": "Redmond",
+    "name": "Basketball Court",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.687505,
+      "longitude": -122.098902
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
     "name": "Marymoor (Swamp Dog Bridge)",
     "alternateNames": [
       "Swamp Dog Bridge"
@@ -6368,6 +6398,19 @@
     "coord": {
       "latitude": 47.658175,
       "longitude": -122.08833
+    },
+    "isExEligible": "nonEx"
+  },
+  {
+    "zones": [
+      "Rain City"
+    ],
+    "city": "Redmond",
+    "name": "Woodbridge Playground",
+    "alternateNames": [],
+    "coord": {
+      "latitude": 47.676571,
+      "longitude": -122.1127492
     },
     "isExEligible": "nonEx"
   },
@@ -7433,10 +7476,9 @@
       "Rain City"
     ],
     "city": "Overlake",
-    "name": "Coffee Shop",
+    "name": "Coffee Shop Bus Stop",
     "alternateNames": [
-      "CoffeeShop",
-      "Coffee Shop Bus Stop"
+      "Coffee Shop"
     ],
     "coord": {
       "latitude": 47.635695,

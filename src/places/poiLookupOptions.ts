@@ -27,6 +27,8 @@ import { Poi } from './poi';
 
 export const DEFAULT_RADIUS = 1000;
 
+// allowed city/region are used in categorization
+// required city/region are applied as filters at runtime
 export interface Properties extends DirectoryLookupOptions {
     allowedZones: string[];
     allowedCities: string[];
@@ -34,6 +36,8 @@ export interface Properties extends DirectoryLookupOptions {
     onNonAllowedCities: 'error'|'ignore';
     preferredCities: string[];
     preferredZones: string[];
+    requiredCities: string[];
+    requiredZones: string[];
     near?: Coordinate;
     radius?: number;
     region?: Region;
@@ -48,8 +52,14 @@ export const defaultProperties: Properties = {
     onNonAllowedZones: 'ignore',
     preferredCities: [],
     preferredZones: [],
+    requiredCities: [],
+    requiredZones: [],
     radius: DEFAULT_RADIUS,
 };
+
+function cloneProperties(base?: Properties): Properties {
+    return { ... (base ?? defaultProperties) };
+}
 
 export const fieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = {
     options: {
@@ -63,6 +73,8 @@ export const fieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = 
         onNonAllowedZones: Merge.item<'error'|'ignore'>(),
         preferredCities: Merge.normalizedStringArray,
         preferredZones: Merge.normalizedStringArray,
+        requiredCities: Merge.normalizedStringArray,
+        requiredZones: Merge.normalizedStringArray,
         near: Merge.item<Coordinate|undefined>(),
         radius: Merge.optionalNumber,
         region: Merge.item<Region|undefined>(),
@@ -71,7 +83,7 @@ export const fieldMergers: Merge.FieldMergers<Properties, Merge.MergeOptions> = 
     },
 };
 
-export const merger = new Merge.ObjectMerger<Properties, Merge.MergeOptions>(fieldMergers);
+export const merger = new Merge.ObjectMerger<Properties, Merge.MergeOptions>(fieldMergers, cloneProperties);
 
 export type PoiFilter<P extends Poi, PO extends Properties> = (poi: P, options?: Partial<PO>) => boolean;
 
@@ -88,7 +100,13 @@ export type CategorizedPois<P extends Poi> = CategorizedObjects<P>;
 export type PoiCategories<OT> = keyof CategorizedObjects<OT>;
 
 export function filterPoi<P extends Poi, PO extends Properties>(poi: P, options?: Partial<PO>): boolean {
-    return (options === undefined) || (poi.isNear(options.near, options.radius) && poi.isInRegion(options.region));
+    if (options === undefined) {
+        return true;
+    }
+    return poi.isNear(options.near, options.radius)
+            && poi.isInRegion(options.region)
+            && poi.matchesCities(options?.requiredCities)
+            && poi.matchesZones(options?.requiredZones);
 }
 
 export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, options?: Partial<PO>, filter?: PoiFilter<P, PO>): PoiCategories<P> {

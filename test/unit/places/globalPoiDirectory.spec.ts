@@ -217,7 +217,7 @@ describe('GlobalPoiDirectory class', () => {
             it('should correctly look up pois by fuzzy match on name or alternate name', () => {
                 [
                     { term: 'first', length: 1, best: testPois[0] },
-                    { term: 'poi d', length: 6, best: testPois[5] },
+                    { term: 'poi a', length: 2, best: testPois[0] },
                 ].forEach((test) => {
                     const found = dir.lookup(test.term);
                     expect(found).toHaveLength(test.length);

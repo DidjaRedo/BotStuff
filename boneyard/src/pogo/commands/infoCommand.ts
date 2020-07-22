@@ -21,9 +21,9 @@
  */
 
 import * as Converters from '../../utils/converters';
-import * as PogoConverters from '../pogoConverters';
+import * as PogoConverters from '../converters/pogoConverters';
 
-import { ParsedCommand, ParserBuilder } from '../../commands/regExpBuilder';
+import { ParsedCommand, ParserBuilder } from '../../commands/commandParser';
 import { RaidManagerCommandHandler, RaidManagerCommandProcessor } from './raidManagerCommand';
 import { Result, captureResult, fail, succeed } from '../../utils/result';
 import { CommandSpec } from '../../commands/commandProcessor';

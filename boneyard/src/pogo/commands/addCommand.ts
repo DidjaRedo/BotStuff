@@ -21,10 +21,10 @@
  */
 
 import * as Converters from '../../utils/converters';
-import * as PogoConverters from '../../pogo/pogoConverters';
+import * as PogoConverters from '../../pogo/converters/pogoConverters';
 import * as TimeConverters from '../../time/timeConverters';
 
-import { ParsedCommand, ParserBuilder } from '../../commands/regExpBuilder';
+import { ParsedCommand, ParserBuilder } from '../../commands/commandParser';
 import { RaidManagerCommandHandler, RaidManagerCommandProcessor } from './raidManagerCommand';
 import { Result, allSucceed, captureResult, fail, succeed } from '../../utils/result';
 import { Boss } from '../boss';

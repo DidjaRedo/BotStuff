@@ -20,18 +20,20 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
-import { Raid, raid } from './raid';
-import { RaidDirectory, RaidLookupOptions } from './raidDirectory';
+import { GlobalGymDirectory, GymLookupOptionsProperties } from './gymDirectory';
+import { Raid, RaidState } from './raid';
 import { Result, captureResult, fail, mapResults, succeed } from '../utils/result';
-import { BossDirectory } from './bossDirectory';
-import { Converter } from '../utils/converter';
-import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
 import { ItemArray } from '../utils/utils';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
-import { loadJsonFile } from '../utils/jsonHelpers';
+import { RaidTier } from './game';
+
+export interface RaidLookupOptions extends GymLookupOptionsProperties {
+    minTier?: RaidTier;
+    maxTier?: RaidTier;
+    stateFilter?: RaidState[],
+}
 
 export class RaidMap implements Map<string, Raid> {
     private _map: NormalizedMap<Raid>;
@@ -43,6 +45,13 @@ export class RaidMap implements Map<string, Raid> {
 
     public static create(raids?: Iterable<Raid>): Result<RaidMap> {
         return captureResult(() => new RaidMap(raids));
+    }
+
+    public static filter(raid: Raid, options?: Partial<RaidLookupOptions>): boolean {
+        return ((options?.minTier === undefined) || (options.minTier <= raid.tier))
+        && ((options?.maxTier === undefined) || (options.maxTier >= raid.tier))
+        && ((options?.stateFilter === undefined) || (options.stateFilter.includes(raid.state)))
+        && GlobalGymDirectory.filter(raid.gym, options);
     }
 
     public add(raid: Raid): Result<Raid> {
@@ -102,8 +111,13 @@ export class RaidMap implements Map<string, Raid> {
     ): ItemArray<Raid> {
         return new ItemArray('raid',
             ...gyms.map((g) => this.tryGet(g.keys.name))
-                .filter((r): r is Raid => (r !== undefined) && RaidDirectory.filter(r, options)),
+                .filter((r): r is Raid => (r !== undefined) && RaidMap.filter(r, options)),
         );
+    }
+
+    public getAll(options?: Partial<RaidLookupOptions>): ItemArray<Raid> {
+        const raids = Array.from(this.values()).filter((r) => RaidMap.filter(r, options));
+        return new ItemArray('raid', ...raids);
     }
 
     public set(name: string, value: Raid): this {
@@ -199,6 +213,7 @@ export class RaidMap implements Map<string, Raid> {
     }
 }
 
+/*
 export function raidMap(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<RaidMap> {
     return Converters.arrayOf(raid(gyms, bosses)).map(RaidMap.create);
 }
@@ -208,3 +223,4 @@ export function loadRaidMapSync(path: string, gyms: GlobalGymDirectory, bosses: 
         return raidMap(gyms, bosses).convert(json);
     });
 }
+*/

@@ -419,14 +419,24 @@ describe('Converters module', () => {
         });
 
         it('should ignore inherited or non-enumerable properties even if onError is "fail"', () => {
+            interface BaseObject {
+                p1: string;
+                p2: string;
+                p3: string;
+                p4: number;
+                base1: number;
+            }
             // eslint-disable-next-line @typescript-eslint/naming-convention
-            function BaseObject(): void {
+            const BaseObjectFunc = function (this: BaseObject): void {
                 this.p1 = 's1';
                 this.p2 = 's2';
                 this.p3 = 's3';
                 Object.defineProperty(this, 'p4', { value: 10, enumerable: false });
-            }
-            BaseObject.prototype.base1 = 100;
+            };
+            BaseObjectFunc.prototype.base1 = 100;
+
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            const BaseObject = BaseObjectFunc as unknown as { new (): BaseObject };
 
             const srcObject = new BaseObject();
 

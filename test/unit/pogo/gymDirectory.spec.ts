@@ -21,9 +21,10 @@
  */
 
 import '../../helpers/jestHelpers';
-import * as Gym from '../../../src/pogo/gym';
+import * as GymConverters from '../../../src/pogo/converters/gymConverters';
 import * as PoiLookupOptions from '../../../src/places/poiLookupOptions';
-import { GlobalGymDirectory, GymLookupOptionsProperties, loadGlobalGymDirectorySync } from '../../../src/pogo/gymDirectory';
+import { GlobalGymDirectory, GymLookupOptionsProperties } from '../../../src/pogo/gymDirectory';
+import { Gym } from '../../../src/pogo/gym';
 import { TestPoiGenerator } from '../../helpers/placeHelpers';
 import { succeed } from '../../../src/utils/result';
 
@@ -66,7 +67,7 @@ describe('GlobalGymDirectory class', () => {
                 'A0', 'A1', 'B01', 'B1', 'C12', 'D2',
             ]);
             const testGyms = testData.poiProperties.map((p) => {
-                return new Gym.Gym({ ...p, isExEligible: true });
+                return new Gym({ ...p, isExEligible: true });
             });
 
             [
@@ -90,7 +91,7 @@ describe('GlobalGymDirectory class', () => {
         let eligible = false;
         const testGyms = testData.poiProperties.map((p) => {
             eligible = !eligible;
-            return new Gym.Gym({ ...p, isExEligible: eligible });
+            return new Gym({ ...p, isExEligible: eligible });
         });
 
         it('should filter based on supplied options', () => {
@@ -116,7 +117,7 @@ describe('GlobalGymDirectory class', () => {
         let eligible = false;
         const testGyms = testData.poiProperties.map((p) => {
             eligible = !eligible;
-            return new Gym.Gym({ ...p, isExEligible: eligible });
+            return new Gym({ ...p, isExEligible: eligible });
         });
 
         it('should return both EX and non-EX gyms if no filter is specified', () => {
@@ -150,7 +151,7 @@ describe('GlobalGymDirectory class', () => {
         let eligible = false;
         const testGyms = testData.poiProperties.map((p) => {
             eligible = !eligible;
-            return new Gym.Gym({ ...p, isExEligible: eligible });
+            return new Gym({ ...p, isExEligible: eligible });
         });
 
         it('should return true for EX and non-EX gyms if no options are specified', () => {
@@ -176,13 +177,13 @@ describe('GlobalGymDirectory class', () => {
         it('should load a valid list of arrays or objects', () => {
             let dir1: GlobalGymDirectory|undefined;
             let dir2: GlobalGymDirectory|undefined;
-            expect(loadGlobalGymDirectorySync('./test/unit/pogo/data/gymArrays.json')
+            expect(GymConverters.loadGlobalGymDirectorySync('./test/unit/pogo/data/gymArrays.json')
                 .onSuccess((dir) => {
                     dir1 = dir;
                     return succeed(dir);
                 }),
             ).toSucceed();
-            expect(loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json')
+            expect(GymConverters.loadGlobalGymDirectorySync('./test/unit/pogo/data/gymObjects.json')
                 .onSuccess((dir) => {
                     dir2 = dir;
                     return succeed(dir);

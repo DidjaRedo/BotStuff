@@ -20,14 +20,18 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
+import * as Converters from '../../utils/converters';
 import * as PogoConverters from './pogoConverters';
-import * as TimeConverters from '../time/timeConverters';
-import { Result, fail, succeed } from '../utils/result';
-import { BossProperties } from './boss';
-import { Converter } from '../utils/converter';
-import { DateRange } from '../time/dateRange';
-import { Names } from '../names/names';
+import * as TimeConverters from '../../time/timeConverters';
+import { Boss, BossProperties } from '../boss';
+import { BossDirectory, BossLookupOptions, BossNamesByStatus, BossPropertiesByTier } from '../bossDirectory';
+import { Result, captureResult, fail, mapResults, succeed } from '../../utils/result';
+import { Converter } from '../../utils/converter';
+import { DateRange } from '../../time/dateRange';
+import { DirectoryFilter } from '../../names/directory';
+import { ItemArray } from '../../utils/utils';
+import { Names } from '../../names/names';
+import { loadJsonFile } from '../../utils/jsonHelpers';
 
 export const bossPropertiesFieldConverters: Converters.FieldConverters<BossProperties> = {
     name: Converters.string,
@@ -139,7 +143,7 @@ export const noTierBossPropertiesFromArray = new Converter<Partial<BossPropertie
         numRaiders: from[2],
         cpRange: { min: from[3], max: from[4] },
         boostedCpRange: { min: from[5], max: from[6] },
-        types: ((from.length === 8) ? from[8] : undefined),
+        types: ((from.length === 8) ? from[7] : undefined),
     });
 });
 
@@ -148,3 +152,97 @@ export const bossProperties = Converters.oneOf([
     bossPropertiesFromArray,
     bossPropertiesFromLegacyArray,
 ]);
+
+export const bossNamesByStatus = Converters.object<BossNamesByStatus>({
+    active: Converters.oneOf<boolean|DateRange>([
+        Converters.boolean,
+        TimeConverters.dateRange,
+    ]),
+    bosses: Converters.arrayOf(Converters.string),
+});
+
+
+export const bossPropertiesByTier = Converters.object<BossPropertiesByTier>({
+    tier: PogoConverters.raidTier,
+    status: Converters.arrayOf(bossNamesByStatus),
+    bosses: Converters.arrayOf(Converters.oneOf([
+        noTierBossPropertiesFromObject,
+        noTierBossPropertiesFromArray,
+    ])),
+}, ['status']);
+
+export const bossDirectoryInitializer = Converters.arrayOf(bossPropertiesByTier);
+
+export const bossDirectory = new Converter((from: unknown): Result<BossDirectory> => {
+    const initResult = bossDirectoryInitializer.convert(from);
+    if (initResult.isFailure()) {
+        return fail(initResult.message);
+    }
+
+    const dir = new BossDirectory();
+
+    const added = mapResults(initResult.value.map((tier) => {
+        return captureResult(() => dir.addTier(tier));
+    }));
+
+    if (added.isFailure()) {
+        return fail(added.message);
+    }
+
+    return succeed(dir);
+});
+
+export function loadBossDirectorySync(path: string): Result<BossDirectory> {
+    return loadJsonFile(path).onSuccess((json) => {
+        return bossDirectory.convert(json);
+    });
+}
+
+export function singleBossByName(
+    bosses: BossDirectory,
+    options?: BossLookupOptions,
+    filter?: DirectoryFilter<Boss, BossLookupOptions>,
+): Converter<Boss> {
+    return new Converter<Boss>((from: unknown) => {
+        if (typeof from !== 'string') {
+            return fail('Boss name must be a string');
+        }
+        return bosses.lookup(from, options, filter).singleItem();
+    });
+}
+
+export function bestBossByName(
+    bosses: BossDirectory,
+    options?: BossLookupOptions,
+    filter?: DirectoryFilter<Boss, BossLookupOptions>,
+): Converter<Boss> {
+    return new Converter<Boss>((from: unknown) => {
+        if (typeof from !== 'string') {
+            return fail('Boss name must be a string');
+        }
+        return bosses.lookup(from, options, filter).bestItem();
+    });
+}
+
+export function bossesByName(
+    bosses: BossDirectory,
+    options?: BossLookupOptions,
+    filter?: DirectoryFilter<Boss, BossLookupOptions>,
+): Converter<ItemArray<Boss>> {
+    return new Converter<ItemArray<Boss>>((from: unknown) => {
+        if (typeof from !== 'string') {
+            return fail('Boss name must be a string');
+        }
+        const split = from.split(',').map((p) => p.trim());
+        const results = mapResults(split.map((name) => {
+            return bosses.lookup(name, options, filter).allItems().atLeastOne(`Boss ${name} not found`);
+        }));
+
+        if (results.isFailure()) {
+            return fail(results.message);
+        }
+
+        const found = ([] as Boss[]).concat([], ...results.value);
+        return succeed(new ItemArray('boss', ...found));
+    });
+}

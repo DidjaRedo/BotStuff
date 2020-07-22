@@ -20,15 +20,12 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
-import * as PogoConverters from '../pogo/pogoConverters';
 import * as TimeConverters from '../time/timeConverters';
 import { DateRange, ExplicitDateRange } from '../time/dateRange';
-import { RaidTier, validateRaidTier } from './pogo';
+import { RaidTier, validateRaidTier } from './game';
 import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
 import { Boss } from './boss';
 import { BossDirectory } from './bossDirectory';
-import { Converter } from '../utils/converter';
 import { DirectoryOptions } from '../names/directory';
 import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
@@ -43,7 +40,8 @@ export interface RaidKeys {
 }
 
 export type RaidType = 'normal'|'raid-hour';
-export type RaidState = 'future'|'egg'|'hatched'|'expired';
+export type RaidState = 'future'|'upcoming'|'active'|'expired';
+export type CategorizedRaids = Record<RaidState, Raid[]>;
 
 export const MAX_EGG_HATCH_TIME = 60;
 export const MAX_NORMAL_RAID_ACTIVE_TIME = 45;
@@ -123,8 +121,8 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
 
     public static isValidRaidState(value: string): value is RaidState {
         switch (value) {
-            case 'future': case 'egg':
-            case 'hatched': case 'expired':
+            case 'future': case 'upcoming':
+            case 'active': case 'expired':
                 return true;
         }
         return false;
@@ -173,12 +171,12 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
 
         fromDate = fromDate ?? new Date();
         switch (raidTimes.check(fromDate)) {
-            case 'included': return succeed('hatched');
+            case 'included': return succeed('active');
             case 'less':
                 if (raidTimes.timeUntil('start', fromDate, 'minutes') > 60) {
                     return succeed('future');
                 }
-                return succeed('egg');
+                return succeed('upcoming');
         }
         return succeed('expired');
     }
@@ -221,22 +219,12 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         return captureResult(() => new Raid({ tier, gym, boss, raidTimes, raidType }));
     }
 
-    public static getDirectoryOptions(): DirectoryOptions<Raid, RaidProperties, RaidKeys> {
-        return {
-            threshold: 0.8,
-            textSearchKeys: [
-                {
-                    name: 'name',
-                    weight: 3,
-                },
-                {
-                    name: 'gymName',
-                    weight: 2,
-                },
-            ],
-            alternateKeys: ['gymName'],
-            enforceAlternateKeyUniqueness: ['name', 'gymName'],
-        };
+    public static compare(r1: Raid, r2: Raid): number {
+        let diff = r1.hatchTime.getTime() - r2.hatchTime.getTime();
+        if (diff === 0) {
+            diff = r1.gymName.localeCompare(r2.gymName);
+        }
+        return ((diff < 0) ? -1 : ((diff > 0) ? 1 : 0));
     }
 
     public static createFromJson(json: RaidJson, gyms: GlobalGymDirectory, bosses: BossDirectory): Result<Raid> {
@@ -254,6 +242,37 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
         }).onSuccess((init: RaidInitializer) => {
             return captureResult(() => new Raid(init));
         });
+    }
+
+    public static categorizeRaids(raids: Raid[]): CategorizedRaids {
+        const categorized: CategorizedRaids = {
+            future: [],
+            active: [],
+            upcoming: [],
+            expired: [],
+        };
+        for (const raid of raids) {
+            categorized[raid.state].push(raid);
+        }
+        return categorized;
+    }
+
+    public static getDirectoryOptions(): DirectoryOptions<Raid, RaidProperties, RaidKeys> {
+        return {
+            threshold: 0.8,
+            textSearchKeys: [
+                {
+                    name: 'name',
+                    weight: 3,
+                },
+                {
+                    name: 'gymName',
+                    weight: 2,
+                },
+            ],
+            alternateKeys: ['gymName'],
+            enforceAlternateKeyUniqueness: ['name', 'gymName'],
+        };
     }
 
     protected static _getRaidTimesFromStartTime(hatchTime: Date, raidType?: RaidType, options?: RaidOptions): Result<ExplicitDateRange> {
@@ -328,7 +347,7 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
             return succeed(oldTier);
         }
 
-        if ((this.state !== 'hatched') && (this.state !== 'expired')) {
+        if ((this.state !== 'active') && (this.state !== 'expired')) {
             return fail('Cannot assign a boss to a future raid.');
         }
         const oldBoss = this._boss;
@@ -370,37 +389,4 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
             this.raidType,
         ];
     }
-}
-
-export const raidType = new Converter(validateRaidType);
-
-export function raidFromObject(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
-    return Converters.object<RaidJson>({
-        boss: Converters.string,
-        gym: Converters.string,
-        hatch: Converters.string,
-        tier: PogoConverters.raidTier,
-        type: raidType,
-    }, ['boss', 'tier']).map((json) => {
-        return Raid.createFromJson(json, gyms, bosses);
-    });
-}
-
-export function raidFromArray(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
-    return new Converter((from: unknown) => {
-        if (Array.isArray(from) && (from.length === 4)) {
-            return raidFromObject(gyms, bosses).convert({
-                hatch: from[0],
-                gym: from[1],
-                boss: (typeof from[2] === 'string') ? from[2] : undefined,
-                tier: (typeof from[2] === 'number') ? from[2] : undefined,
-                type: from[3],
-            });
-        }
-        return fail(`Invalid raid properties array ${JSON.stringify(from)}`);
-    });
-}
-
-export function raid(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
-    return Converters.oneOf([raidFromArray(gyms, bosses), raidFromObject(gyms, bosses)]);
 }
