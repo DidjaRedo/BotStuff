@@ -105,8 +105,8 @@ export function filterPoi<P extends Poi, PO extends Properties>(poi: P, options?
     }
     return poi.isNear(options.near, options.radius)
             && poi.isInRegion(options.region)
-            && poi.matchesCities(options?.requiredCities)
-            && poi.matchesZones(options?.requiredZones);
+            && poi.matchesCities(options.requiredCities)
+            && poi.matchesZones(options.requiredZones);
 }
 
 export function categorizePoi<P extends Poi, PO extends Properties>(poi: P, options?: Partial<PO>, filter?: PoiFilter<P, PO>): PoiCategories<P> {

@@ -21,8 +21,8 @@
  */
 
 import { Poi, PoiProperties } from '../places/poi';
-import { Result, captureResult } from '../utils/result';
-import { JsonObject } from '../utils/jsonHelpers';
+import { Result, captureResult } from '@fgv/ts-utils';
+import { JsonObject } from '@fgv/ts-utils/jsonHelpers';
 
 export interface GymProperties extends PoiProperties {
     isExEligible: boolean;

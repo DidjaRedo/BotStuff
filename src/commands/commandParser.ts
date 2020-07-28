@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { Result, captureResult, fail, succeed } from '../utils/result';
+import { Result, captureResult, fail, succeed } from '@fgv/ts-utils';
 
 export interface CommandFragment {
     value: string;

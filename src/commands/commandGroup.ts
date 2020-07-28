@@ -21,8 +21,14 @@
  */
 
 import { Command, CommandResult, ValidatedCommand } from './command';
-import { Result, allSucceed, fail, mapSuccess, succeed } from '../utils/result';
-import { Formatter } from '../utils/formatter';
+import {
+    Formatter,
+    Result,
+    allSucceed,
+    fail,
+    mapSuccess,
+    succeed,
+} from '@fgv/ts-utils';
 
 export class CommandGroup<TNAME extends string|number|symbol, TRET> {
     public readonly prefix?: string;

@@ -20,10 +20,14 @@
  * SOFTWARE.
  */
 
-import { FormattableBase, FormattersByTarget } from '../../utils/formatter';
-import { Result, mapResults, succeed } from '../../utils/result';
+import {
+    FormattableBase,
+    FormattersByTarget,
+    Result,
+    mapResults,
+    succeed,
+} from '@fgv/ts-utils';
 import { Boss } from '../boss';
-import { RangeProperties } from '../../utils/range';
 import moment from 'moment';
 
 export interface BossFormatter {
@@ -66,9 +70,11 @@ export class TextBossFormatter extends FormattableBase implements BossFormatter 
     public get name(): string { return this._boss.name; }
     public get displayName(): string { return this._boss.displayName; }
     public get alternateNames(): string|undefined {
+        // istanbul ignore else
         if (this._boss.alternateNames && (this._boss.alternateNames.length > 0)) {
             return this._boss.alternateNames.join(', ');
         }
+        // istanbul ignore next
         return undefined;
     }
 
@@ -78,6 +84,7 @@ export class TextBossFormatter extends FormattableBase implements BossFormatter 
         const other = [this._boss.name, ...alternates].filter((n) => n !== this._boss.displayName);
         return (other.length > 0) ? other.join(', ') : undefined;
     }
+
     public get tier(): string {
         return `T${this._boss.tier.toString()}`;
     }
@@ -110,15 +117,30 @@ export class TextBossFormatter extends FormattableBase implements BossFormatter 
     }
 
     public get numRaiders(): string|undefined {
-        return this._boss.numRaiders?.toString();
+        if ((this._boss.numRaiders === undefined) || (this._boss.numRaiders === 0)) {
+            return undefined;
+        }
+        return this._boss.numRaiders.toString();
     }
 
     public get cpRange(): string|undefined {
-        return TextBossFormatter._formatRange(this._boss.cpRange);
+        // istanbul ignore else
+        if (this._boss.cpRange !== undefined) {
+            return this._boss.cpRange.format(TextBossFormatter._formatNumber);
+        }
+        else {
+            return undefined;
+        }
     }
 
     public get boostedCpRange(): string| undefined {
-        return TextBossFormatter._formatRange(this._boss.boostedCpRange);
+        // istanbul ignore else
+        if (this._boss.boostedCpRange !== undefined) {
+            return this._boss.boostedCpRange.format(TextBossFormatter._formatNumber);
+        }
+        else {
+            return undefined;
+        }
     }
 
     public get types(): string|undefined {
@@ -136,27 +158,28 @@ export class TextBossFormatter extends FormattableBase implements BossFormatter 
         if ((this._boss.active === undefined) || (typeof this._boss.active === 'boolean')) {
             return undefined;
         }
-        return TextBossFormatter._formatRange(this._boss.active);
+        return this._boss.active.format(TextBossFormatter._formatDate);
     }
 
     public get status(): string {
         if ((this._boss.active === undefined) || (typeof this._boss.active === 'boolean')) {
             return this.isActive;
         }
+
         if (this._boss.isActive()) {
             if (this._boss.active.end !== undefined) {
-                return `active until ${moment(this._boss.active.end).format('YYYY-MM-DD h:mm A')}`;
+                return `active until ${TextBossFormatter._formatDate(this._boss.active.end)}`;
             }
             if (this._boss.active.start !== undefined) {
-                return `active since ${moment(this._boss.active.start).format('YYYY-MM-DD h:mm A')}`;
+                return `active since ${TextBossFormatter._formatDate(this._boss.active.start)}`;
             }
             return 'active';
         }
         const end = this._boss.active.end;
         if (end && (end.getTime() < Date.now())) {
-            return `inactive since ${moment(this._boss.active.end).format('YYYY-MM-DD h:mm A')}`;
+            return `inactive since ${TextBossFormatter._formatDate(this._boss.active.end)}`;
         }
-        return `inactive until ${moment(this._boss.active.start).format('YYYY-MM-DD h:mm A')}`;
+        return `inactive until ${TextBossFormatter._formatDate(this._boss.active.start)}`;
     }
 
     public get details(): string {
@@ -174,21 +197,18 @@ export class TextBossFormatter extends FormattableBase implements BossFormatter 
         return lines.join('\n');
     }
 
-    protected static _formatRange<T>(range?: RangeProperties<T>): string|undefined {
-        if (range !== undefined) {
-            if (range.min !== undefined) {
-                if (range.max !== undefined) {
-                    return `${range.min}-${range.max}`;
-                }
-                else {
-                    return `${range.min}`;
-                }
-            }
-            else {
-                return `-${range.max}`;
-            }
+    protected static _formatDate(date?: Date): string|undefined {
+        // istanbul ignore else
+        if (date !== undefined) {
+            return moment(date).format('YYYY-MM-DD h:mm A');
         }
-        return undefined;
+        else {
+            return undefined;
+        }
+    }
+
+    protected static _formatNumber(num?: number): string|undefined {
+        return ((num !== undefined) && (num !== 0)) ? num.toString() : undefined;
     }
 }
 

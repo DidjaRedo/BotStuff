@@ -20,12 +20,11 @@
  * SOFTWARE.
  */
 import * as Geo from '../utils/geo';
-import { NamedThing, Names } from '../names/names';
-import { Result, captureResult } from '../utils/result';
+import { KeyedThing, NamedThing, Names } from '../names/names';
+import { Result, captureResult } from '@fgv/ts-utils';
 import { validateLatitude, validateLongitude } from '../utils/geo';
 import { DirectoryOptions } from '../names/directory';
-import { JsonObject } from '../utils/jsonHelpers';
-import { KeyedThing } from '../names/keyedThing';
+import { JsonObject } from '@fgv/ts-utils/jsonHelpers';
 import { Utils } from '../utils/utils';
 
 export interface PoiKeys extends NamedThing {

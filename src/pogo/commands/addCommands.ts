@@ -20,18 +20,17 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from '../converters/pogoConverters';
 import * as TimeConverters from '../../time/timeConverters';
 
 import { Boss, Gym, Raid, RaidManager } from '..';
-import { CommandBase, CommandInitializer, Commands } from '../../commands/command';
 import { CommandGroup, CommandProcessor, ParserBuilder } from '../../commands';
-import { FormatTargets, Formatter, Result, succeed } from '../../utils';
+import { CommandInitializer, Commands } from '../../commands/command';
 import { RaidCommand, commonProperties } from './common';
 
 import { RaidTier } from '../game';
-import { raidFormatters } from '../formatters';
+import { Result } from '@fgv/ts-utils';
 import { singleBossByName } from '../converters/bossConverters';
 import { singleGymByName } from '../converters/gymConverters';
 
@@ -182,11 +181,7 @@ export function updateBossInitializer(rm: RaidManager): UpdateBossInitializer {
     };
 }
 
-class AddCommand<TF> extends CommandBase<AddCommandType, Fields, TF, Raid> {
-    public getDefaultFormatter(target: FormatTargets): Result<Formatter<Raid>> {
-        return succeed(raidFormatters[target]);
-    }
-}
+class AddCommand<TF> extends RaidCommand<AddCommandType, Fields, TF> {}
 
 export function getAddCommands(rm: RaidManager): Commands<AddCommands> {
     return {

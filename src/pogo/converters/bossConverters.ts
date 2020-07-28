@@ -20,18 +20,24 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from './pogoConverters';
 import * as TimeConverters from '../../time/timeConverters';
 import { Boss, BossProperties } from '../boss';
 import { BossDirectory, BossLookupOptions, BossNamesByStatus, BossPropertiesByTier } from '../bossDirectory';
-import { Result, captureResult, fail, mapResults, succeed } from '../../utils/result';
-import { Converter } from '../../utils/converter';
+import {
+    Converter,
+    ExtendedArray,
+    Result,
+    captureResult,
+    fail,
+    mapResults,
+    succeed,
+} from '@fgv/ts-utils';
 import { DateRange } from '../../time/dateRange';
 import { DirectoryFilter } from '../../names/directory';
-import { ItemArray } from '../../utils/utils';
 import { Names } from '../../names/names';
-import { loadJsonFile } from '../../utils/jsonHelpers';
+import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
 export const bossPropertiesFieldConverters: Converters.FieldConverters<BossProperties> = {
     name: Converters.string,
@@ -193,7 +199,7 @@ export const bossDirectory = new Converter((from: unknown): Result<BossDirectory
 });
 
 export function loadBossDirectorySync(path: string): Result<BossDirectory> {
-    return loadJsonFile(path).onSuccess((json) => {
+    return readJsonFileSync(path).onSuccess((json) => {
         return bossDirectory.convert(json);
     });
 }
@@ -220,7 +226,7 @@ export function bestBossByName(
         if (typeof from !== 'string') {
             return fail('Boss name must be a string');
         }
-        return bosses.lookup(from, options, filter).bestItem();
+        return bosses.lookup(from, options, filter).firstItem();
     });
 }
 
@@ -228,8 +234,8 @@ export function bossesByName(
     bosses: BossDirectory,
     options?: BossLookupOptions,
     filter?: DirectoryFilter<Boss, BossLookupOptions>,
-): Converter<ItemArray<Boss>> {
-    return new Converter<ItemArray<Boss>>((from: unknown) => {
+): Converter<ExtendedArray<Boss>> {
+    return new Converter<ExtendedArray<Boss>>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Boss name must be a string');
         }
@@ -243,6 +249,6 @@ export function bossesByName(
         }
 
         const found = ([] as Boss[]).concat([], ...results.value);
-        return succeed(new ItemArray('boss', ...found));
+        return succeed(new ExtendedArray('boss', ...found));
     });
 }

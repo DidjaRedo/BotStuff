@@ -27,6 +27,7 @@ export {
 export { gymFormatters } from './gymFormatter';
 export {
     categorizedRaidsFormatters,
+    getCategorizedRaidsFormatters,
     raidFormatters,
     raidsFormatters,
 } from './raidFormatter';

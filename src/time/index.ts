@@ -22,4 +22,4 @@
 
 export * from './dateRange';
 export * from './flexTime';
-export * from './timeConverters';
+export * as TimeConverters from './timeConverters';

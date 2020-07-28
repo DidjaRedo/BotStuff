@@ -20,10 +20,9 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as Geo from '../utils/geo';
-import { Result, fail } from '../utils/result';
-import { Converter } from '../utils/converter';
+import { Converter, Result, fail } from '@fgv/ts-utils';
 
 export const latitude = Converters.number.withConstraint(Geo.validateLatitude);
 export const longitude = Converters.number.withConstraint(Geo.validateLongitude);

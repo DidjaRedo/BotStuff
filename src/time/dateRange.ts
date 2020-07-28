@@ -20,16 +20,22 @@
  * SOFTWARE.
  */
 
-import { Range, RangeProperties } from '../utils/range';
-import { Result, captureResult, fail, succeed } from '../utils/result';
+import {
+    RangeOf,
+    RangeOfProperties,
+    Result,
+    captureResult,
+    fail,
+    succeed,
+} from '@fgv/ts-utils';
 import moment from 'moment';
 
-export interface DateRangeProperties extends RangeProperties<Date> {
+export interface DateRangeProperties extends RangeOfProperties<Date> {
     readonly start?: Date;
     readonly end?: Date;
 }
 
-export interface ExplicitDateRange extends Range<Date>, DateRangeProperties {
+export interface ExplicitDateRange extends RangeOf<Date>, DateRangeProperties {
     start: Date;
     end: Date;
     isExplicit(): this is ExplicitDateRange;
@@ -41,7 +47,7 @@ export interface ExplicitDateRange extends Range<Date>, DateRangeProperties {
     timeFromNowUntil(prop: keyof DateRangeProperties, units?: moment.unitOfTime.Diff): number;
 }
 
-export class DateRange extends Range<Date> implements DateRangeProperties {
+export class DateRange extends RangeOf<Date> implements DateRangeProperties {
     public constructor(start?: Date, end?: Date) {
         super(start, end);
     }
@@ -55,7 +61,7 @@ export class DateRange extends Range<Date> implements DateRangeProperties {
     }
 
     public static compareDates(d1: Date, d2: Date): 'less'|'equal'|'greater' {
-        return Range._defaultCompare(d1.getTime(), d2.getTime());
+        return RangeOf._defaultCompare(d1.getTime(), d2.getTime());
     }
 
     public get start(): Date|undefined { return this.min; }

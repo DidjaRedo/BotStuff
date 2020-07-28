@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as GeoConverters from './geoConverters';
+
+import { Converter, fail } from '@fgv/ts-utils';
 import { Poi, PoiProperties } from '../places/poi';
-import { Converter } from '../utils/converter';
-import { fail } from '../utils/result';
 
 const delimitedString = Converters.delimitedString('|');
 

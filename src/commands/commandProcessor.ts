@@ -21,8 +21,13 @@
  */
 
 import { CommandResult, Commands, ValidatedCommands } from './command';
-import { FormatTargets, Formatter } from '../utils/formatter';
-import { Result, fail, succeed } from '../utils/result';
+import {
+    FormatTargets,
+    Formatter,
+    Result,
+    fail,
+    succeed,
+} from '@fgv/ts-utils';
 
 export type ExecutedResult<TCMDS> = { [key in keyof TCMDS]: CommandResult<keyof TCMDS, TCMDS[key]> }
 
@@ -50,6 +55,7 @@ class FieldTracker<T> {
     public readonly keys: (keyof T)[] = [];
 
     public add<T2>(key: keyof T, result?: Result<T2>): void {
+        // istanbul ignore else
         if (result !== undefined) {
             if (result.isFailure()) {
                 this.errors.push(result.message);
@@ -65,6 +71,7 @@ class FieldTracker<T> {
     }
 
     public getFailure<T>(message?: string): Result<T> {
+        // istanbul ignore next line
         const errors = (message ? [message, ...this.errors] : this.errors);
         return fail(errors.join('\n'));
     }
@@ -108,6 +115,7 @@ export class CommandProcessor<TCMDS> {
         else {
             order = [];
             for (const key in commands) {
+                // istanbul ignore else
                 if (commands[key] !== undefined) {
                     order.push(key);
                 }
@@ -121,6 +129,8 @@ export class CommandProcessor<TCMDS> {
         const validated: Partial<ValidatedCommands<TCMDS>> = {};
 
         for (const key of this._evalOrder) {
+            // the optional chained calls are hard to test
+            // istanbul ignore next
             tracker.add(key, this.commands[key]?.validate(command)?.onSuccess((value) => {
                 if (value !== undefined) {
                     validated[key] = value;
@@ -143,6 +153,9 @@ export class CommandProcessor<TCMDS> {
         const executed: Partial<ExecutedResult<TCMDS>> = {};
 
         for (const key of keys) {
+            // hard and kind of pointless to create unit tests for the optional
+            // chained call here
+            // istanbul ignore next
             tracker.add(key, validated[key]?.execute()?.onSuccess((value) => {
                 executed[key] = value;
                 return succeed(value);
@@ -186,25 +199,34 @@ export class CommandProcessor<TCMDS> {
             return fail(validateResult.message);
         }
 
-        const { keys, validated, validationErrors } = validateResult.value;
+        const { keys, validated } = validateResult.value;
 
         if (keys.length < 1) {
-            const errorText = (validationErrors.length > 0) ? `\n${validationErrors.join('\n')}` : '';
-            return fail(`No command matched ${command}${errorText}`);
+            return fail(`No command matched ${command}`);
         }
         else if (keys.length > 1) {
+            // istanbul ignore next
             const candidates = keys.map((k) => validated[k]?.command).join(', ');
             return fail(`Ambiguous command ${command} could be any of: [${candidates}]`);
         }
 
+        // istanbul ignore next
         const executeResult = validated[keys[0]]?.execute();
-        if (executeResult?.isSuccess()) {
-            const executed: Partial<ExecutedResult<TCMDS>> = {};
-            executed[keys[0]] = executeResult.value;
-            return succeed({ keys, executed });
+
+        // should never happen in real life and a pain to induce
+        // istanbul ignore else
+        if (executeResult !== undefined) {
+            if (executeResult.isSuccess()) {
+                const executed: Partial<ExecutedResult<TCMDS>> = {};
+                executed[keys[0]] = executeResult.value;
+                return succeed({ keys, executed });
+            }
+            return fail(executeResult.message);
         }
-        const message = executeResult?.isFailure() ? executeResult.message : `Unknown execution failure for ${command})`;
-        return fail(message);
+
+        // should never happen in real life and a pain to induce
+        // istanbul ignore next
+        return fail(`Unknown execution failure for ${command}`);
     }
 
     public formatAll(
@@ -218,6 +240,7 @@ export class CommandProcessor<TCMDS> {
         for (const key of keys) {
             const result = executed[key];
             const formatter = formatters[key];
+            // istanbul ignore else
             if ((result !== undefined) && (formatter !== undefined)) {
                 tracker.add(key, formatter(result.message, result.result).onSuccess((message: string) => {
                     formatted[key] = message;

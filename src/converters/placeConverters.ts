@@ -22,9 +22,9 @@
 
 import * as PoiLookupOptions from '../places/poiLookupOptions';
 
-import { fail, mapResults, succeed } from '../utils/result';
+import { Converter, fail, mapResults, succeed } from '@fgv/ts-utils';
+
 import { City } from '../places/city';
-import { Converter } from '../utils/converter';
 import { GlobalPoiDirectoryBase } from '../places/globalPoiDirectory';
 import { Poi } from '../places/poi';
 import { Zone } from '../places/zone';
@@ -101,13 +101,13 @@ export function places<T extends Poi, TO extends PoiLookupOptions.Properties>(di
         else if (isArray(from)) {
             for (const name of from) {
                 if (typeof name !== 'string') {
-                    return fail(`Cannot convert non-string ${JSON.stringify(name)} to zone`);
+                    return fail(`Cannot convert non-string ${JSON.stringify(name)} to place`);
                 }
             }
             names = from;
         }
         else {
-            return fail(`Cannot convert ${JSON.stringify(from)} to list of zones`);
+            return fail(`Cannot convert ${JSON.stringify(from)} to list of places`);
         }
         const result: Places = {
             cities: [],
@@ -131,7 +131,7 @@ export function places<T extends Poi, TO extends PoiLookupOptions.Properties>(di
             }
         }
 
-        if ((result.cities.length === 0) && (result.zones.length === 0) && (errors.length > 0)) {
+        if (errors.length > 0) {
             return fail(errors.join('\n'));
         }
         return succeed(result);

@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-import { ItemArray, Utils } from '../utils/utils';
-import { NamedThing, Names } from './names';
-import { Result, succeed } from '../utils/result';
+import { ExtendedArray, Result, succeed } from '@fgv/ts-utils';
+import { KeyedThing, NamedThing, Names } from './names';
+
 import Fuse from 'fuse.js';
-import { KeyedThing } from './keyedThing';
+import { Utils } from '../utils/utils';
 
 export interface FieldSearchWeight<T> {
     name: keyof T;
@@ -57,9 +57,9 @@ export interface SearchResult<T> {
     item: T;
 }
 
-export class ResultArray<T> extends ItemArray<SearchResult<T>> {
-    public constructor(key: string, ...items: SearchResult<T>[]) {
-        super(key, ...items);
+export class ResultArray<T> extends ExtendedArray<SearchResult<T>> {
+    public constructor(itemDescription: string, ...items: SearchResult<T>[]) {
+        super(itemDescription, ...items);
     }
 
     public singleItem(): Result<T> {
@@ -69,12 +69,12 @@ export class ResultArray<T> extends ItemArray<SearchResult<T>> {
         return this.single().onSuccess((sr) => succeed(sr.item));
     }
 
-    public bestItem(): Result<T> {
-        return this.best().onSuccess((sr) => succeed(sr.item));
+    public firstItem(): Result<T> {
+        return this.first().onSuccess((sr) => succeed(sr.item));
     }
 
-    public allItems(): ItemArray<T> {
-        return new ItemArray(this._key, ...this.map((sr) => sr.item));
+    public allItems(): ExtendedArray<T> {
+        return new ExtendedArray(this.itemDescription, ...this.map((sr) => sr.item));
     }
 }
 
@@ -88,7 +88,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
     private _all: T[];
     private _byKey: Map<string, T>;
     private _byAlternateKey: Map<keyof TK, Map<string, T|T[]>>;
-    private _search?: Fuse<T, { includeScore: true }>;
+    private _search?: Fuse<T>;
     private _options: DirectoryOptions<T, TS, TK>;
 
     public constructor(options: DirectoryOptions<T, TS, TK>, elements?: Iterable<T>) {
@@ -129,8 +129,8 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         });
     }
 
-    public getAll(options?: Partial<TLO>): ItemArray<T> {
-        return new ItemArray('any', ...this._filterItems(Array.from(this._all), options));
+    public getAll(options?: Partial<TLO>): ExtendedArray<T> {
+        return new ExtendedArray('any', ...this._filterItems(Array.from(this._all), options));
     }
 
     public getKeys(props: T): TK|undefined {
@@ -145,7 +145,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return this._byKey.get(Names.normalizeOrThrow(name));
     }
 
-    public getByFieldExact(field: keyof TK, name: string, options?: Partial<TLO>): ItemArray<T> {
+    public getByFieldExact(field: keyof TK, name: string, options?: Partial<TLO>): ExtendedArray<T> {
         if (!this.isAlternateKey(field)) {
             throw new Error(`Field ${field} is not an alternate key.`);
         }
@@ -153,10 +153,10 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         const map = this._byAlternateKey.get(field);
         const result = map?.get(Names.normalizeOrThrow(name));
         const filtered = this._filterItems(Utils.ensureArray(result), options);
-        return new ItemArray(name, ...filtered);
+        return new ExtendedArray(name, ...filtered);
     }
 
-    public getByAnyFieldExact(name: string, options?: Partial<TLO>): ItemArray<T> {
+    public getByAnyFieldExact(name: string, options?: Partial<TLO>): ExtendedArray<T> {
         const wantKey = Names.normalizeOrThrow(name);
         const altKeys = this.alternateKeys;
 
@@ -169,7 +169,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         ].filter((t)=> t[0] !== undefined);
         const merged = raw.reduce((a, c) => a.concat(c), []);
         const filtered = this._filterItems(merged, options);
-        return new ItemArray<T>(name, ...filtered);
+        return new ExtendedArray<T>(name, ...filtered);
     }
 
     public searchByTextFields(name: string, options?: Partial<TLO>): ResultArray<T> {
@@ -242,6 +242,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
             // istanbul ignore next
             const altKeys = this._options.alternateKeys ?? [];
             for (const key of altKeys) {
+                // istanbul ignore else
                 if (this._isUniqueKey(key)) {
                     const map = this._byAlternateKey.get(key);
                     if (map) {
@@ -282,6 +283,7 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
                 // istanbul ignore next
                 const altKeys = this._options.alternateKeys ?? [];
                 for (const k of altKeys) {
+                    // istanbul ignore else
                     if (this._isUniqueKey(k)) {
                         const altKeyValue = elem.keys[k];
                         const values = Array.isArray(altKeyValue) ? altKeyValue : [altKeyValue];
@@ -350,8 +352,8 @@ export abstract class DirectoryBase<T extends KeyedThing<TK> & TS, TS extends TK
         return elem;
     }
 
-    private _initSearch(): Fuse<T, Fuse.IFuseOptions<T>> {
-        return new Fuse<T, Fuse.IFuseOptions<T>>(this._all, {
+    private _initSearch(): Fuse<T> {
+        return new Fuse<T>(this._all, {
             shouldSort: true,
             ignoreFieldNorm: false,
             isCaseSensitive: false,

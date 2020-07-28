@@ -20,13 +20,6 @@
  * SOFTWARE.
  */
 
-import { Result, fail, succeed } from './result';
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function isKey<T extends object>(key: string|number|symbol, item: T): key is keyof T {
-    return item.hasOwnProperty(key);
-}
-
 export class Utils {
     /* istanbul ignore next */
     private constructor() {} // eslint-disable-line
@@ -63,42 +56,5 @@ export class Utils {
             return [items];
         }
         return items;
-    }
-}
-
-export class ItemArray<T> extends Array<T> {
-    protected readonly _key: string;
-    public constructor(key: string, ...items: T[]) {
-        super(...items);
-        this._key = key;
-    }
-
-    public single(predicate?: (item: T) => boolean): Result<T> {
-        const match = (predicate ? this.filter(predicate) : this);
-        if (match.length === 1) {
-            return succeed(match[0]);
-        }
-        if (match.length === 0) {
-            return fail(`${this._key} not found`);
-        }
-        return fail(`${this._key} matches ${match.length} items`);
-    }
-
-    public best(failMessage?: string): Result<T> {
-        if (this.length > 0) {
-            return succeed(this[0]);
-        }
-        return fail(failMessage ?? `${this._key} not found`);
-    }
-
-    public atLeastOne(failMessage?: string): Result<T[]> {
-        if (this.length > 0) {
-            return succeed(Array.from(this));
-        }
-        return fail(failMessage ?? `${this._key} not found`);
-    }
-
-    public all(): T[] {
-        return Array.from(this);
     }
 }

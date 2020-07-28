@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 import { DirectoryBase, DirectoryLookupOptions, DirectoryOptions, SearchResult } from '../../src/names/directory';
-import { KeyedThing } from '../../src/names/keyedThing';
+import { KeyedThing } from '../../src/names/names';
 import { Names } from '../../src/names/names';
 
 export interface FakeKeys {

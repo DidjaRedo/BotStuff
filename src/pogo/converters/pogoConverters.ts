@@ -20,13 +20,10 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 
+import { Converter, RangeOf, fail } from '@fgv/ts-utils';
 import { RaidTier, validatePokemonType, validateRaidTier, validateWeather } from '../game';
-
-import { Converter } from '../../utils/converter';
-import { Range } from '../../utils/range';
-import { fail } from '../../utils/result';
 
 export const pokemonType = new Converter(validatePokemonType);
 export const pokemonTypeArray = Converters.arrayOf(pokemonType);
@@ -39,16 +36,25 @@ export const pokemonTypes = Converters.oneOf([
 export const raidTier = new Converter(validateRaidTier);
 export const weather = new Converter(validateWeather);
 
-export const raidTierRange = new Converter<Range<RaidTier>>((from: unknown) => {
+export const raidTierRange = new Converter<RangeOf<RaidTier>>((from: unknown) => {
     if (typeof from !== 'string') {
-        return fail(`Cannot convert ${JSON.stringify(from)} to raid tier range.`);
+        return fail(`Cannot convert ${JSON.stringify(from)} to raid tier range`);
     }
     const normalized = from.trim().toLowerCase();
 
-    // e.g. T3+ means 3-max
-    if (normalized.endsWith('+')) {
+    // e.g. T3+ or T3- means 3-max
+    if (normalized.endsWith('+') || normalized.endsWith('-')) {
         const result = validateRaidTier(normalized.slice(0, -1)).onSuccess((min) => {
-            return Range.createRange<RaidTier>({ min, max: 6 });
+            return RangeOf.createRange<RaidTier>({ min, max: 6 });
+        });
+
+        if (result.isSuccess()) {
+            return result;
+        }
+    }
+    else if (normalized.startsWith('-')) {
+        const result = validateRaidTier(normalized.slice(1)).onSuccess((max) => {
+            return RangeOf.createRange<RaidTier>({ min: 1, max });
         });
 
         if (result.isSuccess()) {
@@ -59,7 +65,7 @@ export const raidTierRange = new Converter<Range<RaidTier>>((from: unknown) => {
     const parts = normalized.split('-');
     if (parts.length === 1) {
         const result = validateRaidTier(normalized).onSuccess((exact) => {
-            return Range.createRange<RaidTier>({ min: exact, max: exact });
+            return RangeOf.createRange<RaidTier>({ min: exact, max: exact });
         });
 
         if (result.isSuccess()) {
@@ -70,7 +76,7 @@ export const raidTierRange = new Converter<Range<RaidTier>>((from: unknown) => {
     if (parts.length === 2) {
         const result = validateRaidTier(parts[0]).onSuccess((min) => {
             return validateRaidTier(parts[1]).onSuccess((max) => {
-                return Range.createRange<RaidTier>({ min, max });
+                return RangeOf.createRange<RaidTier>({ min, max });
             });
         });
         if (result.isSuccess()) {

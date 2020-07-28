@@ -20,17 +20,16 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from './pogoConverters';
 
+import { Converter, Result, fail } from '@fgv/ts-utils';
 import { Raid, RaidJson, validateRaidType } from '../raid';
-import { Result, fail } from '../../utils/result';
 
 import { BossDirectory } from '../bossDirectory';
-import { Converter } from '../../utils/converter';
 import { GlobalGymDirectory } from '../gymDirectory';
 import { RaidMap } from '../raidMap';
-import { loadJsonFile } from '../../utils/jsonHelpers';
+import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
 export const raidType = new Converter(validateRaidType);
 
@@ -70,7 +69,7 @@ export function raidMap(gyms: GlobalGymDirectory, bosses: BossDirectory): Conver
 }
 
 export function loadRaidMapSync(path: string, gyms: GlobalGymDirectory, bosses: BossDirectory): Result<RaidMap> {
-    return loadJsonFile(path).onSuccess((json) => {
+    return readJsonFileSync(path).onSuccess((json) => {
         return raidMap(gyms, bosses).convert(json);
     });
 }

@@ -22,10 +22,9 @@
 
 import * as Pogo from './game';
 import { DateRange, DateRangeProperties } from '../time/dateRange';
-import { Range, RangeProperties } from '../utils/range';
+import { KeyedThing, Names } from '../names/names';
+import { RangeOf, RangeOfProperties } from '@fgv/ts-utils';
 import { DirectoryOptions } from '../names/directory';
-import { KeyedThing } from '../names/keyedThing';
-import { Names } from '../names/names';
 import { RaidTier } from './game';
 
 export interface BossKeys {
@@ -43,8 +42,8 @@ export interface BossProperties extends BossKeys {
     imageFileName?: string;
 
     numRaiders?: number;
-    cpRange?: RangeProperties<number>;
-    boostedCpRange?: RangeProperties<number>;
+    cpRange?: RangeOfProperties<number>;
+    boostedCpRange?: RangeOfProperties<number>;
     types?: Pogo.PokemonType[];
 
     active?: boolean|DateRangeProperties;
@@ -62,8 +61,8 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
     public readonly imageFileName: string;
 
     public readonly numRaiders?: number;
-    public readonly cpRange?: Range<number>;
-    public readonly boostedCpRange?: Range<number>;
+    public readonly cpRange?: RangeOf<number>;
+    public readonly boostedCpRange?: RangeOf<number>;
     public readonly types?: Pogo.PokemonType[];
 
     public active?: boolean|DateRange;
@@ -84,8 +83,8 @@ export class Boss implements BossProperties, KeyedThing<BossKeys> {
         this.tier = Pogo.validateRaidTier(init.tier).getValueOrThrow();
         this.pokedexNumber = init.pokedexNumber;
         this.numRaiders = init.numRaiders;
-        this.cpRange = Range.createRange(init.cpRange).getValueOrDefault();
-        this.boostedCpRange = Range.createRange(init.boostedCpRange).getValueOrDefault();
+        this.cpRange = RangeOf.createRange(init.cpRange).getValueOrDefault();
+        this.boostedCpRange = RangeOf.createRange(init.boostedCpRange).getValueOrDefault();
         this.types = init.types;
 
         if (init.raidGuideName) {

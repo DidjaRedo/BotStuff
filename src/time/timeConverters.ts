@@ -20,11 +20,10 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
+import { Converter, Result, captureResult, fail, succeed } from '@fgv/ts-utils';
 import { DateRange, DateRangeProperties } from './dateRange';
-import { Result, captureResult, fail, succeed } from '../utils/result';
-import { Converter } from '../utils/converter';
-import FlexTime from './flexTime';
+import { FlexTime } from './flexTime';
 import moment from 'moment';
 
 (moment as unknown as { suppressDeprecationWarnings: boolean }).suppressDeprecationWarnings = true;

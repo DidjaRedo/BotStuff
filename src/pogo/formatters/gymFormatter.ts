@@ -20,9 +20,8 @@
  * SOFTWARE.
  */
 
-import { FormattableBase, FormattersByTarget } from '../../utils/formatter';
+import { FormattableBase, FormattersByTarget, Result } from '@fgv/ts-utils';
 import { Gym } from '../gym';
-import { Result } from '../../utils/result';
 
 export interface GymFormatter {
     name: string;

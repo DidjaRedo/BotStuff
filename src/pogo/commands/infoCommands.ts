@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from '../converters/pogoConverters';
 
 import { Boss, BossDirectory, RaidManager } from '..';
 import { BossesCommand, commonProperties } from './common';
 import { CommandInitializer, CommandProcessor, Commands, ParserBuilder } from '../../commands';
-import { ItemArray, Result } from '../../utils';
+import { ExtendedArray, Result } from '@fgv/ts-utils';
 
 import { RaidTier } from '../game';
 import { bossesByName } from '../converters/bossConverters';
@@ -35,7 +35,7 @@ export type BossStatusFilter = 'active'|'inactive'|'all';
 export const bossStatusConverter = Converters.enumeratedValue<BossStatusFilter>(['active', 'inactive', 'all']);
 
 interface Fields {
-    boss: ItemArray<Boss>;
+    boss: ExtendedArray<Boss>;
     gym: string;
     places: string[];
     status: BossStatusFilter;
@@ -82,7 +82,7 @@ export function bossInfoInitializer(bosses: BossDirectory): BossInfoInitializer 
         executor: (params: BossInfoFields): Result<Boss[]> => {
             let got = params.boss;
             if (params.tier !== undefined) {
-                got = new ItemArray('boss', ...params.boss.filter((b) => b.tier === params.tier));
+                got = new ExtendedArray('boss', ...params.boss.filter((b) => b.tier === params.tier));
             }
             return got.atLeastOne();
         },

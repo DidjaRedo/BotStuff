@@ -22,7 +22,7 @@
 
 import * as PoiLookupOptions from './poiLookupOptions';
 import { City } from './city';
-import { ItemArray } from '../utils/utils';
+import { ExtendedArray } from '@fgv/ts-utils';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
 import { Poi } from './poi';
@@ -64,7 +64,7 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
         this._updateZonesAndCities(poi);
     }
 
-    public getAll(options?: Partial<PO>): ItemArray<P> {
+    public getAll(options?: Partial<PO>): ExtendedArray<P> {
         const effectiveOptions = this._getEffectiveOptions(options);
         return this.pois.getAll(effectiveOptions);
     }

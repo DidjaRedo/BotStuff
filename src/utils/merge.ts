@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Result, fail, succeed } from './result';
+import { Result, fail, succeed } from '@fgv/ts-utils';
 import { Names } from '../names/names';
 
 export interface ItemMergeOptions {
@@ -169,6 +169,9 @@ export function getMergedFields<FT, OT extends MergeOptions>(
     const merged: Partial<FT> = {};
     const errors: string[] = [];
 
+    // can only happen if a clone method returns undefined which is
+    // unlikely to happen and a pain to test
+    // istanbul ignore next
     if (base === undefined) {
         return fail('Cannot merge into undefined base object');
     }
@@ -231,14 +234,14 @@ export function objectNew<T, OT extends MergeOptions>(
     clone: (base?: T) => T,
 ): Merger<T, Partial<T>, OT> {
     return new Merger((base?: T, toMerge?: Partial<T>, options?: Partial<OT>): Result<T> => {
-        // istanbul ignore next
-        const result = getMergedFields(base, toMerge ?? {}, fields, options);
+        const rtrn: T = clone(base);
 
+        // istanbul ignore next
+        const result = getMergedFields(rtrn, toMerge ?? {}, fields, options);
         if (result.isFailure()) {
             return fail(result.message);
         }
 
-        const rtrn: T = clone(base);
         const merged = result.value;
         for (const key in merged) {
             /* istanbul ignore else */
@@ -270,7 +273,7 @@ export class ObjectMerger<T, OT extends MergeOptions> {
         return this._inPlaceMerger.merge(base, merge, options ?? this._options);
     }
 
-    public mergeIntoCopy(base: T, merge?: Partial<T>, options?: OT): Result<T|undefined> {
+    public mergeIntoCopy(base?: T, merge?: Partial<T>, options?: OT): Result<T|undefined> {
         return this._copyMerger.merge(base, merge, options ?? this._options);
     }
 }

@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-import { Success, succeed } from '../../src/utils/result';
-import { LoggerBase } from '../../src/utils/logger';
+import { Success, succeed } from '@fgv/ts-utils';
+import { LoggerBase } from '@fgv/ts-utils/logger';
 
 export class ConsoleLogger extends LoggerBase {
     protected _innerLog(message: string): Success<string> {

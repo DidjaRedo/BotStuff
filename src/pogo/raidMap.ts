@@ -20,11 +20,10 @@
  * SOFTWARE.
  */
 
+import { ExtendedArray, Result, captureResult, fail, mapResults, succeed } from '@fgv/ts-utils';
 import { GlobalGymDirectory, GymLookupOptionsProperties } from './gymDirectory';
 import { Raid, RaidState } from './raid';
-import { Result, captureResult, fail, mapResults, succeed } from '../utils/result';
 import { Gym } from './gym';
-import { ItemArray } from '../utils/utils';
 import { Names } from '../names/names';
 import { NormalizedMap } from '../names/normalizedMap';
 import { RaidTier } from './game';
@@ -108,16 +107,16 @@ export class RaidMap implements Map<string, Raid> {
     public getRaidsAtGyms(
         gyms: Gym[],
         options?: Partial<RaidLookupOptions>,
-    ): ItemArray<Raid> {
-        return new ItemArray('raid',
+    ): ExtendedArray<Raid> {
+        return new ExtendedArray('raid',
             ...gyms.map((g) => this.tryGet(g.keys.name))
                 .filter((r): r is Raid => (r !== undefined) && RaidMap.filter(r, options)),
         );
     }
 
-    public getAll(options?: Partial<RaidLookupOptions>): ItemArray<Raid> {
+    public getAll(options?: Partial<RaidLookupOptions>): ExtendedArray<Raid> {
         const raids = Array.from(this.values()).filter((r) => RaidMap.filter(r, options));
-        return new ItemArray('raid', ...raids);
+        return new ExtendedArray('raid', ...raids);
     }
 
     public set(name: string, value: Raid): this {
@@ -212,15 +211,3 @@ export class RaidMap implements Map<string, Raid> {
         this._map.forEach(func);
     }
 }
-
-/*
-export function raidMap(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<RaidMap> {
-    return Converters.arrayOf(raid(gyms, bosses)).map(RaidMap.create);
-}
-
-export function loadRaidMapSync(path: string, gyms: GlobalGymDirectory, bosses: BossDirectory): Result<RaidMap> {
-    return loadJsonFile(path).onSuccess((json) => {
-        return raidMap(gyms, bosses).convert(json);
-    });
-}
-*/

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Result, fail, succeed } from './result';
+import { Result, fail, succeed } from '@fgv/ts-utils';
 
 export interface Coordinate {
     latitude: number;

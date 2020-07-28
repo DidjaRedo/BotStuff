@@ -19,9 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Result, captureResult } from '../utils/result';
-import { KeyedThing } from '../names/keyedThing';
-import { Names } from '../names/names';
+import { KeyedThing, Names } from '../names/names';
+import { Result, captureResult } from '@fgv/ts-utils';
 import { NormalizedSet } from '../names/normalizedSet';
 
 export interface ZoneKeys {

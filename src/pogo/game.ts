@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { Result, fail, succeed } from '../utils/result';
+import { Result, fail, succeed } from '@fgv/ts-utils';
 
 export type RaidTier = 1|2|3|4|5|6;
 

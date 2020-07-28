@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Result, fail, succeed } from '../utils/result';
+import { Result, fail, succeed } from '@fgv/ts-utils';
 import { Names } from './names';
 
 export type ElementInitializer<T> = (name: string, normalizedName: string) => Result<T>;

@@ -21,7 +21,6 @@
  */
 
 export * from './directory';
-export * from './keyedThing';
 export * from './names';
 export * from './normalizedMap';
 export * from './normalizedSet';

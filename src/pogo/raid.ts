@@ -22,16 +22,15 @@
 
 import * as TimeConverters from '../time/timeConverters';
 import { DateRange, ExplicitDateRange } from '../time/dateRange';
+import { KeyedThing, Names } from '../names/names';
 import { RaidTier, validateRaidTier } from './game';
-import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
+import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '@fgv/ts-utils';
 import { Boss } from './boss';
 import { BossDirectory } from './bossDirectory';
 import { DirectoryOptions } from '../names/directory';
 import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
-import { JsonObject } from '../utils/jsonHelpers';
-import { KeyedThing } from '../names/keyedThing';
-import { Names } from '../names/names';
+import { JsonObject } from '@fgv/ts-utils/jsonHelpers';
 import moment from 'moment';
 
 export interface RaidKeys {

@@ -23,7 +23,7 @@
 import * as Gym from './gym';
 import * as Merge from '../utils/merge';
 import * as PoiLookupOptions from '../places/poiLookupOptions';
-import { Result, captureResult } from '../utils/result';
+import { Result, captureResult } from '@fgv/ts-utils';
 import { GlobalPoiDirectoryBase } from '../places/globalPoiDirectory';
 
 export interface GymLookupOptionsProperties extends PoiLookupOptions.Properties {

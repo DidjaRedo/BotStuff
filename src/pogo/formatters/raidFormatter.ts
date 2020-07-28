@@ -21,10 +21,15 @@
  */
 
 import { CategorizedRaids, Raid } from '../raid';
-import { Formattable, FormattableBase, FormattersByTarget, formatList } from '../../utils/formatter';
+import {
+    Formattable,
+    FormattableBase,
+    FormattersByTarget,
+    Result,
+    formatList,
+} from '@fgv/ts-utils';
 import { Boss } from '../boss';
-import FlexTime from '../../time/flexTime';
-import { Result } from '../../utils/result';
+import { FlexTime } from '../../time';
 import moment from 'moment';
 
 export interface RaidFormatter extends Formattable {
@@ -157,29 +162,36 @@ export interface CategorizedRaidsFormatter extends Formattable {
 
 export class TextCategorizedRaidsFormatter extends FormattableBase implements CategorizedRaidsFormatter {
     protected readonly _raids: CategorizedRaids;
+    protected readonly _label?: string;
 
-    public constructor(raids: CategorizedRaids) {
+    public constructor(raids: CategorizedRaids, label?: string) {
         super();
         this._raids = raids;
+        this._label = label;
     }
 
     public header(label?: string): string {
+        label = label ?? this._label;
         return this._formatHeader(label ? `RAIDS (${label})` : 'RAIDS');
     }
 
     public futureHeader(label?: string): string {
+        label = label ?? this._label;
         return this._formatHeader(label ? `FUTURE RAIDS (${label})` : 'FUTURE RAIDS');
     }
 
     public upcomingHeader(label?: string): string {
+        label = label ?? this._label;
         return this._formatHeader(label ? `UPCOMING RAIDS (${label})` : 'UPCOMING RAIDS');
     }
 
     public activeHeader(label?: string): string {
+        label = label ?? this._label;
         return this._formatHeader(label ? `ACTIVE RAIDS (${label})` : 'ACTIVE RAIDS');
     }
 
     public expiredHeader(label?: string): string {
+        label = label ?? this._label;
         return this._formatHeader(label ? `EXPIRED RAIDS (${label})` : 'EXPIRED RAIDS');
     }
 
@@ -216,6 +228,8 @@ export class TextCategorizedRaidsFormatter extends FormattableBase implements Ca
     }
 
     public description(label?: string): string {
+        // istanbul ignore next
+        label = label ?? this._label;
         const lines = [
             this.active(label),
             this.upcoming(label),
@@ -251,8 +265,8 @@ export class TextCategorizedRaidsFormatter extends FormattableBase implements Ca
 }
 
 export class MarkdownCategorizedRaidsFormatter extends TextCategorizedRaidsFormatter {
-    public constructor(raids: CategorizedRaids) {
-        super(raids);
+    public constructor(raids: CategorizedRaids, label?: string) {
+        super(raids, label);
     }
 
     protected _formatHeader(header: string): string {
@@ -264,14 +278,18 @@ export class MarkdownCategorizedRaidsFormatter extends TextCategorizedRaidsForma
     }
 }
 
-export const categorizedRaidsFormatters: FormattersByTarget<CategorizedRaids> = {
-    text: (format: string, raids: CategorizedRaids): Result<string> => {
-        return new TextCategorizedRaidsFormatter(raids).format(format);
-    },
-    markdown: (format: string, raids: CategorizedRaids): Result<string> => {
-        return new MarkdownCategorizedRaidsFormatter(raids).format(format);
-    },
-    embed: (format: string, raids: CategorizedRaids): Result<string> => {
-        return new MarkdownCategorizedRaidsFormatter(raids).format(format);
-    },
-};
+export function getCategorizedRaidsFormatters(label?: string): FormattersByTarget<CategorizedRaids> {
+    return {
+        text: (format: string, raids: CategorizedRaids): Result<string> => {
+            return new TextCategorizedRaidsFormatter(raids, label).format(format);
+        },
+        markdown: (format: string, raids: CategorizedRaids): Result<string> => {
+            return new MarkdownCategorizedRaidsFormatter(raids, label).format(format);
+        },
+        embed: (format: string, raids: CategorizedRaids): Result<string> => {
+            return new MarkdownCategorizedRaidsFormatter(raids, label).format(format);
+        },
+    };
+}
+
+export const categorizedRaidsFormatters = getCategorizedRaidsFormatters();

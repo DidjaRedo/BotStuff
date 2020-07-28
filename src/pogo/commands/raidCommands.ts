@@ -20,26 +20,25 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 import * as PlaceConverters from '../../converters/placeConverters';
 import * as PogoConverters from '../../pogo/converters/pogoConverters';
 
 import { CategorizedRaids, Raid } from '../raid';
 import { CategorizedRaidsCommand, commonFormats, commonProperties } from './common';
 import { CommandInitializer, Commands } from '../../commands/command';
-import { Result, succeed } from '../../utils/result';
+import { RangeOf, Result, succeed } from '@fgv/ts-utils';
 
 import { CommandProcessor } from '../../commands/commandProcessor';
 import { ParserBuilder } from '../../commands/commandParser';
 import { RaidLookupOptions } from '../raidMap';
 import { RaidManager } from '../raidManager';
 import { RaidTier } from '../game';
-import { Range } from '../../utils/range';
 
 interface Fields {
     tier?: RaidTier;
     maxTier?: RaidTier;
-    tierRange?: Range<RaidTier>;
+    tierRange?: RangeOf<RaidTier>;
     places?: PlaceConverters.Places;
 }
 
@@ -71,8 +70,11 @@ function listRaids(rm: RaidManager, command: RaidsCommandType, params: Fields, o
             effective.exFilter = 'exEligible';
             break;
         case 'byTier':
-            effective.minTier = params.tierRange?.min;
-            effective.maxTier = params.tierRange?.max;
+            // istanbul ignore else
+            if (params.tierRange !== undefined) {
+                effective.minTier = params.tierRange.min;
+                effective.maxTier = params.tierRange.max;
+            }
             break;
         case 'defaultRaids':
             effective.minTier = 4;
@@ -81,9 +83,12 @@ function listRaids(rm: RaidManager, command: RaidsCommandType, params: Fields, o
     }
 
     if (params.places !== undefined) {
+        // istanbul ignore else
         if (params.places.cities) {
             effective.requiredCities = params.places.cities.map((c) => c.primaryKey);
         }
+
+        // istanbul ignore else
         if (params.places.zones) {
             effective.requiredZones = params.places.zones.map((z) => z.primaryKey);
         }

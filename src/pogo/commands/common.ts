@@ -31,10 +31,10 @@ import { CommandBase, CommandProperties } from '../../commands';
 import {
     FormatTargets,
     Formatter,
-    Range,
+    RangeOf,
     Result,
     succeed,
-} from '../../utils';
+} from '@fgv/ts-utils';
 import {
     bossesFormatters,
     categorizedRaidsFormatters,
@@ -53,7 +53,8 @@ const baseFormats: Record<string, string> = {
     time: '(?:\\d?\\d):?(?:\\d\\d)\\s*(?:a|A|am|AM|p|P|pm|PM)?',
     timer: '\\d?\\d',
     tier: '(?:(?:L|T|l|t)?(\\d+))',
-    minTier: `(?:${tierNoCapture}\\s*\\+)`,
+    minTier: `(?:${tierNoCapture}\\s*(?:[+-]))`,
+    maxTier: `(?:-)(?:${tierNoCapture})`,
     tierMinMax: `(?:${tierNoCapture}\\s*-\\s*${tierNoCapture})`,
 };
 
@@ -61,7 +62,7 @@ export const commonFormats: Record<string, string> = {
     ...baseFormats,
     csv: `(?:${baseFormats.names})(?:,\\s*${baseFormats.names})*`,
     alphaCsv: `(?:${baseFormats.alphaNames})(?:,\\s*${baseFormats.alphaNames})*`,
-    tierRange: `(?:${tierNoCapture}|${baseFormats.minTier}|${baseFormats.tierMinMax})`,
+    tierRange: `(?:${tierNoCapture}|${baseFormats.minTier}|${baseFormats.maxTier}|${baseFormats.tierMinMax})`,
 };
 
 export interface CommonProperties {
@@ -72,7 +73,7 @@ export interface CommonProperties {
     time: Date;
     timer: number;
     tier: number;
-    tierRange: Range<RaidTier>,
+    tierRange: RangeOf<RaidTier>,
     maxTier: number;
 }
 

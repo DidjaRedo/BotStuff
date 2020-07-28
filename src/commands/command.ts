@@ -20,10 +20,16 @@
  * SOFTWARE.
  */
 
-import { FormatTargets, Formatter } from '../utils/formatter';
-import { Result, fail, succeed } from '../utils/result';
+import {
+    Converter,
+    FormatTargets,
+    Formatter,
+    Result,
+    fail,
+    succeed,
+} from '@fgv/ts-utils';
+
 import { CommandParser } from './commandParser';
-import { Converter } from '../utils/converter';
 
 export type CommandValidator<TR> = (processed: TR) => Result<TR>;
 export type CommandExecutor<TSRC, TRET> = (params: TSRC) => Result<TRET>;

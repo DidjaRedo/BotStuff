@@ -33,11 +33,11 @@ import { Gym, GymProperties } from '../../src/pogo/gym';
 import { PoiGeneratorBase, PoiTestDataBase, PoiTestDataInitializer } from './placeHelpers';
 import { Raid, RaidInitializer, RaidState } from '../../src/pogo/raid';
 import { RaidTier, validateRaidTier } from '../../src/pogo/game';
-import { Result, captureResult, succeed } from '../../src/utils/result';
+import { Result, captureResult, succeed } from '@fgv/ts-utils';
 import { Boss } from '../../src/pogo/boss';
 import { BossDirectory } from '../../src/pogo/bossDirectory';
 import { GlobalGymDirectory } from '../../src/pogo/gymDirectory';
-import { InMemoryLogger } from '../../src/utils/logger';
+import { InMemoryLogger } from '@fgv/ts-utils/logger';
 import { MockFileSystem } from './dataHelpers';
 import { RaidMap } from '../../src/pogo/raidMap';
 import { loadBossDirectorySync } from '../../src/pogo/converters/bossConverters';
@@ -55,7 +55,7 @@ export class TestGymData extends PoiTestDataBase<GymProperties> {
     public getGyms(): Gym[] {
         const gyms = this._gyms;
         if (gyms !== undefined) {
-            return this.poiProperties.map((p) => gyms.lookup(p.name).bestItem().getValueOrThrow());
+            return this.poiProperties.map((p) => gyms.lookup(p.name).firstItem().getValueOrThrow());
         }
         return this.poiProperties.map((p) => new Gym(p));
     }
@@ -109,7 +109,7 @@ export class TestGymSelector extends PoiGeneratorBase<Gym, GymProperties> {
 
     public parseProperties(spec: string, _zoneNames?: string[], _cityNames?: string[]): GymProperties {
         const parts = spec.split('|');
-        return this._gyms.lookup(parts[0]).bestItem().getValueOrThrow();
+        return this._gyms.lookup(parts[0]).firstItem().getValueOrThrow();
     }
 }
 
@@ -273,12 +273,12 @@ export class TestRaidGenerator {
 
     protected static _getTestBosses(bosses: BossDirectory): Record<RaidTier, Boss> {
         return {
-            1: bosses.getAll({ tier: 1 }).best().getValueOrThrow(),
-            2: bosses.getAll({ tier: 2 }).best().getValueOrThrow(),
-            3: bosses.getAll({ tier: 3 }).best().getValueOrThrow(),
-            4: bosses.getAll({ tier: 4 }).best().getValueOrThrow(),
-            5: bosses.getAll({ tier: 5 }).best().getValueOrThrow(),
-            6: bosses.getAll({ tier: 5 }).best().getValueOrThrow(),
+            1: bosses.getAll({ tier: 1 }).first().getValueOrThrow(),
+            2: bosses.getAll({ tier: 2 }).first().getValueOrThrow(),
+            3: bosses.getAll({ tier: 3 }).first().getValueOrThrow(),
+            4: bosses.getAll({ tier: 4 }).first().getValueOrThrow(),
+            5: bosses.getAll({ tier: 5 }).first().getValueOrThrow(),
+            6: bosses.getAll({ tier: 5 }).first().getValueOrThrow(),
         };
     }
 

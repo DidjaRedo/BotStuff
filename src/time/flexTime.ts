@@ -51,7 +51,7 @@ function findFutureHour(now: TimeOfDayProvider, hours: number, minutes: number):
     return (hours % 24);
 }
 
-function tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay|undefined {
+function tryGetValuesFromString(str: string, now: TimeOfDayProvider): TimeOfDay|undefined {
     const match = flexTimeRegex.exec(str);
 
     if (match !== null) {
@@ -85,7 +85,7 @@ function tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay
             // "0830" if "now" is 7 in the morning but it means "2030" if now is noon)
             // Gets a little weird across midnight (e.g. 130 means 0130 if now is 2300)
             if (isValid && (!hasAmPm) && (!isUnambiguous24hrTime)) {
-                hours = findFutureHour(now ?? new Date(), hours, minutes);
+                hours = findFutureHour(now, hours, minutes);
             }
 
             if (isValid) {
@@ -99,7 +99,7 @@ function tryGetValuesFromString(str: string, now?: TimeOfDayProvider): TimeOfDay
 /**
  * Converts a flexible time specification into the nearest future time.
  */
-export default class FlexTime implements TimeOfDayProvider, TimeOfDay {
+export class FlexTime implements TimeOfDayProvider, TimeOfDay {
     public static substringRegex = flexTimeSubstringRegex;
     private _hours: number;
     private _minutes: number;

@@ -21,9 +21,17 @@
  */
 
 import { BossDirectory, BossLookupOptions } from './bossDirectory';
-import { Logger, NoOpLogger } from '../utils/logger';
+import {
+    ExtendedArray,
+    Result,
+    allSucceed,
+    captureResult,
+    fail,
+    populateObject,
+    succeed,
+} from '@fgv/ts-utils';
+import { Logger, NoOpLogger } from '@fgv/ts-utils/logger';
 import { Raid, RaidType } from './raid';
-import { Result, allSucceed, captureResult, fail, populateObject, succeed } from '../utils/result';
 import {
     loadBossDirectorySync,
     loadGlobalGymDirectorySync,
@@ -33,12 +41,11 @@ import {
 import { Boss } from './boss';
 import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
-import { ItemArray } from '../utils/utils';
 import { RaidLookupOptions } from './raidMap';
 import { RaidMap } from './raidMap';
 import { RaidTier } from './game';
 import { ResultArray } from '../names/directory';
-import { saveJsonFile } from '../utils/jsonHelpers';
+import { writeJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
 export const DEFAULT_BOSSES_FILE = './data/bosses.json';
 export const DEFAULT_GYMS_FILE = './data/gyms.json';
@@ -85,7 +92,7 @@ export class RaidManager {
 
     protected _listeners: RaidManagerListener[];
 
-    public constructor(options?: RaidManagerOptions) {
+    public constructor(options?: Partial<RaidManagerOptions>) {
         options = options ?? {};
 
         this._logger = options.logger ?? new NoOpLogger();
@@ -118,27 +125,27 @@ export class RaidManager {
         }
     }
 
-    public static create(options?: RaidManagerOptions): Result<RaidManager> {
+    public static create(options?: Partial<RaidManagerOptions>): Result<RaidManager> {
         return captureResult(() => new RaidManager(options));
     }
 
-    public getGyms(want: string, options?: RaidLookupOptions): ResultArray<Gym> {
+    public getGyms(want: string, options?: Partial<RaidLookupOptions>): ResultArray<Gym> {
         return this.gyms.lookup(want, options);
     }
 
-    public getBosses(want: string, options?: BossLookupOptions): ResultArray<Boss> {
+    public getBosses(want: string, options?: Partial<BossLookupOptions>): ResultArray<Boss> {
         return this.bosses.lookup(want, options);
     }
 
-    public getAllRaids(options?: Partial<RaidLookupOptions>): Result<ItemArray<Raid>> {
+    public getAllRaids(options?: Partial<RaidLookupOptions>): Result<ExtendedArray<Raid>> {
         const raids = this._raids.getAll(options).sort(Raid.compare);
         return (raids.length > 0) ? succeed(raids) : fail('No matching raids found');
     }
 
     public getRaids(
         want: string,
-        options?: RaidLookupOptions,
-    ): Result<ItemArray<Raid>> {
+        options?: Partial<RaidLookupOptions>,
+    ): Result<ExtendedArray<Raid>> {
         const gyms = this.gyms.lookup(want, options).allItems();
         if (gyms.length === 0) {
             return fail(`No gyms match ${want}`);
@@ -148,14 +155,14 @@ export class RaidManager {
 
     public getRaid(
         want: string|Gym,
-        options?: RaidLookupOptions,
+        options?: Partial<RaidLookupOptions>,
     ): Result<Raid> {
         if (typeof want === 'string') {
             return this.getRaids(want, options).onSuccess((raids) => {
-                return raids.best(`No raid found matching ${want}`);
+                return raids.first(`No raid found matching ${want}`);
             });
         }
-        return this._raids.getRaidsAtGyms([want], options).best(`No raid found matching ${want}`);
+        return this._raids.getRaidsAtGyms([want], options).first(`No raid found matching ${want}`);
     }
 
     public addFutureRaid(start: Date, gymName: string, tier: RaidTier, raidType?: RaidType): Result<Raid>;
@@ -163,7 +170,7 @@ export class RaidManager {
     public addFutureRaid(start: number, gymName: string, tier: RaidTier, raidType?: RaidType): Result<Raid>;
     public addFutureRaid(start: number, gym: Gym, tier: RaidTier, raidType?: RaidType): Result<Raid>;
     public addFutureRaid(start: Date|number, gymSpec: string|Gym, tier: RaidTier, raidType?: RaidType): Result<Raid> {
-        const gymResult = (typeof gymSpec === 'string') ? this.gyms.lookup(gymSpec).bestItem() : succeed(gymSpec);
+        const gymResult = (typeof gymSpec === 'string') ? this.gyms.lookup(gymSpec).firstItem() : succeed(gymSpec);
 
         return gymResult.onSuccess((gym) => {
             return Raid.createFutureRaid(start as number, gym, tier, raidType);
@@ -182,8 +189,8 @@ export class RaidManager {
 
     public addActiveRaid(timeLeftInMinutes: number, gymSpec: string|Gym, bossSpec: string|Boss, raidType?: RaidType): Result<Raid> {
         return populateObject<{gym: Gym, boss: Boss, raid: Raid}>({
-            gym: () => (typeof gymSpec === 'string') ? this.gyms.lookup(gymSpec).bestItem() : succeed(gymSpec),
-            boss: () => (typeof bossSpec === 'string') ? this.bosses.lookup(bossSpec).bestItem() : succeed(bossSpec),
+            gym: () => (typeof gymSpec === 'string') ? this.gyms.lookup(gymSpec).firstItem() : succeed(gymSpec),
+            boss: () => (typeof bossSpec === 'string') ? this.bosses.lookup(bossSpec).firstItem() : succeed(bossSpec),
             raid: (params) => Raid.createActiveRaid(timeLeftInMinutes, params.gym, params.boss, raidType),
         }).onSuccess((args) => {
             if (this._strict && this._raids.has(args.raid.gymName)) {
@@ -201,7 +208,7 @@ export class RaidManager {
     public updateRaid(gymSpec: string|Gym, bossSpec: string|Boss): Result<Raid> {
         return populateObject<{raid: Raid, boss: Boss}>({
             raid: () => this.getRaid(gymSpec),
-            boss: () => (typeof bossSpec === 'string') ? this.bosses.lookup(bossSpec).bestItem() : succeed(bossSpec),
+            boss: () => (typeof bossSpec === 'string') ? this.bosses.lookup(bossSpec).firstItem() : succeed(bossSpec),
         }).onSuccess((args) => {
             const updateResult = args.raid.update(args.boss);
             if (updateResult.isFailure()) {
@@ -327,7 +334,7 @@ export class RaidManager {
         }
 
         const raids = Array.from(this._raids.values()).map((r) => r.toJson());
-        return saveJsonFile(this._saveFile, raids);
+        return writeJsonFileSync(this._saveFile, raids);
     }
 
     protected _reportRaidListUpdate(): Result<boolean> {

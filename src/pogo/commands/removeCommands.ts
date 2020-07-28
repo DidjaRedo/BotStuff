@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 
 import {
     CommandGroup,

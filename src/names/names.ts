@@ -20,10 +20,15 @@
  * SOFTWARE.
  */
 
-import { Result, fail, mapResults, succeed } from '../utils/result';
+import { Result, fail, mapResults, succeed } from '@fgv/ts-utils';
 
 export interface NamedThing {
     readonly name: string;
+}
+
+export interface KeyedThing<TN> {
+    readonly primaryKey: string;
+    readonly keys: TN;
 }
 
 export interface Normalizable<TN extends NamedThing> {

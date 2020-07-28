@@ -20,16 +20,20 @@
  * SOFTWARE.
  */
 
-import * as Converters from '../../utils/converters';
+import * as Converters from '@fgv/ts-utils/converters';
 
+import {
+    Converter,
+    Result,
+    fail,
+    succeed,
+} from '@fgv/ts-utils';
 import { GlobalGymDirectory, GymLookupOptionsProperties } from '../gymDirectory';
 import { Gym, GymProperties } from '../gym';
-import { Result, fail, succeed } from '../../utils/result';
-import { Converter } from '../../utils/converter';
 import { Names } from '../../names/names';
-import { loadCsvFile } from '../../utils/csvHelpers';
-import { loadJsonFile } from '../../utils/jsonHelpers';
 import { poiPropertiesFieldConverters } from '../../converters/poiConverter';
+import { readCsvFileSync } from '@fgv/ts-utils/csvHelpers';
+import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
 export const exStatus = new Converter((from: unknown): Result<boolean> => {
     if (typeof from === 'string') {
@@ -51,7 +55,7 @@ export function bestGymByName(gyms: GlobalGymDirectory, options?: Partial<GymLoo
         if (typeof from !== 'string') {
             return fail('Gym name must be a string');
         }
-        return gyms.lookup(from, options).bestItem();
+        return gyms.lookup(from, options).firstItem();
     });
 }
 
@@ -154,7 +158,7 @@ export const legacyGym = gymPropertiesFromLegacyArray.map(Gym.createGym);
 export const legacyGymCsv = Converters.arrayOf(legacyGym);
 
 export function loadLegacyGymsFile(path: string): Result<Gym[]> {
-    return loadCsvFile(path).onSuccess((body) => {
+    return readCsvFileSync(path).onSuccess((body) => {
         return legacyGymCsv.convert(body);
     });
 }
@@ -164,7 +168,7 @@ export function globalGymDirectory(options?: Partial<GymLookupOptionsProperties>
 }
 
 export function loadGlobalGymDirectorySync(path: string, options?: Partial<GymLookupOptionsProperties>): Result<GlobalGymDirectory> {
-    return loadJsonFile(path).onSuccess((json) => {
+    return readJsonFileSync(path).onSuccess((json) => {
         return globalGymDirectory(options).convert(json);
     });
 }
