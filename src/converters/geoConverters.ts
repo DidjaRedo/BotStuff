@@ -32,27 +32,62 @@ export const coordinateFromObject = Converters.object({
     longitude: longitude,
 });
 
-export const coordinateFromString = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
-    if (typeof from === 'string') {
-        const parts = from.split(',');
-        if (parts.length !== 2) {
-            return fail(`Malformed location coordinate ${from}`);
-        }
-
-        return coordinateFromObject.convert({
-            latitude: parts[0].trim(),
-            longitude: parts[1].trim(),
-        });
+export const coordinateFromArrayLatLong = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+    if ((!Array.isArray(from)) || (from.length !== 2)
+        || ((typeof from[0] !== 'string') && (typeof from[0] !== 'number'))
+        || ((typeof from[1] !== 'string') && (typeof from[1] !== 'number'))) {
+        return fail(`Malformed lat/long coordinate ${JSON.stringify(from)}`);
     }
-    return fail('Cannot convert a non-string to location');
+    return coordinateFromObject.convert({
+        latitude: from[0],
+        longitude: from[1],
+    });
 });
 
-export const coordinate = Converters.oneOf([
+export const coordinateFromArrayLongLat = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+    if ((!Array.isArray(from)) || (from.length !== 2)
+        || ((typeof from[0] !== 'string') && (typeof from[0] !== 'number'))
+        || ((typeof from[1] !== 'string') && (typeof from[1] !== 'number'))) {
+        return fail(`Malformed lat/long coordinate ${JSON.stringify(from)}`);
+    }
+    return coordinateFromObject.convert({
+        longitude: from[0],
+        latitude: from[1],
+    });
+});
+
+export const coordinateFromStringLatLong = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+    if (typeof from === 'string') {
+        return coordinateFromArrayLatLong.convert(from.split(',').map((c) => c.trim()));
+    }
+    return fail('Cannot convert a non-string to lat/long coordinate');
+});
+
+export const coordinateFromStringLongLat = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+    if (typeof from === 'string') {
+        return coordinateFromArrayLongLat.convert(from.split(',').map((c) => c.trim()));
+    }
+    return fail('Cannot convert a non-string to long/lat coordinate');
+});
+
+export const coordinateLatLong = Converters.oneOf([
     coordinateFromObject,
-    coordinateFromString,
+    coordinateFromArrayLatLong,
+    coordinateFromStringLatLong,
 ]);
 
-export const regionFromObject = Converters.object({
-    nw: coordinate,
-    se: coordinate,
+export const coordinateLongLat = Converters.oneOf([
+    coordinateFromObject,
+    coordinateFromArrayLongLat,
+    coordinateFromStringLongLat,
+]);
+
+export const regionFromObjectLatLong = Converters.object({
+    nw: coordinateLatLong,
+    se: coordinateLatLong,
+});
+
+export const regionFromObjectLongLat = Converters.object({
+    nw: coordinateLongLat,
+    se: coordinateLongLat,
 });

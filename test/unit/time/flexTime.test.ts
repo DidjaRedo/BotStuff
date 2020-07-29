@@ -401,12 +401,12 @@ describe('flexTime', function (): void {
         test('gets a later or earlier time', (): void => {
             const date = new Date();
             let minutes = 3;
-            let expected = (date.getTime() + (minutes * 60 * 1000)) / 500;
-            expect(FlexTime.getDeltaFromNow(minutes).getTime() / 500).toBeCloseTo(expected);
+            let expected = (date.getTime() + (minutes * 60 * 1000)) / 1000;
+            expect(FlexTime.getDeltaFromNow(minutes).getTime() / 1000).toBeCloseTo(expected);
 
             minutes = -10;
-            expected = (date.getTime() + (minutes * 60 * 1000)) / 500;
-            expect(FlexTime.getDeltaFromNow(minutes).getTime() / 500).toBeCloseTo(expected);
+            expected = (date.getTime() + (minutes * 60 * 1000)) / 1000;
+            expect(FlexTime.getDeltaFromNow(minutes).getTime() / 1000).toBeCloseTo(expected);
         });
     });
 

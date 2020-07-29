@@ -19,15 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import '@fgv/ts-utils-jest';
 import * as GeoConverters from '../../../src/converters/geoConverters';
 
 describe('GeoConverters module', () => {
-    describe('coordinateFromString converter', () => {
+    describe('coordinateLatLong converter', () => {
         test('correctly parses valid coordinates', () => {
             [
                 { coord: '12.345, -67.89', expected: { latitude: 12.345, longitude: -67.89 } },
+                { coord: ['10', '20'], expected: { latitude: 10, longitude: 20 } },
+                { coord: [20, 30], expected: { latitude: 20, longitude: 30 } },
             ].forEach((test) => {
-                const result = GeoConverters.coordinateFromString.convert(test.coord);
+                const result = GeoConverters.coordinateLatLong.convert(test.coord);
                 expect(result.isSuccess()).toBe(true);
                 if (result.isSuccess()) {
                     expect(result.value).toEqual(test.expected);
@@ -40,9 +43,8 @@ describe('GeoConverters module', () => {
                 { coord: '12.345', expected: /malformed/i },
                 { coord: '122.123, 456.789', expected: /invalid latitude.*\n.*invalid longitude/i },
                 { coord: '12.345, whatever', expected: /not a number/i },
-                { coord: { latitude: 12, longitude: 34 }, expected: /non-string/i },
             ].forEach((test) => {
-                const result = GeoConverters.coordinateFromString.convert(test.coord);
+                const result = GeoConverters.coordinateLatLong.convert(test.coord);
                 expect(result.isFailure()).toBe(true);
                 if (result.isFailure()) {
                     expect(result.message).toMatch(test.expected);
@@ -51,7 +53,45 @@ describe('GeoConverters module', () => {
         });
     });
 
-    describe('regionFromObject converter', () => {
+    describe('coordinateFromLongLat converter', () => {
+        test('correctly parses valid coordinates', () => {
+            [
+                { coord: '12.345, -67.89', expected: { longitude: 12.345, latitude: -67.89 } },
+                { coord: ['10', '20'], expected: { longitude: 10, latitude: 20 } },
+                { coord: [20, 30], expected: { longitude: 20, latitude: 30 } },
+            ].forEach((test) => {
+                const result = GeoConverters.coordinateLongLat.convert(test.coord);
+                expect(result.isSuccess()).toBe(true);
+                if (result.isSuccess()) {
+                    expect(result.value).toEqual(test.expected);
+                }
+            });
+        });
+
+        test('fails for invalid coordinates', () => {
+            [
+                { coord: '12.345', expected: /malformed/i },
+                { coord: '456.789, 122.123', expected: /invalid latitude.*\n.*invalid longitude/i },
+                { coord: '12.345, whatever', expected: /not a number/i },
+            ].forEach((test) => {
+                const result = GeoConverters.coordinateLongLat.convert(test.coord);
+                expect(result.isFailure()).toBe(true);
+                if (result.isFailure()) {
+                    expect(result.message).toMatch(test.expected);
+                }
+            });
+        });
+    });
+
+    describe('string coordinate converters', () => {
+        test('fail for non-string', () => {
+            expect(GeoConverters.coordinateFromStringLatLong.convert({ latitude: 10, longitude: 20 }))
+                .toFailWith(/non-string/i);
+            expect(GeoConverters.coordinateFromStringLongLat.convert({ latitude: 10, longitude: 20 }))
+                .toFailWith(/non-string/i);
+        });
+    });
+    describe('regionFromObjectLatLong converter', () => {
         test('correctly parses a valid region', () => {
             [
                 {
@@ -62,7 +102,27 @@ describe('GeoConverters module', () => {
                     },
                 },
             ].forEach((test) => {
-                const result = GeoConverters.regionFromObject.convert(test.source);
+                const result = GeoConverters.regionFromObjectLatLong.convert(test.source);
+                expect(result.isSuccess()).toBe(true);
+                if (result.isSuccess()) {
+                    expect(result.value).toEqual(test.expected);
+                }
+            });
+        });
+    });
+
+    describe('regionFromObjectLongLat converter', () => {
+        test('correctly parses a valid region', () => {
+            [
+                {
+                    source: { nw: '-123.456, 56.789', se: '-122.345, 54.321' },
+                    expected: {
+                        nw: { latitude: 56.789, longitude: -123.456 },
+                        se: { latitude: 54.321, longitude: -122.345 },
+                    },
+                },
+            ].forEach((test) => {
+                const result = GeoConverters.regionFromObjectLongLat.convert(test.source);
                 expect(result.isSuccess()).toBe(true);
                 if (result.isSuccess()) {
                     expect(result.value).toEqual(test.expected);
