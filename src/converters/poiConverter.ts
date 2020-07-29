@@ -31,7 +31,7 @@ const delimitedString = Converters.delimitedString('|');
 export const poiPropertiesFieldConverters = {
     alternateNames: Converters.oneOf([delimitedString, Converters.arrayOf(Converters.string)]),
     city: Converters.string,
-    coord: GeoConverters.coordinate,
+    coord: GeoConverters.coordinateLatLong,
     name: Converters.string,
     zones: Converters.oneOf([delimitedString, Converters.arrayOf(Converters.string)]),
 };
