@@ -23,8 +23,8 @@
 import '@fgv/ts-utils-jest';
 import * as GymConverters from '../../../../src/pogo/converters';
 import { ExtendedArray, succeed } from '@fgv/ts-utils';
-import { GlobalGymDirectory, Gym } from '../../../../src/pogo';
-import { bestGymByName, gymsByName, singleGymByName } from '../../../../src/pogo/converters';
+import { GlobalGymDirectory, Gym, GymLookupOptionsProperties } from '../../../../src/pogo';
+import { bestGymByName, gymsByName, partialGymLookupOptionsProperties, singleGymByName } from '../../../../src/pogo/converters';
 import { readJsonFileSync, writeJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
 import { MockFileSystem } from '../../../helpers/dataHelpers';
@@ -388,6 +388,36 @@ describe('Pogo GymConverters module', () => {
             // Uncomment to so save updated arrays and objects if legacyGyms change
             // saveJsonFile('./test/unit/pogo/data/gymArrays.json', arrayJsonResult.getValueOrThrow());
             // saveJsonFile('./test/unit/pogo/data/gymObjects.json', objectJsonResult.getValueOrThrow());
+        });
+    });
+
+    describe('partialGymLookupOptionsProperties converter', () => {
+        test('succeeds for valid partial options', () => {
+            const testCases: Partial<GymLookupOptionsProperties>[] = [
+                {
+                    allowedZones: ['red zone', 'white zone'],
+                    allowedCities: ['gotham', 'metropolis'],
+                    onNonAllowedCities: 'ignore',
+                    onNonAllowedZones: 'ignore',
+                    preferredCities: ['gotham'],
+                    preferredZones: ['red zone'],
+                    requiredCities: ['mertopolis'],
+                    requiredZones: ['white zone'],
+                    near: { latitude: 47, longitude: -122 },
+                    region: {
+                        min: { latitude: 45, longitude: -124 },
+                        max: { latitude: 49, longitude: -120 },
+                    },
+                    noTextSearch: false,
+                    noExactLookup: false,
+                    exFilter: 'nonEx',
+                },
+            ];
+
+            for (const testCase of testCases) {
+                expect(partialGymLookupOptionsProperties.convert(testCase))
+                    .toSucceedWith(testCase);
+            }
         });
     });
 });

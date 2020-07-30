@@ -28,7 +28,7 @@ import { Poi, PoiProperties } from '../places/poi';
 
 const delimitedString = Converters.delimitedString('|');
 
-export const poiPropertiesFieldConverters = {
+export const poiPropertiesFieldConverters: Converters.FieldConverters<PoiProperties> = {
     alternateNames: Converters.oneOf([delimitedString, Converters.arrayOf(Converters.string)]),
     city: Converters.string,
     coord: GeoConverters.coordinateLatLong,

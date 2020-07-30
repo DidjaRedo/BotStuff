@@ -23,3 +23,4 @@
 export * from './geoConverters';
 export * from './placeConverters';
 export * from './poiConverter';
+export * from './poiLookupOptions';

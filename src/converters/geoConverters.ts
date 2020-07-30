@@ -82,12 +82,12 @@ export const coordinateLongLat = Converters.oneOf([
     coordinateFromStringLongLat,
 ]);
 
-export const regionFromObjectLatLong = Converters.object({
-    nw: coordinateLatLong,
-    se: coordinateLatLong,
+export const regionFromObjectLatLong = Converters.object<Geo.Region>({
+    min: coordinateLatLong,
+    max: coordinateLatLong,
 });
 
-export const regionFromObjectLongLat = Converters.object({
-    nw: coordinateLongLat,
-    se: coordinateLongLat,
+export const regionFromObjectLongLat = Converters.object<Geo.Region>({
+    min: coordinateLongLat,
+    max: coordinateLongLat,
 });

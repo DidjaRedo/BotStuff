@@ -30,11 +30,8 @@ describe('GeoConverters module', () => {
                 { coord: ['10', '20'], expected: { latitude: 10, longitude: 20 } },
                 { coord: [20, 30], expected: { latitude: 20, longitude: 30 } },
             ].forEach((test) => {
-                const result = GeoConverters.coordinateLatLong.convert(test.coord);
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toEqual(test.expected);
-                }
+                expect(GeoConverters.coordinateLatLong.convert(test.coord))
+                    .toSucceedWith(test.expected);
             });
         });
 
@@ -44,11 +41,8 @@ describe('GeoConverters module', () => {
                 { coord: '122.123, 456.789', expected: /invalid latitude.*\n.*invalid longitude/i },
                 { coord: '12.345, whatever', expected: /not a number/i },
             ].forEach((test) => {
-                const result = GeoConverters.coordinateLatLong.convert(test.coord);
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toMatch(test.expected);
-                }
+                expect(GeoConverters.coordinateLatLong.convert(test.coord))
+                    .toFailWith(test.expected);
             });
         });
     });
@@ -60,11 +54,8 @@ describe('GeoConverters module', () => {
                 { coord: ['10', '20'], expected: { longitude: 10, latitude: 20 } },
                 { coord: [20, 30], expected: { longitude: 20, latitude: 30 } },
             ].forEach((test) => {
-                const result = GeoConverters.coordinateLongLat.convert(test.coord);
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toEqual(test.expected);
-                }
+                expect(GeoConverters.coordinateLongLat.convert(test.coord))
+                    .toSucceedWith(test.expected);
             });
         });
 
@@ -74,11 +65,8 @@ describe('GeoConverters module', () => {
                 { coord: '456.789, 122.123', expected: /invalid latitude.*\n.*invalid longitude/i },
                 { coord: '12.345, whatever', expected: /not a number/i },
             ].forEach((test) => {
-                const result = GeoConverters.coordinateLongLat.convert(test.coord);
-                expect(result.isFailure()).toBe(true);
-                if (result.isFailure()) {
-                    expect(result.message).toMatch(test.expected);
-                }
+                expect(GeoConverters.coordinateLongLat.convert(test.coord))
+                    .toFailWith(test.expected);
             });
         });
     });
@@ -95,18 +83,15 @@ describe('GeoConverters module', () => {
         test('correctly parses a valid region', () => {
             [
                 {
-                    source: { nw: '56.789, -123.456', se: '54.321, -122.345' },
+                    source: { min: '56.789, -123.456', max: '54.321, -122.345' },
                     expected: {
-                        nw: { latitude: 56.789, longitude: -123.456 },
-                        se: { latitude: 54.321, longitude: -122.345 },
+                        min: { latitude: 56.789, longitude: -123.456 },
+                        max: { latitude: 54.321, longitude: -122.345 },
                     },
                 },
             ].forEach((test) => {
-                const result = GeoConverters.regionFromObjectLatLong.convert(test.source);
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toEqual(test.expected);
-                }
+                expect(GeoConverters.regionFromObjectLatLong.convert(test.source))
+                    .toSucceedWith(test.expected);
             });
         });
     });
@@ -115,18 +100,15 @@ describe('GeoConverters module', () => {
         test('correctly parses a valid region', () => {
             [
                 {
-                    source: { nw: '-123.456, 56.789', se: '-122.345, 54.321' },
+                    source: { min: '-123.456, 56.789', max: '-122.345, 54.321' },
                     expected: {
-                        nw: { latitude: 56.789, longitude: -123.456 },
-                        se: { latitude: 54.321, longitude: -122.345 },
+                        min: { latitude: 56.789, longitude: -123.456 },
+                        max: { latitude: 54.321, longitude: -122.345 },
                     },
                 },
             ].forEach((test) => {
-                const result = GeoConverters.regionFromObjectLongLat.convert(test.source);
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value).toEqual(test.expected);
-                }
+                expect(GeoConverters.regionFromObjectLongLat.convert(test.source))
+                    .toSucceedWith(test.expected);
             });
         });
     });

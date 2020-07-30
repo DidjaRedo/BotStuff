@@ -31,6 +31,8 @@ import {
 import { GlobalGymDirectory, GymLookupOptionsProperties } from '../gymDirectory';
 import { Gym, GymProperties } from '../gym';
 import { Names } from '../../names/names';
+import { allPoiLookupOptionsPropertiesFields } from '../../converters';
+import { poiLookupOptionsPropertiesFieldConverters } from '../../converters';
 import { poiPropertiesFieldConverters } from '../../converters/poiConverter';
 import { readCsvFileSync } from '@fgv/ts-utils/csvHelpers';
 import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
@@ -172,3 +174,8 @@ export function loadGlobalGymDirectorySync(path: string, options?: Partial<GymLo
         return globalGymDirectory(options).convert(json);
     });
 }
+
+export const partialGymLookupOptionsProperties = Converters.object<Partial<GymLookupOptionsProperties>>({
+    ...poiLookupOptionsPropertiesFieldConverters,
+    exFilter: Converters.enumeratedValue<'nonEx'|'exEligible'>(['nonEx', 'exEligible']),
+}, [...allPoiLookupOptionsPropertiesFields, 'exFilter']);
