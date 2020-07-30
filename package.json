@@ -1,6 +1,6 @@
 {
   "name": "@efortune/bot-stuff",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Odds and ends for building bots",
   "main": "dist/index.js",
   "scripts": {

@@ -38,7 +38,7 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
     public readonly options: PO;
 
     public constructor(options?: Partial<PO>, pois?: Iterable<P>) {
-        this.options = this._getEffectiveOptions(options);
+        this.options = this.getEffectiveOptions(options);
 
         for (const poi of pois ?? []) {
             this.add(poi);
@@ -65,7 +65,7 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
     }
 
     public getAll(options?: Partial<PO>): ExtendedArray<P> {
-        const effectiveOptions = this._getEffectiveOptions(options);
+        const effectiveOptions = this.getEffectiveOptions(options);
         return this.pois.getAll(effectiveOptions);
     }
 
@@ -80,7 +80,7 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
     }
 
     public lookup(name: string, userOptions?: Partial<PO>): ResultArray<P> {
-        const options = this._getEffectiveOptions(userOptions);
+        const options = this.getEffectiveOptions(userOptions);
         return this.pois.lookup(name, options, this._filterPoi);
     }
 
@@ -102,11 +102,11 @@ export abstract class GlobalPoiDirectoryBase<P extends Poi, PO extends PoiLookup
         }
     }
 
-    protected abstract _getEffectiveOptions(user?: Partial<PO>): PO;
+    public abstract getEffectiveOptions(user?: Partial<PO>): PO;
 }
 
 export class GlobalPoiDirectory<P extends Poi> extends GlobalPoiDirectoryBase<P, PoiLookupOptions.Properties> {
-    protected _getEffectiveOptions(user?: Partial<PoiLookupOptions.Properties>): PoiLookupOptions.Properties {
+    public getEffectiveOptions(user?: Partial<PoiLookupOptions.Properties>): PoiLookupOptions.Properties {
         const base = this.options ?? PoiLookupOptions.defaultProperties;
         if (user !== undefined) {
             // cannot be undefined because base is not undefined
