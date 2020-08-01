@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import { CommandResult, Commands, ValidatedCommands } from './command';
+import { CommandResult, Commands, PreProcessedCommand, PreProcessedCommandBase, ValidatedCommands } from './command';
 import {
     FormatTargets,
     Formatter,
@@ -124,6 +124,25 @@ export class CommandProcessor<TCMDS> {
         return succeed(order);
     }
 
+    public validateOne(command: string): Result<Partial<ValidatedCommands<TCMDS>>[keyof TCMDS]> {
+        const validateResult = this.validateAll(command);
+        if (validateResult.isFailure()) {
+            return fail(validateResult.message);
+        }
+
+        const { keys, validated } = validateResult.value;
+
+        if (keys.length < 1) {
+            return fail(`No command matched ${command}`);
+        }
+        else if (keys.length > 1) {
+            // istanbul ignore next
+            const candidates = keys.map((k) => validated[k]?.command).join(', ');
+            return fail(`Ambiguous command ${command} could be any of: [${candidates}]`);
+        }
+        return succeed(validated[keys[0]]);
+    }
+
     public validateAll(command: string): Result<ValidatedCommandsResult<TCMDS>> {
         const tracker = new FieldTracker<TCMDS>();
         const validated: Partial<ValidatedCommands<TCMDS>> = {};
@@ -194,39 +213,39 @@ export class CommandProcessor<TCMDS> {
     }
 
     public processOne(command: string): Result<ExecutedCommandsResult<TCMDS>> {
-        const validateResult = this.validateAll(command);
-        if (validateResult.isFailure()) {
-            return fail(validateResult.message);
-        }
+        return this.validateOne(command).onSuccess((validated) => {
+            // istanbul ignore else
+            if (validated !== undefined) {
+                const executeResult = validated.execute();
 
-        const { keys, validated } = validateResult.value;
-
-        if (keys.length < 1) {
-            return fail(`No command matched ${command}`);
-        }
-        else if (keys.length > 1) {
-            // istanbul ignore next
-            const candidates = keys.map((k) => validated[k]?.command).join(', ');
-            return fail(`Ambiguous command ${command} could be any of: [${candidates}]`);
-        }
-
-        // istanbul ignore next
-        const executeResult = validated[keys[0]]?.execute();
-
-        // should never happen in real life and a pain to induce
-        // istanbul ignore else
-        if (executeResult !== undefined) {
-            if (executeResult.isSuccess()) {
-                const executed: Partial<ExecutedResult<TCMDS>> = {};
-                executed[keys[0]] = executeResult.value;
-                return succeed({ keys, executed });
+                // should never happen in real life and a pain to induce
+                // istanbul ignore else
+                if (executeResult !== undefined) {
+                    if (executeResult.isSuccess()) {
+                        const executed: Partial<ExecutedResult<TCMDS>> = {};
+                        executed[validated.command] = executeResult.value;
+                        return succeed<ExecutedCommandsResult<TCMDS>>({ keys: [validated.command], executed });
+                    }
+                    return fail(executeResult.message);
+                }
             }
-            return fail(executeResult.message);
-        }
 
-        // should never happen in real life and a pain to induce
-        // istanbul ignore next
-        return fail(`Unknown execution failure for ${command}`);
+            // should never happen in real life and a pain to induce
+            // istanbul ignore next
+            return fail(`Unknown execution failure for ${command}`);
+        });
+    }
+
+    public preProcessOne(command: string, formatters: Partial<ResultFormatters<TCMDS>>): Result<PreProcessedCommand|undefined> {
+        return this.validateOne(command).onSuccess((validated) => {
+            // istanbul ignore else
+            if (validated !== undefined) {
+                return PreProcessedCommandBase.create(validated, formatters[validated.command]);
+            }
+            else {
+                return succeed(undefined);
+            }
+        });
     }
 
     public formatAll(

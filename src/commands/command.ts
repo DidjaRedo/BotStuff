@@ -25,6 +25,7 @@ import {
     FormatTargets,
     Formatter,
     Result,
+    captureResult,
     fail,
     succeed,
 } from '@fgv/ts-utils';
@@ -56,6 +57,10 @@ export interface ValidatedCommand<TNAME, TRET> {
     execute(): Result<CommandResult<TNAME, TRET>>;
 }
 
+export interface PreProcessedCommand {
+    execute(): Result<string>;
+}
+
 export interface Command<TNAME, TRET> {
     name: TNAME;
     getDescription(): string;
@@ -81,6 +86,32 @@ export class ValidatedCommandBase<TNAME, TRET> implements ValidatedCommand<TNAME
 
     public execute(): Result<CommandResult<TNAME, TRET>> {
         return this._execute();
+    }
+}
+
+export class PreProcessedCommandBase<TNAME, TRET> implements PreProcessedCommand {
+    protected _validated: ValidatedCommand<TNAME, TRET>;
+    protected _formatter: Formatter<TRET>;
+
+    public constructor(validated?: ValidatedCommand<TNAME, TRET>, formatter?: Formatter<TRET>) {
+        if (validated === undefined) {
+            throw new Error('Undefined validated command');
+        }
+        if (formatter === undefined) {
+            throw new Error(`No formatter supplied for ${validated.command}`);
+        }
+        this._validated = validated;
+        this._formatter = formatter;
+    }
+
+    public static create<TNAME, TRET>(validated?: ValidatedCommand<TNAME, TRET>, formatter?: Formatter<TRET>): Result<PreProcessedCommandBase<TNAME, TRET>> {
+        return captureResult(() => new PreProcessedCommandBase(validated, formatter));
+    }
+
+    public execute(): Result<string> {
+        return this._validated.execute().onSuccess((cr) => {
+            return this._formatter(cr.message, cr.result);
+        });
     }
 }
 

@@ -28,6 +28,7 @@ import {
     CommandProperties,
     Commands,
     ParserBuilder,
+    PreProcessedCommand,
     ResultFormatters,
 } from '../../../src/commands';
 import { FormatTargets, Formatter, Result, fail, succeed } from '@fgv/ts-utils';
@@ -334,6 +335,36 @@ describe('CommandProcessor class', (): void => {
         });
     });
 
+    describe('validateOne', (): void => {
+        const cmds = new CommandProcessor(testCommands, testOrder);
+        test('validates exactly one matching command', (): void => {
+            expect(cmds.validateOne('A test, this is.')).toSucceedWith(
+                expect.objectContaining({ command: 'general' }),
+            );
+        });
+
+        test('fails if more than one command matches', (): void => {
+            expect(cmds.validateOne('This is a test'))
+                .toFailWith(/ambiguous command/i);
+        });
+
+        test('fails if no command matches', (): void => {
+            expect(cmds.validateOne('An example'))
+                .toFailWith(/no command matched/i);
+        });
+
+        test('propagates errors if commands fail during validation', () => {
+            expect(cmds.validateOne('This is a disallowed'))
+                .toFailWith(/disallowed is not allowed/i);
+        });
+
+        test('fails if any command fails', () => {
+            expect(cmds.validateOne('bad data')).toFailWith(
+                /mismatched capture count/i
+            );
+        });
+    });
+
     describe('processAll', (): void => {
         const cmds = new CommandProcessor<TestCommands>(testCommands, testOrder);
 
@@ -490,6 +521,50 @@ describe('CommandProcessor class', (): void => {
 
         test('propagates execution errors from a single matching comand', () => {
             expect(cmds.processOne('fail with ERROR')).toFailWith('ERROR');
+        });
+    });
+
+    describe('preProcessOne', (): void => {
+        const cmds = new CommandProcessor(testCommands, testOrder);
+        const formatters = cmds.getDefaultFormatters('text').getValueOrThrow();
+
+        test('pre-processes exactly one matching command', (): void => {
+            const partial = { general: formatters.specific };
+            expect(cmds.preProcessOne('A test, this is.', partial)).toSucceedAndSatisfy((pp: PreProcessedCommand) => {
+                expect(pp.execute()).toSucceedWith('The test phrase is A test, this is.');
+            });
+        });
+
+        test('fails if the necessary formatter is undefined', () => {
+            const partial = { specific: formatters.specific };
+            expect(cmds.preProcessOne('A test, this is.', partial)).toFailWith(/no formatter supplied/i);
+        });
+
+        test('fails if more than one command matches', (): void => {
+            expect(cmds.preProcessOne('This is a test', formatters))
+                .toFailWith(/ambiguous command/i);
+        });
+
+        test('fails if no command matches', (): void => {
+            expect(cmds.preProcessOne('An example', formatters))
+                .toFailWith(/no command matched/i);
+        });
+
+        test('propagates errors if commands fail during validation', () => {
+            expect(cmds.preProcessOne('This is a disallowed', formatters))
+                .toFailWith(/disallowed is not allowed/i);
+        });
+
+        test('fails if any command fails', () => {
+            expect(cmds.preProcessOne('bad data', formatters)).toFailWith(
+                /mismatched capture count/i
+            );
+        });
+
+        test('propagates execution errors from a single matching comand', () => {
+            expect(cmds.preProcessOne('fail with ERROR', formatters)).toSucceedAndSatisfy((pp: PreProcessedCommand) => {
+                expect(pp.execute()).toFailWith('ERROR');
+            });
         });
     });
 

@@ -1,6 +1,6 @@
 {
   "name": "@efortune/bot-stuff",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -438,19 +438,12 @@
       }
     },
     "@fgv/ts-utils": {
-      "version": "0.1.3",
-      "resolved": "https://registry.npmjs.org/@fgv/ts-utils/-/ts-utils-0.1.3.tgz",
-      "integrity": "sha512-AhIWKvZTjOpje/RA3RQhSlBT3CeN5Y1WAgdYTaZH7xPd9G2OsHA9QhUiGHQqksRpEsXSYHEr3jImvIwjI6y/7Q==",
+      "version": "0.1.4",
+      "resolved": "https://registry.npmjs.org/@fgv/ts-utils/-/ts-utils-0.1.4.tgz",
+      "integrity": "sha512-iMhSjn4DKcYesGsI4OpMy5sXPmwKoHpdBv4SC5I+JA33qd1j0D4QGnMZCtDZe+xtqxF+21WfGTQK7bv2pNm1Sg==",
       "requires": {
         "csv-parse": "^4.11.1",
         "mustache": "^4.0.1"
-      },
-      "dependencies": {
-        "csv-parse": {
-          "version": "4.11.1",
-          "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-4.11.1.tgz",
-          "integrity": "sha512-cH2BG5Gd0u4G8qVI/jGXJSP2+El7Vy91/ZD3ehKALAWids1aIKOPhZ1ZVJzUrs2zTn6aGumVPBlbHsI91kI83A=="
-        }
       }
     },
     "@fgv/ts-utils-jest": {

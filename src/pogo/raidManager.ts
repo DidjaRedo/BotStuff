@@ -108,17 +108,17 @@ export class RaidManager {
         this._listeners = [];
 
         this.bosses = loadBossDirectorySync(this._bossesFile).onFailure((m) => {
-            return this._logger.error(`Unable to load bosses from ${this._bossesFile}: ${m}`);
-        }).getValueOrThrow();
+            return fail(`Unable to load bosses from ${this._bossesFile}: ${m}`);
+        }).getValueOrThrow(this._logger);
 
         this.gyms = loadGlobalGymDirectorySync(this._gymsFile).onFailure((m) => {
-            return this._logger.error(`Unable to load gyms from ${this._gymsFile}: ${m}`);
-        }).getValueOrThrow();
+            return fail(`Unable to load gyms from ${this._gymsFile}: ${m}`);
+        }).getValueOrThrow(this._logger);
 
-        this._raids = this._restore().getValueOrThrow();
+        this._raids = this._restore().getValueOrThrow(this._logger);
 
         if (options.autoStart === true) {
-            this.start(this._refreshInterval, 'immediate').getValueOrThrow();
+            this.start(this._refreshInterval, 'immediate').getValueOrThrow(this._logger);
         }
         else {
             this.refreshRaidList();

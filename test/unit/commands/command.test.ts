@@ -23,7 +23,7 @@ import '@fgv/ts-utils-jest';
 import * as Converters from '@fgv/ts-utils/converters';
 import * as TimeConverters from '../../../src/time/timeConverters';
 
-import { CommandBase, CommandInitializer, ValidatedCommand } from '../../../src/commands';
+import { CommandBase, CommandInitializer, PreProcessedCommandBase, ValidatedCommand, ValidatedCommandBase } from '../../../src/commands';
 import { CommandProperties, ParserBuilder } from '../../../src/commands/commandParser';
 import {
     FormatTargets,
@@ -36,7 +36,7 @@ import {
 
 import moment from 'moment';
 
-describe('CommandBase class', (): void => {
+describe('Command module', () => {
     interface TestFields {
         word: string;
         words: string;
@@ -141,122 +141,141 @@ describe('CommandBase class', (): void => {
         formatDate
     );
 
-    describe('constructor', () => {
-        test('initializes correctly', () => {
-            expect(specificCommand.name).toBe('specific');
-            expect(specificCommand.getDescription()).toBe('The specific test command');
-            expect(specificCommand.getExamples()).toBe('specific example goes here\nsecond line goes here');
-            expect(dateCommand.getExamples()).toBeUndefined();
-        });
-    });
-
-    describe('getHelpLines method', () => {
-        test('joins description and examples when examples exist', () => {
-            expect(specificCommand.getHelpLines()).toEqual([
-                'The specific test command',
-                'specific example goes here',
-                'second line goes here',
-            ]);
+    describe('CommandBase class', (): void => {
+        describe('constructor', () => {
+            test('initializes correctly', () => {
+                expect(specificCommand.name).toBe('specific');
+                expect(specificCommand.getDescription()).toBe('The specific test command');
+                expect(specificCommand.getExamples()).toBe('specific example goes here\nsecond line goes here');
+                expect(dateCommand.getExamples()).toBeUndefined();
+            });
         });
 
-        test('returns description when no examples exist', () => {
-            expect(dateCommand.getHelpLines()).toEqual([
-                'The date test command',
-            ]);
-        });
-    });
+        describe('getHelpLines method', () => {
+            test('joins description and examples when examples exist', () => {
+                expect(specificCommand.getHelpLines()).toEqual([
+                    'The specific test command',
+                    'specific example goes here',
+                    'second line goes here',
+                ]);
+            });
 
-    describe('validate method', () => {
-        test('validates a valid command', () => {
-            [
-                { cmd: specificCommand, src: 'This is a test', payload: 'test', message: 'I got test' },
-            ].forEach((test) => {
-                expect(test.cmd.validate(test.src)).toSucceedAndSatisfy((vc: ValidatedCommand<TestCommandType, string>) => {
-                    expect(vc.execute()).toSucceedWith(expect.objectContaining({
-                        command: 'specific',
-                        result: test.payload,
-                        message: test.message,
-                    }));
+            test('returns description when no examples exist', () => {
+                expect(dateCommand.getHelpLines()).toEqual([
+                    'The date test command',
+                ]);
+            });
+        });
+
+        describe('validate method', () => {
+            test('validates a valid command', () => {
+                [
+                    { cmd: specificCommand, src: 'This is a test', payload: 'test', message: 'I got test' },
+                ].forEach((test) => {
+                    expect(test.cmd.validate(test.src)).toSucceedAndSatisfy((vc: ValidatedCommand<TestCommandType, string>) => {
+                        expect(vc.execute()).toSucceedWith(expect.objectContaining({
+                            command: 'specific',
+                            result: test.payload,
+                            message: test.message,
+                        }));
+                    });
+                });
+            });
+
+            test('returns undefined for a command that does not match the pattern', () => {
+                expect(specificCommand.validate('This is not a test')).toSucceedWith(undefined);
+            });
+
+            test('reports an error for a command that matches the pattern but fails conversion', () => {
+                expect(dateCommand.validate('33:22PM words')).toFailWith(/invalid time/i);
+            });
+
+            test('Does not report an error for a validated command that will fail at execution', () => {
+                expect(dateCommand.validate('10:15 fail')).toSucceedAndSatisfy((vc: ValidatedCommand<TestCommandType, TestDateFields>) => {
+                    expect(vc.execute()).toFailWith(/asked to fail/i);
                 });
             });
         });
 
-        test('returns undefined for a command that does not match the pattern', () => {
-            expect(specificCommand.validate('This is not a test')).toSucceedWith(undefined);
+        describe('execute method', () => {
+            test('executes a valid command', () => {
+                expect(specificCommand.execute('This is a test')).toSucceedWith({
+                    command: 'specific',
+                    result: 'test',
+                    message: 'I got test',
+                });
+
+                expect(dateCommand.execute('23:59 some words here')).toSucceedWith({
+                    command: 'date',
+                    result: expect.objectContaining({
+                        time: expect.any(Date),
+                        words: 'some words here',
+                    }),
+                    message: expect.stringMatching('Got {{time}} with {{words}}'),
+                });
+
+                expect(dateCommand.execute('22:15')).toSucceedWith({
+                    command: 'date',
+                    result: expect.objectContaining({
+                        time: expect.any(Date),
+                    }),
+                    message: expect.stringMatching('Got {{time}}'),
+                });
+            });
+
+            test('returns undefined for a command that does not match the pattern', () => {
+                expect(specificCommand.execute('This is not a test')).toSucceedWith(undefined);
+            });
+
+            test('reports an error for a command that matches the pattern but fails conversion', () => {
+                expect(dateCommand.execute('33:22PM words')).toFailWith(/invalid time/i);
+            });
+
+            test('reports an error for a validated command that will fail at execution', () => {
+                expect(dateCommand.execute('10:15 fail')).toFailWith(/asked to fail/i);
+            });
         });
 
-        test('reports an error for a command that matches the pattern but fails conversion', () => {
-            expect(dateCommand.validate('33:22PM words')).toFailWith(/invalid time/i);
-        });
+        describe('format method', () => {
+            test('formats a valid result', () => {
+                const executed = dateCommand.execute('23:59 some words here').getValueOrThrow();
+                expect(executed).toBeDefined();
+                if (executed !== undefined) {
+                    expect(dateCommand.format(executed, formatDate))
+                        .toSucceedWith(/23:59.*with some words here/i);
+                }
+            });
 
-        test('Does not report an error for a validated command that will fail at execution', () => {
-            expect(dateCommand.validate('10:15 fail')).toSucceedAndSatisfy((vc: ValidatedCommand<TestCommandType, TestDateFields>) => {
-                expect(vc.execute()).toFailWith(/asked to fail/i);
+            test('fails if the command result or message or value is undefined', () => {
+                expect(dateCommand.format({
+                    command: 'date',
+                    result: { time: new Date(), words: 'whatever' },
+                    message: undefined as unknown as string,
+                }, formatDate)).toFailWith(/cannot format/i);
+
+                expect(dateCommand.format({
+                    command: 'date',
+                    result: undefined as unknown as TestDateFields,
+                    message: 'howdy',
+                }, formatDate)).toFailWith(/cannot format/i);
             });
         });
     });
 
-    describe('execute method', () => {
-        test('executes a valid command', () => {
-            expect(specificCommand.execute('This is a test')).toSucceedWith({
-                command: 'specific',
-                result: 'test',
-                message: 'I got test',
+    describe('PreProcessedCommandBase', () => {
+        describe('create static method', () => {
+            test('fails if command is undefined', () => {
+                // const validated = specificCommand.validate('This is a test').getValueOrThrow();
+                const validated: ValidatedCommandBase<TestCommandType, string>|undefined = undefined;
+                const formatter = (s: string) => succeed(s);
+                expect(PreProcessedCommandBase.create(validated, formatter)).toFailWith(/undefined validated command/i);
             });
 
-            expect(dateCommand.execute('23:59 some words here')).toSucceedWith({
-                command: 'date',
-                result: expect.objectContaining({
-                    time: expect.any(Date),
-                    words: 'some words here',
-                }),
-                message: expect.stringMatching('Got {{time}} with {{words}}'),
+            test('fails if formatter', () => {
+                const validated = specificCommand.validate('This is a test').getValueOrThrow();
+                const formatter = undefined;
+                expect(PreProcessedCommandBase.create(validated, formatter)).toFailWith(/no formatter/i);
             });
-
-            expect(dateCommand.execute('22:15')).toSucceedWith({
-                command: 'date',
-                result: expect.objectContaining({
-                    time: expect.any(Date),
-                }),
-                message: expect.stringMatching('Got {{time}}'),
-            });
-        });
-
-        test('returns undefined for a command that does not match the pattern', () => {
-            expect(specificCommand.execute('This is not a test')).toSucceedWith(undefined);
-        });
-
-        test('reports an error for a command that matches the pattern but fails conversion', () => {
-            expect(dateCommand.execute('33:22PM words')).toFailWith(/invalid time/i);
-        });
-
-        test('reports an error for a validated command that will fail at execution', () => {
-            expect(dateCommand.execute('10:15 fail')).toFailWith(/asked to fail/i);
-        });
-    });
-
-    describe('format method', () => {
-        test('formats a valid result', () => {
-            const executed = dateCommand.execute('23:59 some words here').getValueOrThrow();
-            expect(executed).toBeDefined();
-            if (executed !== undefined) {
-                expect(dateCommand.format(executed, formatDate))
-                    .toSucceedWith(/23:59.*with some words here/i);
-            }
-        });
-
-        test('fails if the command result or message or value is undefined', () => {
-            expect(dateCommand.format({
-                command: 'date',
-                result: { time: new Date(), words: 'whatever' },
-                message: undefined as unknown as string,
-            }, formatDate)).toFailWith(/cannot format/i);
-
-            expect(dateCommand.format({
-                command: 'date',
-                result: undefined as unknown as TestDateFields,
-                message: 'howdy',
-            }, formatDate)).toFailWith(/cannot format/i);
         });
     });
 });
