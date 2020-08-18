@@ -21,7 +21,5 @@
  */
 
 export * from './command';
-export * from './commandParser';
+export * from './commandGroup';
 export * from './commandProcessor';
-export * from './commandResult';
-export * from './preprocessedCommand';

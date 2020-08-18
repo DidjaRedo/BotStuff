@@ -22,22 +22,19 @@
 
 import * as Converters from '@fgv/ts-utils/converters';
 
-import {
-    CommandGroup,
-    CommandInitializer,
-    CommandProcessor,
-    Commands,
-    ParserBuilder,
-} from '../../commands';
-import { Raid, RaidManager } from '..';
-import { RaidCommand, commonProperties } from './common';
+import { CommandInitializer, CommandProcessor, CommandsByName, GenericCommand } from '../../commands';
+import { FormatTargets, Formatter, Result, succeed } from '@fgv/ts-utils';
+import { PogoContext, commonProperties } from './common';
 
+import { ParserBuilder } from '../../commands';
+import { Raid } from '..';
+import { raidFormatters } from '../formatters';
 
-interface Fields {
+interface Tokens {
     gym: string;
 }
 
-const builder = new ParserBuilder<Fields>({
+const builder = new ParserBuilder<Tokens>({
     gym: commonProperties.place,
 });
 
@@ -45,46 +42,45 @@ export interface RemoveCommands {
     removeRaid: Raid;
 }
 
-export type RemoveCommandType = keyof RemoveCommands;
+export type RemoveCommandNames = keyof RemoveCommands;
+export type Params = Tokens;
 
-export type RemoveCommandInitializer = CommandInitializer<RemoveCommandType, Fields, Fields, Raid>;
+export type RemoveCommandInitializer = CommandInitializer<RemoveCommandNames>;
 
-export function removeCommandInitializer(rm: RaidManager): RemoveCommandInitializer {
+export class RemoveCommand extends GenericCommand<RemoveCommandNames, Tokens, PogoContext, Params, Raid> {
+    public constructor() {
+        super({
+            name: 'removeRaid',
+            repeatable: false,
+            description: ['Remove a raid'],
+            examples: [
+                '  !remove <gym name>',
+                '  !remove painted',
+            ],
+            parser: builder.build('!remove {{gym}}').getValueOrThrow(),
+            getConverter: () => Converters.object({
+                gym: Converters.string,
+            }),
+            execute: (p, c) => c.rm.removeRaid(p.gym),
+            format: 'Removed raid at {{gymName}}',
+            getDefaultFormatter: RemoveCommand._getDefaultFormatter,
+        });
+    }
+
+    protected static _getDefaultFormatter(target: FormatTargets): Result<Formatter<Raid>> {
+        return succeed(raidFormatters[target]);
+    }
+}
+
+export function getRemoveCommands(): CommandsByName<RemoveCommands, PogoContext> {
     return {
-        name: 'removeRaid',
-        description: 'Remove a raid',
-        examples: [
-            '  !remove <gym name>',
-            '  !remove painted',
-        ],
-        parser: builder.build('!remove {{gym}}').getValueOrThrow(),
-        converter: Converters.object({
-            gym: Converters.string,
-        }),
-        executor: (params: Fields) => {
-            return rm.removeRaid(params.gym);
-        },
-        formatter: (_raid: Raid): string => {
-            return 'Removed raid at {{gymName}}';
-        },
+        removeRaid: new RemoveCommand(),
     };
 }
 
-export function getRemoveCommands(rm: RaidManager): Commands<RemoveCommands> {
-    return {
-        removeRaid: new RaidCommand(removeCommandInitializer(rm)),
-    };
-}
-
-export function getRemoveCommandProcessor(rm: RaidManager): CommandProcessor<RemoveCommands> {
+export function getRemoveCommandProcessor(): CommandProcessor<RemoveCommands, PogoContext> {
     return new CommandProcessor(
-        getRemoveCommands(rm),
+        getRemoveCommands(),
         ['removeRaid'],
     );
-}
-
-export function getRemoveCommandGroup(rm: RaidManager): CommandGroup<RemoveCommandType, Raid> {
-    return new CommandGroup([
-        new RaidCommand(removeCommandInitializer(rm)),
-    ]);
 }

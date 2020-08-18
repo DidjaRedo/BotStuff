@@ -19,13 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Utils } from '../../../src/utils/utils';
+import { Utils } from '../../../src';
 
 describe('Utils static class', (): void => {
     describe('select iterable converter', (): void => {
         test('converts all elements in an array', (): void => {
             const source = ['1', '2', '3'];
-            const result = Utils.select(source, (source: string): number => {
+            const result = Utils.Utils.select(source, (source: string): number => {
                 return Number(source);
             });
             expect(result).toEqual([1, 2, 3]);
@@ -33,20 +33,20 @@ describe('Utils static class', (): void => {
 
         test('omits elements that convert to undefined', (): void => {
             const source = ['1', '2', 'boo', '3'];
-            const result = Utils.select(source, (source: string): number|undefined => {
+            const result = Utils.Utils.select(source, (source: string): number|undefined => {
                 return (source === 'boo') ? undefined : Number(source);
             });
             expect(result).toEqual([1, 2, 3]);
         });
 
         test('returns an empty array for an undefined parametr', (): void => {
-            expect(Utils.select<string, string>(undefined, (s: string): string => s)).toEqual([]);
+            expect(Utils.Utils.select<string, string>(undefined, (s: string): string => s)).toEqual([]);
         });
     });
 
     describe('Utils toArray static method', (): void => {
         test('converts an iterable to an array', (): void => {
-            expect(Utils.toArray('blargle')).toEqual(['b', 'l', 'a', 'r', 'g', 'l', 'e']);
+            expect(Utils.Utils.toArray('blargle')).toEqual(['b', 'l', 'a', 'r', 'g', 'l', 'e']);
         });
     });
 });

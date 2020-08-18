@@ -20,10 +20,29 @@
  * SOFTWARE.
  */
 
-import { RaidLookupOptions, RaidManager } from '..';
-import { CommandProperties } from '../../commands/';
+import {
+    Boss,
+    CategorizedRaids,
+    Raid,
+    RaidLookupOptions,
+    RaidManager,
+} from '..';
+import {
+    FormatTargets,
+    Formatter,
+    RangeOf,
+    Result,
+    succeed,
+} from '@fgv/ts-utils';
+import {
+    bossesFormatters,
+    categorizedRaidsFormatters,
+    raidFormatters,
+} from '../formatters';
+
+import { CommandBase } from '../../commandsv1';
+import { CommandProperties } from '../../commands';
 import { RaidTier } from '../game';
-import { RangeOf } from '@fgv/ts-utils';
 
 const tierNoCapture = '(?:(?:L|T|l|t)?\\d)';
 
@@ -71,7 +90,25 @@ export const commonProperties: CommandProperties<CommonProperties> = {
     maxTier: { value: commonFormats.maxTier, hasEmbeddedCapture: true },
 };
 
-export interface PogoContext {
-    rm: RaidManager;
-    options?: RaidLookupOptions;
+export interface PogoCommandHandler {
+    execute(rm: RaidManager, options?: Partial<RaidLookupOptions>): Result<string>;
 }
+
+export class BossesCommand<TNAME, TRAW, TPROPS> extends CommandBase<TNAME, TRAW, TPROPS, Boss[]> {
+    public getDefaultFormatter(target: FormatTargets): Result<Formatter<Boss[]>> {
+        return succeed(bossesFormatters[target]);
+    }
+}
+
+export class CategorizedRaidsCommand<TNAME, TRAW, TPROPS> extends CommandBase<TNAME, TRAW, TPROPS, CategorizedRaids> {
+    public getDefaultFormatter(target: FormatTargets): Result<Formatter<CategorizedRaids>> {
+        return succeed(categorizedRaidsFormatters[target]);
+    }
+}
+
+export class RaidCommand<TNAME, TRAW, TPROPS> extends CommandBase<TNAME, TRAW, TPROPS, Raid> {
+    public getDefaultFormatter(target: FormatTargets): Result<Formatter<Raid>> {
+        return succeed(raidFormatters[target]);
+    }
+}
+

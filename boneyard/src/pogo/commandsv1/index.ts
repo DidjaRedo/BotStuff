@@ -20,8 +20,7 @@
  * SOFTWARE.
  */
 
-export * from './command';
-export * from './commandParser';
-export * from './commandProcessor';
-export * from './commandResult';
-export * from './preprocessedCommand';
+export * as AddCommands from './addCommands';
+export * as InfoCommands from './infoCommands';
+export * as RaidCommands from './raidCommands';
+export * as RemoveCommands from './removeCommands';

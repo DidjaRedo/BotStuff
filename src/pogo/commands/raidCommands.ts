@@ -22,27 +22,31 @@
 
 import * as Converters from '@fgv/ts-utils/converters';
 import * as PlaceConverters from '../../converters/placeConverters';
-import * as PogoConverters from '../../pogo/converters/pogoConverters';
+import * as PogoConverters from '../converters/pogoConverters';
 
 import { CategorizedRaids, Raid } from '../raid';
-import { CategorizedRaidsCommand, commonFormats, commonProperties } from './common';
-import { CommandInitializer, Commands } from '../../commands/command';
-import { RangeOf, Result, succeed } from '@fgv/ts-utils';
+import {
+    CommandProcessor,
+    CommandsByName,
+    GenericCommand,
+} from '../../commands';
+import { Converter, FormatTargets, Formatter, RangeOf, Result, fail, succeed } from '@fgv/ts-utils';
+import { PogoContext, commonFormats, commonProperties } from './common';
 
-import { CommandProcessor } from '../../commands/commandProcessor';
 import { ParserBuilder } from '../../commands/commandParser';
 import { RaidLookupOptions } from '../raidMap';
 import { RaidManager } from '../raidManager';
 import { RaidTier } from '../game';
+import { categorizedRaidsFormatters } from '../formatters';
 
-interface Fields {
+interface Params {
     tier?: RaidTier;
     maxTier?: RaidTier;
     tierRange?: RangeOf<RaidTier>;
     places?: PlaceConverters.Places;
 }
 
-const builder = new ParserBuilder<Fields>({
+const builder = new ParserBuilder<Params>({
     tier: commonProperties.tier,
     maxTier: commonProperties.maxTier,
     tierRange: commonProperties.tierRange,
@@ -56,9 +60,9 @@ export interface RaidsCommands {
     defaultRaids: CategorizedRaids;
 }
 
-export type RaidsCommandType = keyof RaidsCommands;
+export type RaidsCommandNames = keyof RaidsCommands;
 
-function listRaids(rm: RaidManager, command: RaidsCommandType, params: Fields, options?: Partial<RaidLookupOptions>): Result<CategorizedRaids> {
+function listRaids(rm: RaidManager, command: RaidsCommandNames, params: Params, options?: Partial<RaidLookupOptions>): Result<CategorizedRaids> {
     const effective: Partial<RaidLookupOptions> = { ...options };
 
     switch (command) {
@@ -99,118 +103,134 @@ function listRaids(rm: RaidManager, command: RaidsCommandType, params: Fields, o
     });
 }
 
-export type AllRaidsFields = Partial<Pick<Fields, 'places'>>;
-export type AllRaidsCommandInitializer = CommandInitializer<RaidsCommandType, Fields, AllRaidsFields, CategorizedRaids>;
-export function allRaidsCommandInitializer(rm: RaidManager, options?: Partial<RaidLookupOptions>): AllRaidsCommandInitializer {
-    return {
-        name: 'allRaids',
-        description: 'List all raids',
-        examples: [
-            '  !raids all [in <cities or zones>]',
-            '  !raids all',
-            '  !raids all in rose hill',
-            '  !raids all in rain city',
-        ],
-        parser: builder.build('!raids all {{places?}}').getValueOrThrow(),
-        converter: Converters.object({
-            places: PlaceConverters.places(rm.gyms),
-        }, ['places']),
-        executor: (params: AllRaidsFields) => {
-            return listRaids(rm, 'allRaids', params, options);
-        },
-        formatter: (_raids: CategorizedRaids): string => {
-            return '{{#description}}all{{/description}}';
-        },
-    };
+export type BaseRaidsParams = Partial<Pick<Params, 'places'>>;
+
+class RaidsCommandBase<TP> extends GenericCommand<RaidsCommandNames, Params, PogoContext, TP, CategorizedRaids> {
+    protected static _getBaseParamsConverter(context: PogoContext): Converter<BaseRaidsParams> {
+        return Converters.object<BaseRaidsParams>({
+            places: PlaceConverters.places(context.rm.gyms),
+        }, ['places']);
+    }
+
+    protected static _getDefaultFormatter(target: FormatTargets): Result<Formatter<CategorizedRaids>> {
+        const formatter = categorizedRaidsFormatters[target];
+        // istanbul ignore next
+        return formatter ? succeed(formatter) : fail(`No categorized raids formatter for ${target}`);
+    }
+
+    protected _execute<TP>(params: TP, context: PogoContext): Result<CategorizedRaids> {
+        return listRaids(context.rm, this.name, params, context.options);
+    }
 }
 
-export type ExRaidsFields = Partial<Pick<Fields, 'places'>>;
-export type ExRaidsCommandInitializer = CommandInitializer<RaidsCommandType, Fields, ExRaidsFields, CategorizedRaids>;
-export function exRaidsCommandInitializer(rm: RaidManager, options?: Partial<RaidLookupOptions>): ExRaidsCommandInitializer {
-    return {
-        name: 'exRaids',
-        description: 'List raids at EX-eligible gyms',
-        examples: [
-            '  !raids ex [in <cities or zones>]',
-            '  !raids ex in redmond',
-        ],
-        parser: builder.build('!raids ex {{places?}}').getValueOrThrow(),
-        converter: Converters.object({
-            places: PlaceConverters.places(rm.gyms),
-        }, ['places']),
-        executor: (params: ExRaidsFields) => {
-            return listRaids(rm, 'exRaids', params, options);
-        },
-        formatter: (_raids: CategorizedRaids): string => {
-            return '{{#description}}EX{{/description}}';
-        },
-    };
+
+export class AllRaidsCommand extends RaidsCommandBase<BaseRaidsParams> {
+    public constructor() {
+        super({
+            name: 'allRaids',
+            repeatable: true,
+            description: ['List all raids'],
+            examples: [
+                '  !raids all [in <cities or zones>]',
+                '  !raids all',
+                '  !raids all in rose hill',
+                '  !raids all in rain city',
+            ],
+            parser: builder.build('!raids all {{places?}}').getValueOrThrow(),
+            getConverter: RaidsCommandBase._getBaseParamsConverter,
+            execute: (p, c) => this._execute(p, c),
+            format: '{{#description}}all{{/description}}',
+            getDefaultFormatter: RaidsCommandBase._getDefaultFormatter,
+        });
+    }
 }
 
-export type ByTierFields = Partial<Pick<Fields, 'places'|'tierRange'>>;
-export type ByTierCommandInitializer = CommandInitializer<RaidsCommandType, Fields, ByTierFields, CategorizedRaids>;
-export function byTierCommandInitializer(rm: RaidManager, options?: Partial<RaidLookupOptions>): ByTierCommandInitializer {
-    return {
-        name: 'byTier',
-        description: 'List by tier',
-        examples: [
-            '  !raids <minTier>+ [in <cities or zones>], or',
-            '  !raids <tier> [in <cities or zones>], or',
-            '  !raids <minTier>-<maxTier> [in <cities or zones>]',
-            '  !raids 3+ in bellevue',
-            '  !raids T4',
-            '  !raids T4-5 in rain city',
-        ],
-        parser: builder.build('!raids {{tierRange}} {{places?}}').getValueOrThrow(),
-        converter: Converters.object({
+export class ExRaidsCommand extends RaidsCommandBase<BaseRaidsParams> {
+    public constructor() {
+        super({
+            name: 'exRaids',
+            repeatable: true,
+            description: ['List raids at EX-eligible gyms'],
+            examples: [
+                '  !raids ex [in <cities or zones>]',
+                '  !raids ex in redmond',
+            ],
+            parser: builder.build('!raids ex {{places?}}').getValueOrThrow(),
+            getConverter: RaidsCommandBase._getBaseParamsConverter,
+            execute: (p, c) => this._execute(p, c),
+            format: '{{#description}}EX{{/description}}',
+            getDefaultFormatter: RaidsCommandBase._getDefaultFormatter,
+        });
+    }
+}
+
+export type RaidsByTierFields = Partial<Pick<Params, 'places'|'tierRange'>>;
+export class RaidsByTierCommand extends RaidsCommandBase<RaidsByTierFields> {
+    public constructor() {
+        super({
+            name: 'byTier',
+            repeatable: true,
+            description: ['List raids by tier'],
+            examples: [
+                '  !raids <minTier>+ [in <cities or zones>], or',
+                '  !raids <tier> [in <cities or zones>], or',
+                '  !raids <minTier>-<maxTier> [in <cities or zones>]',
+                '  !raids 3+ in bellevue',
+                '  !raids T4',
+                '  !raids T4-5 in rain city',
+            ],
+            parser: builder.build('!raids {{tierRange}} {{places?}}').getValueOrThrow(),
+            getConverter: RaidsByTierCommand._getConverter,
+            execute: (p, c) => this._execute(p, c),
+            format: RaidsByTierCommand._getFormat,
+            getDefaultFormatter: RaidsCommandBase._getDefaultFormatter,
+        });
+    }
+
+    protected static _getConverter(context: PogoContext): Converter<RaidsByTierFields> {
+        return Converters.object<RaidsByTierFields>({
             tierRange: PogoConverters.raidTierRange,
-            places: PlaceConverters.places(rm.gyms),
-        }, ['places']),
-        executor: (params: ByTierFields) => {
-            return listRaids(rm, 'byTier', params, options);
-        },
-        formatter: (_raids: CategorizedRaids, params: ByTierFields): string => {
-            return `{{#description}}T${params.tierRange}+{{/description}}`;
-        },
-    };
+            places: PlaceConverters.places(context.rm.gyms),
+        }, ['places']);
+    }
+
+    protected static _getFormat(params: RaidsByTierFields, _context: PogoContext, _raids: CategorizedRaids): Result<string> {
+        return succeed(`{{#description}}${params.tierRange}{{/description}}`);
+    }
 }
 
-export type DefaultRaidsFields = Partial<Pick<Fields, 'places'>>;
-export type DefaultRaidsCommandInitializer = CommandInitializer<RaidsCommandType, Fields, DefaultRaidsFields, CategorizedRaids>;
-export function defaultRaidsCommandInitializer(rm: RaidManager, options?: Partial<RaidLookupOptions>): DefaultRaidsCommandInitializer {
+export class DefaultRaidsCommand extends RaidsCommandBase<BaseRaidsParams> {
+    public constructor() {
+        super({
+            name: 'defaultRaids',
+            repeatable: true,
+            description: ['List default raids'],
+            examples: [
+                '  !raids [in <cities or zones>]',
+                '  !raids in rose hill',
+                '  !raids in DowntownSeattle',
+            ],
+            parser: builder.build('!raids {{places?}}').getValueOrThrow(),
+            getConverter: RaidsCommandBase._getBaseParamsConverter,
+            execute: (p, c) => this._execute(p, c),
+            format: '{{description}}',
+            getDefaultFormatter: RaidsCommandBase._getDefaultFormatter,
+        });
+    }
+}
+
+export function getRaidsCommands(): CommandsByName<RaidsCommands, PogoContext> {
     return {
-        name: 'defaultRaids',
-        description: 'List default raids',
-        examples: [
-            '  !raids [in <cities or zones>]',
-            '  !raids in rose hill',
-            '  !raids in DowntownSeattle',
-        ],
-        parser: builder.build('!raids {{places?}}').getValueOrThrow(),
-        converter: Converters.object({
-            places: PlaceConverters.places(rm.gyms),
-        }, ['places']),
-        executor: (params: DefaultRaidsFields) => {
-            return listRaids(rm, 'defaultRaids', params, options);
-        },
-        formatter: (_raids: CategorizedRaids): string => {
-            return '{{description}}';
-        },
+        allRaids: new AllRaidsCommand(),
+        exRaids: new ExRaidsCommand(),
+        byTier: new RaidsByTierCommand(),
+        defaultRaids: new DefaultRaidsCommand(),
     };
 }
 
-export function getRaidsCommands(rm: RaidManager): Commands<RaidsCommands> {
-    return {
-        allRaids: new CategorizedRaidsCommand(allRaidsCommandInitializer(rm)),
-        exRaids: new CategorizedRaidsCommand(exRaidsCommandInitializer(rm)),
-        byTier: new CategorizedRaidsCommand(byTierCommandInitializer(rm)),
-        defaultRaids: new CategorizedRaidsCommand(defaultRaidsCommandInitializer(rm)),
-    };
-}
-
-export function getRaidsCommandProcessor(rm: RaidManager): CommandProcessor<RaidsCommands> {
+export function getRaidsCommandProcessor(): CommandProcessor<RaidsCommands, PogoContext> {
     return new CommandProcessor(
-        getRaidsCommands(rm),
+        getRaidsCommands(),
         ['allRaids', 'exRaids', 'byTier', 'defaultRaids'],
     );
 }

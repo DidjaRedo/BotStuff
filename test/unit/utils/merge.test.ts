@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 import '@fgv/ts-utils-jest';
-import * as Merge from '../../../src/utils/merge';
+import { Merge } from '../../../src/utils';
 import { Names } from '../../../src/names/names';
 
 describe('Merge module', () => {

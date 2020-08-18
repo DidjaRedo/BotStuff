@@ -1,6 +1,6 @@
 {
   "name": "@efortune/bot-stuff",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Odds and ends for building bots",
   "main": "dist/index.js",
   "scripts": {
@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/DidjaRedo/BotStuff#readme",
   "devDependencies": {
-    "@fgv/ts-utils-jest": "^0.1.4",
+    "@fgv/ts-utils-jest": "^0.1.7",
     "@types/jest": "^26.0.7",
     "@types/mustache": "^4.0.1",
     "@types/node": "^14.0.26",
@@ -53,7 +53,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@fgv/ts-utils": "^0.1.4",
+    "@fgv/ts-utils": "^0.1.9",
     "csv-parse": "^4.11.1",
     "fuse.js": "^6.4.1",
     "moment": "^2.27.0",

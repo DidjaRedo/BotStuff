@@ -1,6 +1,6 @@
 {
   "name": "@efortune/bot-stuff",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -438,21 +438,21 @@
       }
     },
     "@fgv/ts-utils": {
-      "version": "0.1.4",
-      "resolved": "https://registry.npmjs.org/@fgv/ts-utils/-/ts-utils-0.1.4.tgz",
-      "integrity": "sha512-iMhSjn4DKcYesGsI4OpMy5sXPmwKoHpdBv4SC5I+JA33qd1j0D4QGnMZCtDZe+xtqxF+21WfGTQK7bv2pNm1Sg==",
+      "version": "0.1.9",
+      "resolved": "https://registry.npmjs.org/@fgv/ts-utils/-/ts-utils-0.1.9.tgz",
+      "integrity": "sha512-qgaqvxsMyqKq4Fh8ee8gqg9XnK5F6LrVCFSXFVS9vvSA5Bs94IQOSmNJ+CWvw+XSw3bY76HHudt+7nkmFX9FKA==",
       "requires": {
         "csv-parse": "^4.11.1",
         "mustache": "^4.0.1"
       }
     },
     "@fgv/ts-utils-jest": {
-      "version": "0.1.4",
-      "resolved": "https://registry.npmjs.org/@fgv/ts-utils-jest/-/ts-utils-jest-0.1.4.tgz",
-      "integrity": "sha512-JKNO4As+H5trUKhvgLBVtdF3VnTnYI6ZlUVYVLlP6sgHf2YOPO3lvqsbcheLvM8W4CW/OUUpdNjsHOw9lKLq4g==",
+      "version": "0.1.7",
+      "resolved": "https://registry.npmjs.org/@fgv/ts-utils-jest/-/ts-utils-jest-0.1.7.tgz",
+      "integrity": "sha512-1jIzOZ/UXAbTuWdF3s47fVObQfkEtvNSoWnkO4r4MOsyo0j1TsJouAL5Q0nbB9yLIDghEz3l5d4M2oiyN+mN4A==",
       "dev": true,
       "requires": {
-        "@fgv/ts-utils": "^0.1.0",
+        "@fgv/ts-utils": "^0.1.7",
         "expect": "^26.1.0",
         "jest-matcher-utils": "^26.1.0",
         "jest-snapshot": "^26.1.0"

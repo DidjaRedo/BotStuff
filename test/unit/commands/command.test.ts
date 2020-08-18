@@ -19,263 +19,198 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 import '@fgv/ts-utils-jest';
-import * as Converters from '@fgv/ts-utils/converters';
-import * as TimeConverters from '../../../src/time/timeConverters';
+import { Converters, Formatter, Result, fail, succeed } from '@fgv/ts-utils';
 
-import { CommandBase, CommandInitializer, PreProcessedCommandBase, ValidatedCommand, ValidatedCommandBase } from '../../../src/commands';
-import { CommandProperties, ParserBuilder } from '../../../src/commands/commandParser';
-import {
-    FormatTargets,
-    FormattableBase,
-    Formatter,
-    Result,
-    fail,
-    succeed,
-} from '@fgv/ts-utils';
+import { GenericCommand, GenericCommandInitializer, ParserBuilder } from '../../../src/commands';
 
-import moment from 'moment';
+type Tokens = { word: string, number: number, bool: string, broken: string };
+const tokens = {
+    word: { value: '\\w+' },
+    number: { value: '\\d+' },
+    bool: { value: '\\w+' },
+    broken: { value: '(\\w+)\\s+(\\w+)' },
+};
+const builder = new ParserBuilder(tokens);
 
-describe('Command module', () => {
-    interface TestFields {
-        word: string;
-        words: string;
-        testPhrase: string;
-        time: Date;
-        broken: string;
+type Params = { word: string, number: number, bool: boolean, broken: string };
+
+const wordParser = builder.build('{{word}}').getValueOrThrow();
+const numberParser = builder.build('{{number}}').getValueOrThrow();
+const boolParser = builder.build('{{bool}}').getValueOrThrow();
+const brokenParser = builder.build('{{broken}}').getValueOrThrow();
+
+const paramsConverter = Converters.object<Params>({
+    word: Converters.string,
+    number: Converters.number,
+    bool: Converters.boolean,
+    broken: Converters.string,
+}, ['word', 'number', 'bool', 'broken']);
+
+const fakeExec = (p: Params, c:string):Result<string> => {
+    if (p.word === 'fail') {
+        return fail('I was told to fail');
     }
-    type ParsedTestFields = Record<keyof TestFields, string|number|Date>;
+    return succeed(`${p.word}+${c}`);
+};
 
-    const fields: CommandProperties<TestFields> = {
-        word: { value: '\\w+' },
-        words: { value: '\\w+(?:\\s|\\w|\\d|`|\'|-|\\.)*' },
-        testPhrase: { value: '.*test.*' },
-        time: { value:  '(?:\\d?\\d):?(?:\\d\\d)\\s*(?:a|A|am|AM|p|P|pm|PM)?', optional: false },
-        broken: { value: '(\\w)(\\w)(\\w)(\\w)' },
-    };
-    const builder = new ParserBuilder(fields);
+type CommandNames = 'test';
+const baseInit: GenericCommandInitializer<CommandNames, Tokens, string, Params, string> = {
+    name: 'test',
+    repeatable: true,
+    description: ['A test command'],
+    examples: ['An example', '  on two lines'],
+    footer: ['A footer'],
+    parser: wordParser,
+    getConverter: () => paramsConverter,
+    execute: fakeExec,
+    format: '{{text}}',
+};
 
-    type TestCommandType = 'specific'|'date'|'broken';
-
-    class TestCommand<TF, TR> extends CommandBase<TestCommandType, ParsedTestFields, TF, TR> {
-        protected _defaultFormatter?: Formatter<TR>;
-        public constructor(
-            init: CommandInitializer<TestCommandType, ParsedTestFields, TF, TR>,
-            defaultFormatter?: Formatter<TR>
-        ) {
-            super(init);
-            this._defaultFormatter = defaultFormatter;
-        }
-
-        public getDefaultFormatter(_target: FormatTargets): Result<Formatter<TR>> {
-            return (this._defaultFormatter
-                ? succeed(this._defaultFormatter)
-                : fail('No default formatter'));
-        }
-    }
-
-    function stringFormatter(format: string, _value: string): Result<string> {
-        return succeed(format);
-    }
-
-    type TestSpecificFields = Required<Pick<TestFields, 'word'>>;
-    type TestSpecificInitializer = CommandInitializer<TestCommandType, ParsedTestFields, TestSpecificFields, string>;
-    const specificParser = builder.build('This is a {{word}}').getValueOrThrow();
-    const specificConverter = Converters.object<TestSpecificFields>({
-        word: Converters.string,
-    });
-    const specificCommand = new TestCommand<TestSpecificFields, string>(
-        {
-            name: 'specific',
-            description: 'The specific test command',
-            examples: ['specific example goes here', 'second line goes here'],
-            parser: specificParser,
-            converter: specificConverter,
-            executor: (params: TestSpecificFields): Result<string> => {
-                return succeed(params.word);
-            },
-            formatter: (word: string): string => {
-                return `I got ${word}`;
-            },
-        },
-        stringFormatter,
-    );
-
-    type TestDateFields = Required<Pick<TestFields, 'time'>>&Partial<Pick<TestFields, 'words'>>;
-    type TestDateInitializer = CommandInitializer<TestCommandType, ParsedTestFields, TestDateFields, TestDateFields>;
-    const dateParser = builder.build('{{time}} {{words?}}').getValueOrThrow();
-    const dateConverter = Converters.object<TestDateFields>({
-        time: TimeConverters.flexTime,
-        words: Converters.string,
-    }, ['words']);
-    class DateFormatter extends FormattableBase {
-        private _date: TestDateFields;
-        public constructor(date: TestDateFields) {
-            super();
-            this._date = date;
-        }
-        public get time(): string { return moment(this._date.time).format('HH:mm'); }
-        public get words(): string|undefined { return this._date.words; }
-    }
-    function formatDate(format: string, date: TestDateFields): Result<string> {
-        return new DateFormatter(date).format(format);
-    }
-    const dateCommand = new TestCommand<TestDateFields, TestDateFields>(
-        {
-            name: 'date',
-            description: 'The date test command',
-            parser: dateParser,
-            converter: dateConverter,
-            executor: (params: TestDateFields): Result<TestDateFields> => {
-                if (params.words?.includes('fail')) {
-                    return fail('Command asked to fail');
-                }
-                return succeed(params);
-            },
-            formatter: (got: TestDateFields): string => {
-                return (got.words)
-                    ? 'Got {{time}} with {{words}}'
-                    : 'Got {{time}}';
-            },
-        },
-        formatDate
-    );
-
-    describe('CommandBase class', (): void => {
-        describe('constructor', () => {
-            test('initializes correctly', () => {
-                expect(specificCommand.name).toBe('specific');
-                expect(specificCommand.getDescription()).toBe('The specific test command');
-                expect(specificCommand.getExamples()).toBe('specific example goes here\nsecond line goes here');
-                expect(dateCommand.getExamples()).toBeUndefined();
-            });
+// testing base classes vie GenericCommand
+describe('GenericCommand class', () => {
+    describe('descriptive properties', () => {
+        test('propagate from the initializer', () => {
+            const cmd = GenericCommand.create(baseInit).getValueOrThrow();
+            expect(cmd.name).toEqual(baseInit.name);
+            expect(cmd.help.getDescription()).toEqual(baseInit.description);
+            expect(cmd.help.getExamples()).toEqual(baseInit.examples);
+            expect(cmd.help.getFooter()).toEqual(baseInit.footer);
+            expect(cmd.help.getHelpText()).toEqual([
+                ...baseInit.description,
+                ...baseInit.examples ?? [],
+                ...baseInit.footer ?? [],
+            ]);
         });
 
-        describe('getHelpLines method', () => {
-            test('joins description and examples when examples exist', () => {
-                expect(specificCommand.getHelpLines()).toEqual([
-                    'The specific test command',
-                    'specific example goes here',
-                    'second line goes here',
-                ]);
-            });
-
-            test('returns description when no examples exist', () => {
-                expect(dateCommand.getHelpLines()).toEqual([
-                    'The date test command',
-                ]);
-            });
-        });
-
-        describe('validate method', () => {
-            test('validates a valid command', () => {
-                [
-                    { cmd: specificCommand, src: 'This is a test', payload: 'test', message: 'I got test' },
-                ].forEach((test) => {
-                    expect(test.cmd.validate(test.src)).toSucceedAndSatisfy((vc: ValidatedCommand<TestCommandType, string>) => {
-                        expect(vc.execute()).toSucceedWith(expect.objectContaining({
-                            command: 'specific',
-                            result: test.payload,
-                            message: test.message,
-                        }));
-                    });
-                });
-            });
-
-            test('returns undefined for a command that does not match the pattern', () => {
-                expect(specificCommand.validate('This is not a test')).toSucceedWith(undefined);
-            });
-
-            test('reports an error for a command that matches the pattern but fails conversion', () => {
-                expect(dateCommand.validate('33:22PM words')).toFailWith(/invalid time/i);
-            });
-
-            test('Does not report an error for a validated command that will fail at execution', () => {
-                expect(dateCommand.validate('10:15 fail')).toSucceedAndSatisfy((vc: ValidatedCommand<TestCommandType, TestDateFields>) => {
-                    expect(vc.execute()).toFailWith(/asked to fail/i);
-                });
-            });
-        });
-
-        describe('execute method', () => {
-            test('executes a valid command', () => {
-                expect(specificCommand.execute('This is a test')).toSucceedWith({
-                    command: 'specific',
-                    result: 'test',
-                    message: 'I got test',
-                });
-
-                expect(dateCommand.execute('23:59 some words here')).toSucceedWith({
-                    command: 'date',
-                    result: expect.objectContaining({
-                        time: expect.any(Date),
-                        words: 'some words here',
-                    }),
-                    message: expect.stringMatching('Got {{time}} with {{words}}'),
-                });
-
-                expect(dateCommand.execute('22:15')).toSucceedWith({
-                    command: 'date',
-                    result: expect.objectContaining({
-                        time: expect.any(Date),
-                    }),
-                    message: expect.stringMatching('Got {{time}}'),
-                });
-            });
-
-            test('returns undefined for a command that does not match the pattern', () => {
-                expect(specificCommand.execute('This is not a test')).toSucceedWith(undefined);
-            });
-
-            test('reports an error for a command that matches the pattern but fails conversion', () => {
-                expect(dateCommand.execute('33:22PM words')).toFailWith(/invalid time/i);
-            });
-
-            test('reports an error for a validated command that will fail at execution', () => {
-                expect(dateCommand.execute('10:15 fail')).toFailWith(/asked to fail/i);
-            });
-        });
-
-        describe('format method', () => {
-            test('formats a valid result', () => {
-                const executed = dateCommand.execute('23:59 some words here').getValueOrThrow();
-                expect(executed).toBeDefined();
-                if (executed !== undefined) {
-                    expect(dateCommand.format(executed, formatDate))
-                        .toSucceedWith(/23:59.*with some words here/i);
-                }
-            });
-
-            test('fails if the command result or message or value is undefined', () => {
-                expect(dateCommand.format({
-                    command: 'date',
-                    result: { time: new Date(), words: 'whatever' },
-                    message: undefined as unknown as string,
-                }, formatDate)).toFailWith(/cannot format/i);
-
-                expect(dateCommand.format({
-                    command: 'date',
-                    result: undefined as unknown as TestDateFields,
-                    message: 'howdy',
-                }, formatDate)).toFailWith(/cannot format/i);
-            });
+        test('default to an empty array', () => {
+            const init = {
+                name: 'test',
+                repeatable: true,
+                description: ['description is required'],
+                parser: wordParser,
+                getConverter: () => paramsConverter,
+                execute: fakeExec,
+                format: 'format',
+            };
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.name).toEqual(init.name);
+            expect(cmd.help.getDescription()).toEqual(init.description);
+            expect(cmd.help.getExamples()).toEqual([]);
+            expect(cmd.help.getFooter()).toEqual([]);
+            expect(cmd.help.getHelpText()).toEqual(init.description);
         });
     });
 
-    describe('PreProcessedCommandBase', () => {
-        describe('create static method', () => {
-            test('fails if command is undefined', () => {
-                // const validated = specificCommand.validate('This is a test').getValueOrThrow();
-                const validated: ValidatedCommandBase<TestCommandType, string>|undefined = undefined;
-                const formatter = (s: string) => succeed(s);
-                expect(PreProcessedCommandBase.create(validated, formatter)).toFailWith(/undefined validated command/i);
-            });
+    describe('execute method', () => {
+        test('invokes the supplied execute method', () => {
+            const execute = jest.fn(fakeExec);
+            const init = { ...baseInit, execute };
 
-            test('fails if formatter', () => {
-                const validated = specificCommand.validate('This is a test').getValueOrThrow();
-                const formatter = undefined;
-                expect(PreProcessedCommandBase.create(validated, formatter)).toFailWith(/no formatter/i);
+            const cmd = new GenericCommand(init);
+            expect(execute).not.toHaveBeenCalled();
+            expect(cmd.execute('hello', 'context')).toSucceedWith('hello+context');
+        });
+
+        test('fails with detail match if string does not match', () => {
+            const execute = jest.fn(() => succeed('okay'));
+            const init = { ...baseInit, parser: numberParser, execute };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.execute('not a number', 'context')).toFailWithDetail(
+                /no match/i,
+                'parse',
+            );
+        });
+
+        test('fails with detail internal if parser encounters an error', () => {
+            const init = { ...baseInit, parser: brokenParser };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.execute('not working', 'context')).toFailWithDetail(
+                /mismatched/i,
+                'internal',
+            );
+        });
+
+        test('fails with detail internal if creating converter fails', () => {
+            const getConverter = () => { throw new Error('oops'); };
+            const init = { ...baseInit, getConverter };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.preprocess('boom', 'context')).toFailWithDetail(
+                /oops/i,
+                'internal',
+            );
+        });
+
+        test('fails with detail validate if conversion fails', () => {
+            const init = { ...baseInit, parser: boolParser };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.execute('boom', 'context')).toFailWithDetail(
+                /not a boolean/i,
+                'validate',
+            );
+        });
+
+        test('fails with detail execute if execution fails', () => {
+            const execute = (): Result<string> => fail('failed on purpose');
+            const init = { ...baseInit, execute };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.execute('boom', 'context')).toFailWithDetail(
+                /failed on purpose/i,
+                'execute',
+            );
+        });
+    });
+
+    describe('format method', () => {
+        const formatter = (format: string, value: string): Result<string> => {
+            return succeed(`Got ${format.replace('{{text}}', value)}`);
+        };
+
+        test('formats a successful result using the supplied formatter', () => {
+            const init = { ...baseInit };
+
+            const cmd = new GenericCommand(init);
+            const cmdResult = cmd.execute('hello', 'context');
+            expect(cmd.format(cmdResult, formatter)).toSucceedWith('Got hello+context');
+        });
+
+        test('propagates failure for an unsuccessful result', () => {
+            const execute = (): Result<string> => fail('failed on purpose');
+            const init = { ...baseInit, execute };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            expect(cmd.format(cmd.execute('boom', 'context'), formatter)).toFailWith(
+                /failed on purpose/i,
+            );
+        });
+    });
+
+    describe('getDefaultFormatter method', () => {
+        test('formats with the default formatter', () => {
+            const formatFunction = (format: string, value: string): Result<string> => {
+                return succeed(`Got ${format.replace('{{text}}', value)}`);
+            };
+            const getDefaultFormatter = jest.fn((): Result<Formatter<string>> => succeed(formatFunction));
+            const init = { ...baseInit, getDefaultFormatter };
+
+            const cmd = GenericCommand.create(init).getValueOrThrow();
+            const executeResult = cmd.execute('hello', 'context');
+            expect(cmd.getDefaultFormatter('text')).toSucceedAndSatisfy((formatter: Formatter<string>) => {
+                expect(getDefaultFormatter).toHaveBeenCalledWith('text');
+                expect(cmd.format(executeResult, formatter)).toSucceedWith('Got hello+context');
             });
+        });
+
+        test('fails if no formatter factory is defined', () => {
+            const init = { ...baseInit };
+            const cmd = new GenericCommand(init);
+            expect(cmd.getDefaultFormatter('text')).toFailWith(/no formatter factory/i);
         });
     });
 });

@@ -23,18 +23,20 @@
 import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from '../converters/pogoConverters';
 
-import { Boss, BossDirectory, RaidManager } from '..';
-import { BossesCommand, commonProperties } from './common';
-import { CommandInitializer, CommandProcessor, Commands, ParserBuilder } from '../../commands';
-import { ExtendedArray, Result } from '@fgv/ts-utils';
+import { CommandProcessor, CommandsByName, GenericCommand, ParserBuilder } from '../../commands';
+import { ExtendedArray, FormatTargets, Formatter, Result, fail, succeed } from '@fgv/ts-utils';
 
+import { Boss } from '..';
+import { PogoContext } from './common';
 import { RaidTier } from '../game';
 import { bossesByName } from '../converters/bossConverters';
+import { bossesFormatters } from '../formatters';
+import { commonProperties } from '../commands/common';
 
 export type BossStatusFilter = 'active'|'inactive'|'all';
 export const bossStatusConverter = Converters.enumeratedValue<BossStatusFilter>(['active', 'inactive', 'all']);
 
-interface Fields {
+interface Params {
     boss: ExtendedArray<Boss>;
     gym: string;
     places: string[];
@@ -61,46 +63,55 @@ export interface InfoCommands {
     // zones: Zone[]
 }
 
-type InfoCommandType = keyof InfoCommands;
+type InfoCommandNames = keyof InfoCommands;
 
-export type BossInfoFields = Required<Pick<Fields, 'boss'>>&Partial<Pick<Fields, 'tier'>>;
-export type BossInfoInitializer = CommandInitializer<InfoCommandType, Fields, BossInfoFields, Boss[]>;
-export function bossInfoInitializer(bosses: BossDirectory): BossInfoInitializer {
+class InfoCommandBase<TP, TR> extends GenericCommand<InfoCommandNames, Params, PogoContext, TP, TR> {
+    protected static _getDefaultBossesFormatter(target: FormatTargets): Result<Formatter<Boss[]>> {
+        const formatter = bossesFormatters[target];
+        // istanbul ignore next
+        return formatter ? succeed(formatter) : fail(`No boss formatter for ${target}`);
+    }
+}
+
+export type BossInfoParams = Required<Pick<Params, 'boss'>>&Partial<Pick<Params, 'tier'>>;
+export class BossInfoCommand extends InfoCommandBase<BossInfoParams, Boss[]> {
+    public constructor() {
+        super({
+            name: 'boss',
+            repeatable: true,
+            description: ['Get detailed information about bosses'],
+            examples: [
+                '  !info boss [<tier>] <boss name>',
+                '  !info boss zapdos',
+                '  !info boss t4 zapdos',
+            ],
+            parser: builder.build('!info boss {{tier?}} {{boss}}').getValueOrThrow(),
+            getConverter: (context: PogoContext) => Converters.object({
+                boss: bossesByName(context.rm.bosses),
+                tier: PogoConverters.raidTier,
+            }, ['tier']),
+            execute: (params: BossInfoParams): Result<Boss[]> => {
+                let got = params.boss;
+                if (params.tier !== undefined) {
+                    got = new ExtendedArray('boss', ...params.boss.filter((b) => b.tier === params.tier));
+                }
+                return got.atLeastOne();
+            },
+            format: '{{details}}',
+            getDefaultFormatter: InfoCommandBase._getDefaultBossesFormatter,
+        });
+    }
+}
+
+export function getInfoCommands(): CommandsByName<InfoCommands, PogoContext> {
     return {
-        name: 'boss',
-        description: 'Get detailed information about bosses',
-        examples: [
-            '  !info boss [<tier>] <boss name>',
-            '  !info boss zapdos',
-            '  !info boss t4 zapdos',
-        ],
-        parser: builder.build('!info boss {{tier?}} {{boss}}').getValueOrThrow(),
-        converter: Converters.object({
-            boss: bossesByName(bosses),
-            tier: PogoConverters.raidTier,
-        }, ['tier']),
-        executor: (params: BossInfoFields): Result<Boss[]> => {
-            let got = params.boss;
-            if (params.tier !== undefined) {
-                got = new ExtendedArray('boss', ...params.boss.filter((b) => b.tier === params.tier));
-            }
-            return got.atLeastOne();
-        },
-        formatter: (_bosses: Boss[]): string => {
-            return '{{details}}';
-        },
+        boss: new BossInfoCommand(),
     };
 }
 
-export function getInfoCommands(rm: RaidManager): Commands<InfoCommands> {
-    return {
-        boss: new BossesCommand(bossInfoInitializer(rm.bosses)),
-    };
-}
-
-export function getInfoCommandProcessor(rm: RaidManager): CommandProcessor<InfoCommands> {
+export function getInfoCommandProcessor(): CommandProcessor<InfoCommands, PogoContext> {
     return new CommandProcessor(
-        getInfoCommands(rm),
+        getInfoCommands(),
         ['boss'],
     );
 }

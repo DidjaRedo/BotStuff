@@ -24,17 +24,18 @@ import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from '../converters/pogoConverters';
 import * as TimeConverters from '../../time/timeConverters';
 
-import { Boss, Gym, Raid, RaidManager } from '..';
-import { CommandGroup, CommandProcessor, ParserBuilder } from '../../commands';
-import { CommandInitializer, Commands } from '../../commands/command';
-import { RaidCommand, commonProperties } from './common';
+import { Boss, Gym, Raid } from '..';
+import { CommandProcessor, CommandsByName, GenericCommand } from '../../commands';
+import { FormatTargets, Formatter, Result, fail, succeed } from '@fgv/ts-utils';
+import { PogoContext, commonProperties } from './common';
 
+import { ParserBuilder } from '../../commands';
 import { RaidTier } from '../game';
-import { Result } from '@fgv/ts-utils';
+import { raidFormatters } from '../formatters';
 import { singleBossByName } from '../converters/bossConverters';
 import { singleGymByName } from '../converters/gymConverters';
 
-interface Fields {
+interface Params {
     gym: Gym;
     boss?: Boss;
     startTime?: Date;
@@ -42,7 +43,7 @@ interface Fields {
     tier?: RaidTier;
 }
 
-const builder = new ParserBuilder<Fields>({
+const builder = new ParserBuilder<Params>({
     gym: commonProperties.place,
     boss: commonProperties.boss,
     startTime: commonProperties.time,
@@ -59,151 +60,152 @@ export interface AddCommands {
     updateBoss: Raid;
 }
 
-type AddCommandType = keyof AddCommands;
+type AddCommandNames = keyof AddCommands;
 
-const commonHelp: string[] = [
-    'Where:',
-    '  Time is 12- or 24-hour format with optional colon.  If am/pm is',
-    '  omitted for 12-hour, the next upcoming time is assumed',
-    '    12:10pm - 10 minutes after noon',
-    '    0615 - 6:15 AM',
-    '    9:15 - whichever of 9:15 AM or 9:15 PM comes next',
-    '  Tier is 1-5',
-    '  Unhatched egg timer is 1-60',
-    '  Active raid timer is 1-45',
-];
+class AddCommandBase<TP> extends GenericCommand<AddCommandNames, Params, PogoContext, TP, Raid> {
+    protected static readonly _helpFooter: string[] = [
+        'Where:',
+        '  Time is 12- or 24-hour format with optional colon.  If am/pm is',
+        '  omitted for 12-hour, the next upcoming time is assumed',
+        '    12:10pm - 10 minutes after noon',
+        '    0615 - 6:15 AM',
+        '    9:15 - whichever of 9:15 AM or 9:15 PM comes next',
+        '  Tier is 1-5',
+        '  Unhatched egg timer is 1-60',
+        '  Active raid timer is 1-45',
+    ];
 
-export type UpcomingWithStartTimeFields = Required<Pick<Fields, 'gym'|'startTime'>>&Partial<Pick<Fields, 'tier'>>;
-export type UpcomingWithStartTimeInitializer = CommandInitializer<AddCommandType, Fields, UpcomingWithStartTimeFields, Raid>;
-export function upcomingWithStartTimeInitializer(rm: RaidManager): UpcomingWithStartTimeInitializer {
+    protected static _getDefaultFormatter(target: FormatTargets): Result<Formatter<Raid>> {
+        const formatter = raidFormatters[target];
+        // istanbul ignore next
+        return formatter ? succeed(formatter) : fail(`No raid formatter for ${target}`);
+    }
+}
+
+export type UpcomingWithStartTimeParams = Required<Pick<Params, 'gym'|'startTime'>>&Partial<Pick<Params, 'tier'>>;
+export class AddUpcomingWithStartTimeCommand extends AddCommandBase<UpcomingWithStartTimeParams> {
+    public constructor() {
+        super({
+            name: 'upcomingWithStartTime',
+            repeatable: false,
+            description: ['Add an unhatched egg with start time and optional tier'],
+            examples: [
+                '  !add [<tier>] <gym name> (at|@) <time>',
+                '  !add wells fargo at 1012',
+                '  !add 4 painted parking lot at 1012am',
+                '  !add t3 elephants @ 1732',
+            ],
+            footer: AddCommandBase._helpFooter,
+            parser: builder.build('!add {{tier?}} {{gym}} (?:@|at) {{startTime}}').getValueOrThrow(),
+            getConverter: (context: PogoContext) => Converters.object({
+                gym: singleGymByName(context.rm.gyms, context.options),
+                startTime: TimeConverters.flexTime,
+                tier: PogoConverters.raidTier,
+            }, ['tier']),
+            execute: (params: UpcomingWithStartTimeParams, context: PogoContext): Result<Raid> => {
+                return context.rm.addFutureRaid(params.startTime, params.gym, params.tier ?? DEFAULT_RAID_TIER);
+            },
+            format: 'Added {{tier}} raid at {{gymName}}',
+            getDefaultFormatter: AddCommandBase._getDefaultFormatter,
+        });
+    }
+}
+
+export type UpcomingWithTimerParams = Required<Pick<Params, 'gym'|'timer'>>&Partial<Pick<Params, 'tier'>>;
+export class AddUpcomingWithTimerCommand extends AddCommandBase<UpcomingWithTimerParams> {
+    public constructor() {
+        super({
+            name: 'upcomingWithTimer',
+            repeatable: false,
+            description: ['Add an unhatched egg with time-to-hatch and an optional tier'],
+            examples: [
+                '  !add [<tier>] <gym name> in <time in minutes>',
+                '  !add wells fargo in 15',
+                '  !add 4 painted parking lot in 30',
+                '  !add t3 elephants in 11',
+            ],
+            footer: AddCommandBase._helpFooter,
+            parser: builder.build('!add {{tier?}} {{gym}} in {{timer}}').getValueOrThrow(),
+            getConverter: (context: PogoContext) => Converters.object({
+                gym: singleGymByName(context.rm.gyms, context.options),
+                timer: Converters.number,
+                tier: PogoConverters.raidTier,
+            }, ['tier']),
+            execute: (params: UpcomingWithTimerParams, context: PogoContext): Result<Raid> => {
+                return context.rm.addFutureRaid(params.timer, params.gym, params.tier ?? DEFAULT_RAID_TIER);
+            },
+            format: 'Added {{tier}} raid at {{gymName}}',
+            getDefaultFormatter: AddCommandBase._getDefaultFormatter,
+        });
+    }
+}
+
+export type ActiveWithTimeLeftParams = Required<Pick<Params, 'gym'|'boss'|'timer'>>;
+export class AddActiveWithTimeLeftCommand extends AddCommandBase<ActiveWithTimeLeftParams> {
+    public constructor() {
+        super({
+            name: 'activeWithTimeLeft',
+            repeatable: false,
+            description: ['Add or update an active raid:'],
+            examples: [
+                '  !add <boss> (at|@) <gym name> <time in minutes> left',
+                '  !add lugia at wells 30 left',
+                '  !add ho-oh at city hall 10 left',
+            ],
+            footer: AddCommandBase._helpFooter,
+            parser: builder.build('!add {{boss}} at {{gym}} {{timer}} left').getValueOrThrow(),
+            getConverter: (context: PogoContext) => Converters.object({
+                boss: singleBossByName(context.rm.bosses),
+                gym: singleGymByName(context.rm.gyms, context.options),
+                timer: Converters.number,
+            }),
+            execute: (params: ActiveWithTimeLeftParams, context: PogoContext): Result<Raid> => {
+                return context.rm.addActiveRaid(params.timer, params.gym, params.boss);
+            },
+            format: 'Added {{bossName}} at {{gymName}}',
+            getDefaultFormatter: AddCommandBase._getDefaultFormatter,
+        });
+    }
+}
+
+export type UpdateBossParams = Required<Pick<Params, 'gym'|'boss'>>;
+export class UpdateRaidBossCommand extends AddCommandBase<UpdateBossParams> {
+    public constructor() {
+        super({
+            name: 'updateBoss',
+            repeatable: false,
+            description: ['Add a boss to an active raid'],
+            examples: [
+                '  !add <boss> (at|@) <gym name>',
+                '  !add tyranitar at wells',
+            ],
+            footer: AddCommandBase._helpFooter,
+            parser: builder.build('!add {{boss}} at {{gym}}').getValueOrThrow(),
+            getConverter: (context: PogoContext) => Converters.object({
+                boss: singleBossByName(context.rm.bosses),
+                gym: singleGymByName(context.rm.gyms, context.options),
+            }),
+            execute: (params: UpdateBossParams, context: PogoContext): Result<Raid> => {
+                return context.rm.updateRaid(params.gym, params.boss);
+            },
+            format: 'Updated boss for {{gymName}} to be {{bossName}}',
+            getDefaultFormatter: AddCommandBase._getDefaultFormatter,
+        });
+    }
+}
+
+export function getAddCommands(): CommandsByName<AddCommands, PogoContext> {
     return {
-        name: 'upcomingWithStartTime',
-        description: 'Add an unhatched egg with start time and optional tier',
-        examples: [
-            '  !add [<tier>] <gym name> (at|@) <time>',
-            '  !add wells fargo at 1012',
-            '  !add 4 painted parking lot at 1012am',
-            '  !add t3 elephants @ 1732',
-            ...commonHelp,
-        ],
-        parser: builder.build('!add {{tier?}} {{gym}} (?:@|at) {{startTime}}').getValueOrThrow(),
-        converter: Converters.object({
-            gym: singleGymByName(rm.gyms),
-            startTime: TimeConverters.flexTime,
-            tier: PogoConverters.raidTier,
-        }, ['tier']),
-        executor: (params: UpcomingWithStartTimeFields): Result<Raid> => {
-            return rm.addFutureRaid(params.startTime, params.gym, params.tier ?? DEFAULT_RAID_TIER);
-        },
-        formatter: (_raid: Raid): string => {
-            return 'Added {{tier}} raid at {{gymName}}';
-        },
+        activeWithTimeLeft: new AddActiveWithTimeLeftCommand(),
+        updateBoss: new UpdateRaidBossCommand(),
+        upcomingWithStartTime: new AddUpcomingWithStartTimeCommand(),
+        upcomingWithTimer: new AddUpcomingWithTimerCommand(),
     };
 }
 
-export type UpcomingWithTimerFields = Required<Pick<Fields, 'gym'|'timer'>>&Partial<Pick<Fields, 'tier'>>;
-export type UpcomingWithTimerInitializer = CommandInitializer<AddCommandType, Fields, UpcomingWithTimerFields, Raid>;
-export function upcomingWithTimerInitializer(rm: RaidManager): UpcomingWithTimerInitializer {
-    return {
-        name: 'upcomingWithTimer',
-        description: 'Add an unhatched egg with time-to-hatch and an optional tier',
-        examples: [
-            '  !add [<tier>] <gym name> in <time in minutes>',
-            '  !add wells fargo in 15',
-            '  !add 4 painted parking lot in 30',
-            '  !add t3 elephants in 11',
-            ...commonHelp,
-        ],
-        parser: builder.build('!add {{tier?}} {{gym}} in {{timer}}').getValueOrThrow(),
-        converter: Converters.object({
-            gym: singleGymByName(rm.gyms),
-            timer: Converters.number,
-            tier: PogoConverters.raidTier,
-        }, ['tier']),
-        executor: (params: UpcomingWithTimerFields): Result<Raid> => {
-            return rm.addFutureRaid(params.timer, params.gym, params.tier ?? DEFAULT_RAID_TIER);
-        },
-        formatter: (_raid: Raid): string => {
-            return 'Added {{tier}} raid at {{gymName}}';
-        },
-    };
-}
-
-export type ActiveWithTimeLeftFields = Required<Pick<Fields, 'gym'|'boss'|'timer'>>;
-export type ActiveWithTimeLeftInitializer = CommandInitializer<AddCommandType, Fields, ActiveWithTimeLeftFields, Raid>;
-export function activeWithTimeLeftInitializer(rm: RaidManager): ActiveWithTimeLeftInitializer {
-    return {
-        name: 'activeWithTimeLeft',
-        description: 'Add or update an active raid:',
-        examples: [
-            '  !add <boss> (at|@) <gym name> <time in minutes> left',
-            '  !add lugia at wells 30 left',
-            '  !add ho-oh at city hall 10 left',
-            ...commonHelp,
-        ],
-        parser: builder.build('!add {{boss}} at {{gym}} {{timer}} left').getValueOrThrow(),
-        converter: Converters.object({
-            boss: singleBossByName(rm.bosses),
-            gym: singleGymByName(rm.gyms),
-            timer: Converters.number,
-        }),
-        executor: (params: ActiveWithTimeLeftFields): Result<Raid> => {
-            return rm.addActiveRaid(params.timer, params.gym, params.boss);
-        },
-        formatter: (_raid: Raid): string => {
-            return 'Added {{bossName}} at {{gymName}}';
-        },
-    };
-}
-
-export type UpdateBossFields = Required<Pick<Fields, 'gym'|'boss'>>;
-export type UpdateBossInitializer = CommandInitializer<AddCommandType, Fields, UpdateBossFields, Raid>;
-export function updateBossInitializer(rm: RaidManager): UpdateBossInitializer {
-    return {
-        name: 'updateBoss',
-        description: 'Add a boss to an active raid',
-        examples: [
-            '  !add <boss> (at|@) <gym name>',
-            '  !add tyranitar at wells',
-            ...commonHelp,
-        ],
-        parser: builder.build('!add {{boss}} at {{gym}}').getValueOrThrow(),
-        converter: Converters.object({
-            boss: singleBossByName(rm.bosses),
-            gym: singleGymByName(rm.gyms),
-        }),
-        executor: (params: UpdateBossFields): Result<Raid> => {
-            return rm.updateRaid(params.gym, params.boss);
-        },
-        formatter: (_raid: Raid): string => {
-            return 'Updated boss for {{gymName}} to be {{bossName}}';
-        },
-    };
-}
-
-class AddCommand<TF> extends RaidCommand<AddCommandType, Fields, TF> {}
-
-export function getAddCommands(rm: RaidManager): Commands<AddCommands> {
-    return {
-        activeWithTimeLeft: new AddCommand(activeWithTimeLeftInitializer(rm)),
-        updateBoss: new AddCommand(updateBossInitializer(rm)),
-        upcomingWithStartTime: new AddCommand(upcomingWithStartTimeInitializer(rm)),
-        upcomingWithTimer: new AddCommand(upcomingWithTimerInitializer(rm)),
-    };
-}
-
-export function getAddCommandProcessor(rm: RaidManager): CommandProcessor<AddCommands> {
+export function getAddCommandProcessor(): CommandProcessor<AddCommands, PogoContext> {
     return new CommandProcessor(
-        getAddCommands(rm),
+        getAddCommands(),
         ['upcomingWithStartTime', 'upcomingWithTimer', 'activeWithTimeLeft', 'updateBoss'],
     );
-}
-
-export function getAddCommandGroup(rm: RaidManager): CommandGroup<AddCommandType, Raid> {
-    return new CommandGroup([
-        new RaidCommand(upcomingWithStartTimeInitializer(rm)),
-        new RaidCommand(upcomingWithTimerInitializer(rm)),
-        new RaidCommand(activeWithTimeLeftInitializer(rm)),
-        new RaidCommand(updateBossInitializer(rm)),
-    ], '!add');
 }

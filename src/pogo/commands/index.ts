@@ -20,7 +20,8 @@
  * SOFTWARE.
  */
 
-export * as AddCommands from './addCommands';
-export * as InfoCommands from './infoCommands';
-export * as RaidCommands from './raidCommands';
-export * as RemoveCommands from './removeCommands';
+export * from './common';
+export { AddCommands, getAddCommandProcessor } from './addCommands';
+export { InfoCommands, getInfoCommandProcessor } from './infoCommands';
+export { RaidsCommands, getRaidsCommandProcessor } from './raidCommands';
+export { RemoveCommands, getRemoveCommandProcessor } from './removeCommands';

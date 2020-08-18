@@ -21,40 +21,60 @@
  */
 
 import '@fgv/ts-utils-jest';
-
 import {
+    CommandResult,
+    ExecutedCommandsResult,
+    ResultFormatters,
+} from '../../../../src/commandsv1';
+import {
+    RemoveCommandType,
     RemoveCommands,
+    getRemoveCommandGroup,
     getRemoveCommandProcessor,
-} from '../../../../src/pogo/commands';
-
-import { ExecuteResults } from '../../../../src/commands';
+} from '../../../../src/pogo/commandsv1/removeCommands';
 import { Raid } from '../../../../src/pogo/raid';
 import { TestRaidManager } from '../../../helpers/pogoHelpers';
+import { raidFormatters } from '../../../../src/pogo/formatters/raidFormatter';
+
+const formatters: ResultFormatters<RemoveCommands> = {
+    removeRaid: raidFormatters.text,
+};
 
 describe('remove command', () => {
     test('successfully removes an active raid', () => {
         const tests = [
             { command: '!remove northstar', expected: /removed raid.*northstar/i },
         ];
+
         for (const test of tests) {
             const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
-            const context = { rm };
-            const removeProcessor = getRemoveCommandProcessor();
-            const formatters = removeProcessor.getDefaultFormatters('text').getValueOrThrow();
+            const removeGroup = getRemoveCommandGroup(rm);
+            expect(removeGroup.processOne(test.command)).toSucceedAndSatisfy(
+                (cmd: CommandResult<RemoveCommandType, Raid>) => {
+                    expect(cmd).toEqual({
+                        command: 'removeRaid',
+                        result: expect.any(Raid),
+                        message: expect.any(String),
+                    });
+                    expect(removeGroup.format(cmd, raidFormatters.text)).toSucceedWith(test.expected);
+                }
+            );
+        }
 
-            expect(removeProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<RemoveCommands>) => {
+        for (const test of tests) {
+            const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
+            const removeProcessor = getRemoveCommandProcessor(rm);
+            expect(removeProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<RemoveCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['removeRaid'],
                         executed: {
                             removeRaid: {
                                 command: 'removeRaid',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.any(Raid),
-                                format: expect.stringMatching(/removed raid/i),
+                                result: expect.any(Raid),
+                                message: expect.any(String),
                             },
                         },
-                        executionErrors: [],
                     }));
                     expect(removeProcessor.format('removeRaid', cmds, formatters)).toSucceedWith(test.expected);
                 }
@@ -69,10 +89,11 @@ describe('remove command', () => {
             { command: '!remove @', expected: /no command matched/i },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
-            const context = { rm };
+            const removeGroup = getRemoveCommandGroup(rm);
+            expect(removeGroup.processOne(test.command)).toFailWith(test.expected);
 
-            const removeProcessor = getRemoveCommandProcessor();
-            expect(removeProcessor.executeOne(test.command, context)).toFailWith(test.expected);
+            const removeProcessor = getRemoveCommandProcessor(rm);
+            expect(removeProcessor.processOne(test.command)).toFailWith(test.expected);
         });
     });
 });

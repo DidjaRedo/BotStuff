@@ -21,13 +21,16 @@
  */
 
 import '@fgv/ts-utils-jest';
-import { InfoCommands, getInfoCommandProcessor } from '../../../../src/pogo/commands';
+import { ExecutedCommandsResult, ResultFormatters } from '../../../../src/commandsv1';
+import { InfoCommands, getInfoCommandProcessor } from '../../../../src/pogo/commandsv1/infoCommands';
 
 import { Boss } from '../../../../src/pogo/boss';
-import { ExecuteResults } from '../../../../src/commands';
-import { PogoContext } from '../../../../src/pogo/commands/common';
 import { TestRaidManager } from '../../../helpers/pogoHelpers';
 import { bossesFormatters } from '../../../../src/pogo/formatters/bossFormatter';
+
+const formatters: ResultFormatters<InfoCommands> = {
+    boss: bossesFormatters.text,
+};
 
 describe('info command', () => {
     test('gets information about a boss specified by name', () => {
@@ -56,22 +59,18 @@ describe('info command', () => {
             },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup([]);
-            const context: PogoContext = { rm };
-            const infoProcessor = getInfoCommandProcessor();
-            const formatters = infoProcessor.getDefaultFormatters('text').getValueOrThrow();
-            expect(infoProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<InfoCommands>) => {
+            const infoProcessor = getInfoCommandProcessor(rm);
+            expect(infoProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<InfoCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['boss'],
                         executed: {
                             boss: {
                                 command: 'boss',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: test.expectedBosses ?? [expect.any(Boss)],
-                                format: '{{details}}',
+                                result: test.expectedBosses ?? [expect.any(Boss)],
+                                message: expect.any(String),
                             },
                         },
-                        executionErrors: [],
                     }));
                     expect(infoProcessor.format('boss', cmds, formatters)).toSucceedWith(test.expected);
                 }
@@ -86,14 +85,14 @@ describe('info command', () => {
             { command: '!info boos @', expected: /no command matched/i },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup([]);
-            const context = { rm };
-            const infoProcessor = getInfoCommandProcessor();
-            expect(infoProcessor.executeOne(test.command, context)).toFailWith(test.expected);
+            const infoProcessor = getInfoCommandProcessor(rm);
+            expect(infoProcessor.processOne(test.command)).toFailWith(test.expected);
         });
     });
 
     describe('InfoCommandProcessor', () => {
-        const processor = getInfoCommandProcessor();
+        const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
+        const processor = getInfoCommandProcessor(rm);
         describe('getDefaultFormatters', () => {
             test('gets the correct text formatters', () => {
                 expect(processor.getDefaultFormatters('text')).toSucceedWith({

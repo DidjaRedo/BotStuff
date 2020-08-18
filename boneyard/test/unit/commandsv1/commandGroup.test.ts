@@ -21,7 +21,7 @@
  */
 import '@fgv/ts-utils-jest';
 import * as Converters from '@fgv/ts-utils/converters';
-import { CommandBase, CommandInitializer } from '../../../src/commands/command';
+import { CommandBase, CommandGroup, CommandInitializer } from '../../../src/commandsv1';
 import { CommandProperties, ParserBuilder } from '../../../src/commands/commandParser';
 import {
     FormatTargets,
@@ -30,7 +30,6 @@ import {
     fail,
     succeed,
 } from '@fgv/ts-utils';
-import { CommandGroup } from '../../../src/commands/commandGroup';
 
 describe('CommandGroup class', (): void => {
     interface TestFields {

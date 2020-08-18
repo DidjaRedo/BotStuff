@@ -21,11 +21,18 @@
  */
 
 import '@fgv/ts-utils-jest';
+import { ExecutedCommandsResult, ResultFormatters } from '../../../../src/commandsv1';
 import { Raid, RaidState } from '../../../../src/pogo/raid';
-import { RaidsCommands, getRaidsCommandProcessor } from '../../../../src/pogo/commands';
-import { ExecuteResults } from '../../../../src/commands';
+import { RaidsCommands, getRaidsCommandProcessor } from '../../../../src/pogo/commandsv1/raidCommands';
 import { TestRaidManager } from '../../../helpers/pogoHelpers';
 import { categorizedRaidsFormatters } from '../../../../src/pogo/formatters/raidFormatter';
+
+const formatters: ResultFormatters<RaidsCommands> = {
+    allRaids: categorizedRaidsFormatters.text,
+    exRaids: categorizedRaidsFormatters.text,
+    byTier: categorizedRaidsFormatters.text,
+    defaultRaids: categorizedRaidsFormatters.text,
+};
 
 interface RaidsTestCase {
     command: string;
@@ -55,7 +62,6 @@ describe('raids commands', () => {
         printedCircuits: rm.getRaid('printed circuits').getValueOrThrow(),
         stonePyramid: rm.getRaid('stone pyramid').getValueOrThrow(),
     };
-    const context = { rm };
 
     test('successfully processes valid "all raids" commands, with or without cities', () => {
         const tests: RaidsTestCase[] = [
@@ -102,28 +108,24 @@ describe('raids commands', () => {
         ];
 
         for (const test of tests) {
-            const raidsProcessor = getRaidsCommandProcessor();
-            const formatters = raidsProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-            expect(raidsProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<RaidsCommands>) => {
+            const raidsProcessor = getRaidsCommandProcessor(rm);
+            expect(raidsProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<RaidsCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['allRaids'],
                         executed: {
                             allRaids: expect.objectContaining({
                                 command: 'allRaids',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.anything(),
-                                format: expect.any(String),
+                                result: expect.anything(),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
 
                     if (test.expectedRaids) {
                         for (const type of raidStates) {
                             const want = test.expectedRaids[type].map((r) => r.gymName);
-                            const got = (cmds?.executed?.allRaids?.value[type] ?? []).map((r: Raid) => r.gymName);
+                            const got = (cmds?.executed?.allRaids?.result[type] ?? []).map((r: Raid) => r.gymName);
                             const wantDescription = `${type}: ${want.join(', ')}`;
                             const gotDescription = `${type}: ${got.join(', ')}`;
                             expect(gotDescription).toEqual(wantDescription);
@@ -171,28 +173,24 @@ describe('raids commands', () => {
         ];
 
         for (const test of tests) {
-            const raidsProcessor = getRaidsCommandProcessor();
-            const formatters = raidsProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-            expect(raidsProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<RaidsCommands>) => {
+            const raidsProcessor = getRaidsCommandProcessor(rm);
+            expect(raidsProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<RaidsCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['exRaids'],
                         executed: {
                             exRaids: expect.objectContaining({
                                 command: 'exRaids',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.anything(),
-                                format: expect.any(String),
+                                result: expect.anything(),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
 
                     if (test.expectedRaids) {
                         for (const type of raidStates) {
                             const want = test.expectedRaids[type].map((r) => r.gymName);
-                            const got = (cmds?.executed?.exRaids?.value[type] ?? []).map((r: Raid) => r.gymName);
+                            const got = (cmds?.executed?.exRaids?.result[type] ?? []).map((r: Raid) => r.gymName);
                             const wantDescription = `${type}: ${want.join(', ')}`;
                             const gotDescription = `${type}: ${got.join(', ')}`;
                             expect(gotDescription).toEqual(wantDescription);
@@ -260,28 +258,24 @@ describe('raids commands', () => {
         ];
 
         for (const test of tests) {
-            const raidsProcessor = getRaidsCommandProcessor();
-            const formatters = raidsProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-            expect(raidsProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<RaidsCommands>) => {
+            const raidsProcessor = getRaidsCommandProcessor(rm);
+            expect(raidsProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<RaidsCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['byTier'],
                         executed: {
                             byTier: expect.objectContaining({
                                 command: 'byTier',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.anything(),
-                                format: expect.any(String),
+                                result: expect.anything(),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
 
                     if (test.expectedRaids) {
                         for (const type of raidStates) {
                             const want = test.expectedRaids[type].map((r) => r.gymName);
-                            const got = (cmds?.executed?.byTier?.value[type] ?? []).map((r: Raid): string => r.gymName);
+                            const got = (cmds?.executed?.byTier?.result[type] ?? []).map((r: Raid): string => r.gymName);
                             const wantDescription = `${type}: ${want.join(', ')}`;
                             const gotDescription = `${type}: ${got.join(', ')}`;
                             expect(gotDescription).toEqual(wantDescription);
@@ -339,28 +333,24 @@ describe('raids commands', () => {
         ];
 
         for (const test of tests) {
-            const raidsProcessor = getRaidsCommandProcessor();
-            const formatters = raidsProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-            expect(raidsProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<RaidsCommands>) => {
+            const raidsProcessor = getRaidsCommandProcessor(rm);
+            expect(raidsProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<RaidsCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['defaultRaids'],
                         executed: {
                             defaultRaids: expect.objectContaining({
                                 command: 'defaultRaids',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.anything(),
-                                format: expect.any(String),
+                                result: expect.anything(),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
 
                     if (test.expectedRaids) {
                         for (const type of raidStates) {
                             const want = test.expectedRaids[type].map((r) => r.gymName);
-                            const got = (cmds?.executed?.defaultRaids?.value[type] ?? []).map((r: Raid): string => r.gymName);
+                            const got = (cmds?.executed?.defaultRaids?.result[type] ?? []).map((r: Raid): string => r.gymName);
                             const wantDescription = `${type}: ${want.join(', ')}`;
                             const gotDescription = `${type}: ${got.join(', ')}`;
                             expect(gotDescription).toEqual(wantDescription);
@@ -378,13 +368,14 @@ describe('raids commands', () => {
             { command: '!raids all 3+', expected: /no command matched/i },
             { command: '!raids all in narnia', expected: /narnia.*not a city or zone/i },
         ].forEach((test) => {
-            const raidsProcessor = getRaidsCommandProcessor();
-            expect(raidsProcessor.executeOne(test.command, context)).toFailWith(test.expected);
+            const raidsProcessor = getRaidsCommandProcessor(rm);
+            expect(raidsProcessor.processOne(test.command)).toFailWith(test.expected);
         });
     });
 
     describe('RaidsCommandProcessor', () => {
-        const processor = getRaidsCommandProcessor();
+        const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
+        const processor = getRaidsCommandProcessor(rm);
         describe('getDefaultFormatters', () => {
             test('gets the correct text formatters', () => {
                 expect(processor.getDefaultFormatters('text')).toSucceedWith({

@@ -23,14 +23,21 @@
 import '@fgv/ts-utils-jest';
 import {
     AddCommands,
+    getAddCommandGroup,
     getAddCommandProcessor,
-} from '../../../../src/pogo/commands';
+} from '../../../../src/pogo/commandsv1/addCommands';
+import { CommandResult, ExecutedCommandsResult, ResultFormatters } from '../../../../src/commandsv1';
 import { TestRaid, TestRaidManager } from '../../../helpers/pogoHelpers';
-
-import { ExecuteResults } from '../../../../src/commands';
 import { Raid } from '../../../../src/pogo/raid';
 import { getFlexTimeSpecs } from '../../../helpers/timeHelpers';
 import { raidFormatters } from '../../../../src/pogo/formatters/raidFormatter';
+
+const formatters: ResultFormatters<AddCommands> = {
+    upcomingWithStartTime: raidFormatters.text,
+    upcomingWithTimer: raidFormatters.text,
+    activeWithTimeLeft: raidFormatters.text,
+    updateBoss: raidFormatters.text,
+};
 
 describe('add commands', () => {
     test('successfully process valid egg commands with hatch time', () => {
@@ -42,24 +49,30 @@ describe('add commands', () => {
                 { command: `!add 2 jillyann @ ${time}`, expected: /added T2 raid/i },
             ].forEach((test) => {
                 const { rm } = TestRaidManager.setup([]);
-                const context = { rm };
+                const addGroup = getAddCommandGroup(rm);
+                expect(addGroup.processOne(test.command)).toSucceedAndSatisfy(
+                    (cmd: CommandResult<keyof AddCommands, Raid>) => {
+                        expect(cmd).toEqual(expect.objectContaining({
+                            command: 'upcomingWithStartTime',
+                            result: expect.any(Raid),
+                            message: expect.any(String),
+                        }));
+                        expect(addGroup.format(cmd, raidFormatters.text)).toSucceedWith(test.expected);
+                    }
+                );
 
-                const addProcessor = getAddCommandProcessor();
-                const formatters = addProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-                expect(addProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                    (cmds: ExecuteResults<AddCommands>) => {
+                const addProcessor = getAddCommandProcessor(rm);
+                expect(addProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                    (cmds: ExecutedCommandsResult<AddCommands>) => {
                         expect(cmds).toEqual(expect.objectContaining({
                             keys: ['upcomingWithStartTime'],
                             executed: {
                                 upcomingWithStartTime: {
                                     command: 'upcomingWithStartTime',
-                                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                                    _value: expect.any(Raid),
-                                    format: expect.stringMatching(/added.*raid/i),
+                                    result: expect.any(Raid),
+                                    message: expect.any(String),
                                 },
                             },
-                            executionErrors: [],
                         }));
                         expect(addProcessor.format('upcomingWithStartTime', cmds, formatters)).toSucceedWith(test.expected);
                     }
@@ -75,24 +88,30 @@ describe('add commands', () => {
             { command: '!add t5 erratic in 20', expected: /added T5 raid/i },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup([]);
-            const context = { rm };
+            const addGroup = getAddCommandGroup(rm);
+            expect(addGroup.processOne(test.command)).toSucceedAndSatisfy(
+                (cmd: CommandResult<keyof AddCommands, Raid>) => {
+                    expect(cmd).toEqual(expect.objectContaining({
+                        command: 'upcomingWithTimer',
+                        result: expect.any(Raid),
+                        message: expect.any(String),
+                    }));
+                    expect(addGroup.format(cmd, raidFormatters.text)).toSucceedWith(test.expected);
+                }
+            );
 
-            const addProcessor = getAddCommandProcessor();
-            const formatters = addProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-            expect(addProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<AddCommands>) => {
+            const addProcessor = getAddCommandProcessor(rm);
+            expect(addProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<AddCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['upcomingWithTimer'],
                         executed: {
                             upcomingWithTimer: expect.objectContaining({
                                 command: 'upcomingWithTimer',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.any(Raid),
-                                format: expect.stringMatching(/added.*raid/i),
+                                result: expect.any(Raid),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
                     expect(addProcessor.format('upcomingWithTimer', cmds, formatters)).toSucceedWith(test.expected);
                 }
@@ -105,23 +124,30 @@ describe('add commands', () => {
             { command: '!add lugia at painted 30 left', expected: /added lugia at/i },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup([]);
-            const context = { rm };
+            const addGroup = getAddCommandGroup(rm);
+            expect(addGroup.processOne(test.command)).toSucceedAndSatisfy(
+                (cmd: CommandResult<keyof AddCommands, Raid>) => {
+                    expect(cmd).toEqual(expect.objectContaining({
+                        command: 'activeWithTimeLeft',
+                        result: expect.any(Raid),
+                        message: expect.any(String),
+                    }));
+                    expect(addGroup.format(cmd, raidFormatters.text)).toSucceedWith(test.expected);
+                }
+            );
 
-            const addProcessor = getAddCommandProcessor();
-            const formatters = addProcessor.getDefaultFormatters('text').getValueOrThrow();
-            expect(addProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<AddCommands>) => {
+            const addProcessor = getAddCommandProcessor(rm);
+            expect(addProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<AddCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['activeWithTimeLeft'],
                         executed: {
                             activeWithTimeLeft: expect.objectContaining({
                                 command: 'activeWithTimeLeft',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.any(Raid),
-                                format: expect.stringMatching(/added.*at/i),
+                                result: expect.any(Raid),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
                     expect(addProcessor.format('activeWithTimeLeft', cmds, formatters)).toSucceedWith(test.expected);
                 }
@@ -135,24 +161,30 @@ describe('add commands', () => {
             { command: '!add groudon at northstar', expected: /updated boss.*groudon/i },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
-            const context = { rm };
+            const addGroup = getAddCommandGroup(rm);
+            expect(addGroup.processOne(test.command)).toSucceedAndSatisfy(
+                (cmd: CommandResult<keyof AddCommands, Raid>) => {
+                    expect(cmd).toEqual(expect.objectContaining({
+                        command: 'updateBoss',
+                        result: expect.any(Raid),
+                        message: expect.any(String),
+                    }));
+                    expect(addGroup.format(cmd, raidFormatters.text)).toSucceedWith(test.expected);
+                }
+            );
 
-            const addProcessor = getAddCommandProcessor();
-            const formatters = addProcessor.getDefaultFormatters('text').getValueOrThrow();
-
-            expect(addProcessor.executeOne(test.command, context)).toSucceedAndSatisfy(
-                (cmds: ExecuteResults<AddCommands>) => {
+            const addProcessor = getAddCommandProcessor(rm);
+            expect(addProcessor.processOne(test.command)).toSucceedAndSatisfy(
+                (cmds: ExecutedCommandsResult<AddCommands>) => {
                     expect(cmds).toEqual(expect.objectContaining({
                         keys: ['updateBoss'],
                         executed: {
                             updateBoss: expect.objectContaining({
                                 command: 'updateBoss',
-                                // eslint-disable-next-line @typescript-eslint/naming-convention
-                                _value: expect.any(Raid),
-                                format: expect.stringMatching(/updated/i),
+                                result: expect.any(Raid),
+                                message: expect.any(String),
                             }),
                         },
-                        executionErrors: [],
                     }));
                     expect(addProcessor.format('updateBoss', cmds, formatters)).toSucceedWith(test.expected);
                 }
@@ -167,15 +199,17 @@ describe('add commands', () => {
             { command: '!add northstar at 12345', expected: /not found/i },
         ].forEach((test) => {
             const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
-            const context = { rm };
+            const addHandler = getAddCommandGroup(rm);
+            expect(addHandler.processOne(test.command)).toFailWith(test.expected);
 
-            const addProcessor = getAddCommandProcessor();
-            expect(addProcessor.executeOne(test.command, context)).toFailWith(test.expected);
+            const addProcessor = getAddCommandProcessor(rm);
+            expect(addProcessor.processOne(test.command)).toFailWith(test.expected);
         });
     });
 
     describe('AddCommandProcessor', () => {
-        const addProcessor = getAddCommandProcessor();
+        const { rm } = TestRaidManager.setup(['northstar|active|5', 'painted|active|3']);
+        const addProcessor = getAddCommandProcessor(rm);
         describe('getDefaultFormatters', () => {
             test('gets the correct text formatters', () => {
                 expect(addProcessor.getDefaultFormatters('text')).toSucceedWith({

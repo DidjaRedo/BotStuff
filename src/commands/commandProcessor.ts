@@ -20,47 +20,59 @@
  * SOFTWARE.
  */
 
-import { CommandResult, Commands, PreProcessedCommand, PreProcessedCommandBase, ValidatedCommands } from './command';
+import { CommandFailureDetail, CommandSuccess, propagateCommandResult } from './commandResult';
 import {
+    DetailedResult,
     FormatTargets,
     Formatter,
     Result,
     fail,
+    failWithDetail,
     succeed,
+    succeedWithDetail,
 } from '@fgv/ts-utils';
 
-export type ExecutedResult<TCMDS> = { [key in keyof TCMDS]: CommandResult<keyof TCMDS, TCMDS[key]> }
+import { Command } from './command';
+import { PreprocessedCommand } from './preprocessedCommand';
 
-export interface ValidatedCommandsResult<TCMDS> {
+export type CommandsByName<TCMDS, TCTX> = { [key in keyof TCMDS]: Command<keyof TCMDS, TCTX, TCMDS[key]> };
+export type PreprocessedCommandsByName<TCMDS> = { [key in keyof TCMDS]: PreprocessedCommand<keyof TCMDS, TCMDS[key]> };
+export type CommandResultsByName<TCMDS> = { [key in keyof TCMDS]: CommandSuccess<keyof TCMDS, TCMDS[key]> };
+
+export interface PreprocessResults<TCMDS> {
     keys: (keyof TCMDS)[];
-    validated: Partial<ValidatedCommands<TCMDS>>;
-    validationErrors: string[];
+    preprocessed: Partial<PreprocessedCommandsByName<TCMDS>>;
+    preprocessErrors: string[];
 }
 
-export interface ExecutedCommandsResult<TCMDS> {
+export interface ExecuteResults<TCMDS> {
     keys: (keyof TCMDS)[];
-    executed: Partial<ExecutedResult<TCMDS>>;
+    executed: Partial<CommandResultsByName<TCMDS>>;
+    executionErrors: string[];
 }
 
-export type ResultFormatters<TCMDS> = { [key in keyof TCMDS]: Formatter<TCMDS[key]> }
-export type FormattedResult<TCMDS> = { [key in keyof TCMDS]: string }
+export type ResultFormattersByName<TCMDS> = { [key in keyof TCMDS]: Formatter<TCMDS[key]> }
+export type FormattedResultByName<TCMDS> = { [key in keyof TCMDS]: string }
 
-export interface FormattedCommandsResult<TCMDS> {
+export interface FormatResults<TCMDS> {
     keys: (keyof TCMDS)[];
-    formatted: Partial<FormattedResult<TCMDS>>;
+    formatted: Partial<FormattedResultByName<TCMDS>>;
+    formatErrors: string[];
 }
 
 class FieldTracker<T> {
     public readonly errors: string[] = [];
     public readonly keys: (keyof T)[] = [];
 
-    public add<T2>(key: keyof T, result?: Result<T2>): void {
+    public add<T2>(key: keyof T, result?: DetailedResult<T2, CommandFailureDetail>): void {
         // istanbul ignore else
         if (result !== undefined) {
             if (result.isFailure()) {
-                this.errors.push(result.message);
+                if (result.detail !== 'parse') {
+                    this.errors.push(`${key}: ${result.message}`);
+                }
             }
-            else if (result.value !== undefined) {
+            else {
                 this.keys.push(key);
             }
         }
@@ -84,12 +96,12 @@ class FieldTracker<T> {
     }
 }
 
-export class CommandProcessor<TCMDS> {
-    public readonly commands: Commands<TCMDS>;
+export class CommandProcessor<TCMDS, TCTX> {
+    public readonly commands: CommandsByName<TCMDS, TCTX>;
     public readonly displayOrder: (keyof TCMDS)[];
     private readonly _evalOrder: (keyof TCMDS)[];
 
-    public constructor(commands: Commands<TCMDS>, evalOrder?: (keyof TCMDS)[], displayOrder?: (keyof TCMDS)[]) {
+    public constructor(commands: CommandsByName<TCMDS, TCTX>, evalOrder?: (keyof TCMDS)[], displayOrder?: (keyof TCMDS)[]) {
         this.commands = commands;
 
         this._evalOrder = CommandProcessor._validateOrder('evaluation order', commands, evalOrder).getValueOrThrow();
@@ -98,7 +110,7 @@ export class CommandProcessor<TCMDS> {
             : CommandProcessor._validateOrder('display order', commands, displayOrder).getValueOrThrow();
     }
 
-    protected static _validateOrder<TCMDS>(description: string, commands: Commands<TCMDS>, order?: (keyof TCMDS)[]): Result<(keyof TCMDS)[]> {
+    protected static _validateOrder<TCMDS, TCTX>(description: string, commands: CommandsByName<TCMDS, TCTX>, order?: (keyof TCMDS)[]): Result<(keyof TCMDS)[]> {
         if ((order !== undefined) && (order.length > 0)) {
             for (const key of order) {
                 if (commands[key] === undefined) {
@@ -124,87 +136,91 @@ export class CommandProcessor<TCMDS> {
         return succeed(order);
     }
 
-    public validateOne(command: string): Result<Partial<ValidatedCommands<TCMDS>>[keyof TCMDS]> {
-        const validateResult = this.validateAll(command);
-        if (validateResult.isFailure()) {
-            return fail(validateResult.message);
+    public preprocessOne(command: string, context: TCTX): Result<Partial<PreprocessedCommandsByName<TCMDS>>[keyof TCMDS]> {
+        const preprocessResult = this.preprocessAll(command, context);
+        if (preprocessResult.isFailure()) {
+            return fail(preprocessResult.message);
         }
 
-        const { keys, validated } = validateResult.value;
+        const { keys, preprocessed } = preprocessResult.value;
 
         if (keys.length < 1) {
             return fail(`No command matched ${command}`);
         }
         else if (keys.length > 1) {
             // istanbul ignore next
-            const candidates = keys.map((k) => validated[k]?.command).join(', ');
+            const candidates = keys.map((k) => preprocessed[k]?.name).join(', ');
             return fail(`Ambiguous command ${command} could be any of: [${candidates}]`);
         }
-        return succeed(validated[keys[0]]);
+        return succeed(preprocessed[keys[0]]);
     }
 
-    public validateAll(command: string): Result<ValidatedCommandsResult<TCMDS>> {
+    public preprocessAll(command: string, context: TCTX): Result<PreprocessResults<TCMDS>> {
         const tracker = new FieldTracker<TCMDS>();
-        const validated: Partial<ValidatedCommands<TCMDS>> = {};
+        const preprocessed: Partial<PreprocessedCommandsByName<TCMDS>> = {};
 
         for (const key of this._evalOrder) {
             // the optional chained calls are hard to test
             // istanbul ignore next
-            tracker.add(key, this.commands[key]?.validate(command)?.onSuccess((value) => {
+            tracker.add(key, this.commands[key]?.preprocess(command, context)?.onSuccess((value) => {
                 if (value !== undefined) {
-                    validated[key] = value;
+                    preprocessed[key] = value;
                 }
-                return succeed(value);
+                return succeedWithDetail(value);
             }));
         }
 
-        return tracker.report({ validated, validationErrors: tracker.errors });
+        return tracker.report({ preprocessed, preprocessErrors: tracker.errors });
     }
 
-    public processAll(command: string): Result<ExecutedCommandsResult<TCMDS>> {
-        const validateResult = this.validateAll(command);
-        if (validateResult.isFailure()) {
-            return fail(validateResult.message);
+    public executeAll(command: string, context: TCTX): Result<ExecuteResults<TCMDS>> {
+        const preprocessResult = this.preprocessAll(command, context);
+        if (preprocessResult.isFailure()) {
+            return fail(preprocessResult.message);
         }
 
-        const { keys, validated } = validateResult.value;
+        const { keys, preprocessed } = preprocessResult.value;
         const tracker = new FieldTracker<TCMDS>();
-        const executed: Partial<ExecutedResult<TCMDS>> = {};
+        const executed: Partial<CommandResultsByName<TCMDS>> = {};
 
         for (const key of keys) {
-            // hard and kind of pointless to create unit tests for the optional
-            // chained call here
-            // istanbul ignore next
-            tracker.add(key, validated[key]?.execute()?.onSuccess((value) => {
-                executed[key] = value;
-                return succeed(value);
-            }));
-        }
-
-        return tracker.report({ executed });
-    }
-
-    public processFirst(command: string): Result<ExecutedCommandsResult<TCMDS>> {
-        const validateResult = this.validateAll(command);
-        if (validateResult.isFailure()) {
-            return fail(validateResult.message);
-        }
-
-        const { keys, validated } = validateResult.value;
-        const tracker = new FieldTracker<TCMDS>();
-        const executed: Partial<ExecutedResult<TCMDS>> = {};
-
-        for (const key of keys) {
-            const validator = validated[key];
+            const cmd = preprocessed[key];
             // istanbul ignore else
-            if (validator !== undefined) {
-                tracker.add(key, validator.execute().onSuccess((value) => {
-                    executed[key] = value;
-                    return succeed(value);
-                }));
+            if (cmd !== undefined) {
+                const executeResult = cmd.execute();
+                tracker.add(key, executeResult);
+                if (executeResult.isSuccess()) {
+                    executed[key] = executeResult;
+                }
+            }
+        }
+
+        return tracker.report({ executed, executionErrors: tracker.errors });
+    }
+
+    public executeFirst(command: string, context: TCTX): Result<ExecuteResults<TCMDS>> {
+        const preprocessResult = this.preprocessAll(command, context);
+        if (preprocessResult.isFailure()) {
+            return fail(preprocessResult.message);
+        }
+
+        const { keys, preprocessed } = preprocessResult.value;
+        const tracker = new FieldTracker<TCMDS>();
+        const executed: Partial<CommandResultsByName<TCMDS>> = {};
+
+        for (const key of keys) {
+            const command = preprocessed[key];
+            // istanbul ignore else
+            if (command !== undefined) {
+                const executeResult = command.execute();
+                tracker.add(key, executeResult);
+
+                if (executeResult.isSuccess()) {
+                    executed[key] = executeResult;
+                }
 
                 if (tracker.keys.length === 1) {
-                    return tracker.report({ executed });
+                    return tracker.report({ executed, executionErrors: tracker.errors });
                 }
             }
         }
@@ -212,19 +228,23 @@ export class CommandProcessor<TCMDS> {
         return tracker.getFailure(`No command matched "${command}"`);
     }
 
-    public processOne(command: string): Result<ExecutedCommandsResult<TCMDS>> {
-        return this.validateOne(command).onSuccess((validated) => {
+    public executeOne(command: string, context: TCTX): Result<ExecuteResults<TCMDS>> {
+        return this.preprocessOne(command, context).onSuccess((command) => {
             // istanbul ignore else
-            if (validated !== undefined) {
-                const executeResult = validated.execute();
+            if (command !== undefined) {
+                const executeResult = command.execute();
 
                 // should never happen in real life and a pain to induce
                 // istanbul ignore else
                 if (executeResult !== undefined) {
                     if (executeResult.isSuccess()) {
-                        const executed: Partial<ExecutedResult<TCMDS>> = {};
-                        executed[validated.command] = executeResult.value;
-                        return succeed<ExecutedCommandsResult<TCMDS>>({ keys: [validated.command], executed });
+                        const executed: Partial<CommandResultsByName<TCMDS>> = {};
+                        executed[command.name] = executeResult;
+                        return succeed<ExecuteResults<TCMDS>>({
+                            keys: [command.name],
+                            executed,
+                            executionErrors: [],
+                        });
                     }
                     return fail(executeResult.message);
                 }
@@ -236,49 +256,48 @@ export class CommandProcessor<TCMDS> {
         });
     }
 
-    public preProcessOne(command: string, formatters: Partial<ResultFormatters<TCMDS>>): Result<PreProcessedCommand|undefined> {
-        return this.validateOne(command).onSuccess((validated) => {
-            // istanbul ignore else
-            if (validated !== undefined) {
-                return PreProcessedCommandBase.create(validated, formatters[validated.command]);
-            }
-            else {
-                return succeed(undefined);
-            }
-        });
-    }
-
     public formatAll(
-        executedResult: ExecutedCommandsResult<TCMDS>,
-        formatters: Partial<ResultFormatters<TCMDS>>,
-    ): Result<FormattedCommandsResult<TCMDS>> {
+        executedResult: ExecuteResults<TCMDS>,
+        formatters: Partial<ResultFormattersByName<TCMDS>>,
+    ): Result<FormatResults<TCMDS>> {
         const { keys, executed } = executedResult;
         const tracker = new FieldTracker<TCMDS>();
-        const formatted: Partial<FormattedResult<TCMDS>> = {};
+        const formatted: Partial<FormattedResultByName<TCMDS>> = {};
 
         for (const key of keys) {
-            const result = executed[key];
-            const formatter = formatters[key];
+            const commandResult = executed[key];
             // istanbul ignore else
-            if ((result !== undefined) && (formatter !== undefined)) {
-                tracker.add(key, formatter(result.message, result.result).onSuccess((message: string) => {
-                    formatted[key] = message;
-                    return succeed(message);
-                }));
+            if (commandResult !== undefined) {
+                const formatter = formatters[key];
+                if (formatter !== undefined) {
+                    const formatResult = propagateCommandResult(
+                        formatter(commandResult.format, commandResult.value),
+                        key,
+                        commandResult.format,
+                        'format',
+                    );
+                    tracker.add(key, formatResult);
+                    if (formatResult.isSuccess()) {
+                        formatted[key] = formatResult.value;
+                    }
+                }
+                else {
+                    tracker.add(key, failWithDetail(`Command ${key} has results but no formatter.`, 'format'));
+                }
             }
         }
 
-        return tracker.report({ formatted });
+        return tracker.report({ formatted, formatErrors: tracker.errors });
     }
 
     public format(
         key: keyof TCMDS,
-        executedResult: ExecutedCommandsResult<TCMDS>,
-        formatters: Partial<ResultFormatters<TCMDS>>,
+        executedResult: ExecuteResults<TCMDS>,
+        formatters: Partial<ResultFormattersByName<TCMDS>>,
     ): Result<string> {
-        const result = executedResult.executed[key];
+        const commandResult = executedResult.executed[key];
         const formatter = formatters[key];
-        if ((!executedResult.keys.includes(key)) || (result === undefined)) {
+        if ((!executedResult.keys.includes(key)) || (commandResult === undefined)) {
             return fail(`CommandProcessor.format: No result for ${key}`);
         }
 
@@ -286,7 +305,7 @@ export class CommandProcessor<TCMDS> {
             return fail(`CommandProcessor.format: no formatter for ${key}`);
         }
 
-        return formatter(result.message, result.result);
+        return formatter(commandResult.format, commandResult.value);
     }
 
     public get numCommands(): number {
@@ -296,14 +315,14 @@ export class CommandProcessor<TCMDS> {
     public getHelp(): string[] {
         const lines: string[] = [];
         for (const key of this.displayOrder) {
-            lines.push(...this.commands[key].getHelpLines());
+            lines.push(...this.commands[key].help.getHelpText());
         }
         return lines;
     }
 
-    public getDefaultFormatters(target: FormatTargets, keys?: (keyof TCMDS)[]): Result<Partial<ResultFormatters<TCMDS>>> {
+    public getDefaultFormatters(target: FormatTargets, keys?: (keyof TCMDS)[]): Result<Partial<ResultFormattersByName<TCMDS>>> {
         keys = keys ?? this.displayOrder;
-        const formatters: Partial<ResultFormatters<TCMDS>> = {};
+        const formatters: Partial<ResultFormattersByName<TCMDS>> = {};
         for (const key of keys) {
             formatters[key] = this.commands[key].getDefaultFormatter(target).getValueOrDefault();
         }
