@@ -23,6 +23,7 @@
 import * as Converters from '@fgv/ts-utils/converters';
 
 import {
+    BaseConverter,
     Converter,
     Result,
     fail,
@@ -37,7 +38,7 @@ import { poiPropertiesFieldConverters } from '../../converters/poiConverter';
 import { readCsvFileSync } from '@fgv/ts-utils/csvHelpers';
 import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
-export const exStatus = new Converter((from: unknown): Result<boolean> => {
+export const exStatus = new BaseConverter((from: unknown): Result<boolean> => {
     if (typeof from === 'string') {
         switch (Names.normalize(from).getValueOrDefault()) {
             case 'nonex':
@@ -53,7 +54,7 @@ export const exStatus = new Converter((from: unknown): Result<boolean> => {
 });
 
 export function bestGymByName(gyms: GlobalGymDirectory, options?: Partial<GymLookupOptionsProperties>): Converter<Gym> {
-    return new Converter<Gym>((from: unknown) => {
+    return new BaseConverter<Gym>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Gym name must be a string');
         }
@@ -62,7 +63,7 @@ export function bestGymByName(gyms: GlobalGymDirectory, options?: Partial<GymLoo
 }
 
 export function singleGymByName(gyms: GlobalGymDirectory, options?: Partial<GymLookupOptionsProperties>): Converter<Gym> {
-    return new Converter<Gym>((from: unknown) => {
+    return new BaseConverter<Gym>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Gym name must be a string');
         }
@@ -71,7 +72,7 @@ export function singleGymByName(gyms: GlobalGymDirectory, options?: Partial<GymL
 }
 
 export function gymsByName(gyms: GlobalGymDirectory, options?: Partial<GymLookupOptionsProperties>): Converter<Gym[]> {
-    return new Converter<Gym[]>((from: unknown) => {
+    return new BaseConverter<Gym[]>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Gym name must be a string');
         }
@@ -86,7 +87,7 @@ export const gymPropertiesFieldConverters = {
 
 export const gymPropertiesFromObject = Converters.object<GymProperties>(gymPropertiesFieldConverters);
 
-export const gymPropertiesFromArray = new Converter<GymProperties>((from: unknown): Result<GymProperties> => {
+export const gymPropertiesFromArray = new BaseConverter<GymProperties>((from: unknown): Result<GymProperties> => {
     if ((!Array.isArray(from)) || (from.length !== 6)) {
         return fail('Gym array must have six columns: zones, city, names, latitude, longitude, isExEligible');
     }
@@ -107,7 +108,7 @@ export const gymPropertiesFromArray = new Converter<GymProperties>((from: unknow
     });
 });
 
-export const gymPropertiesFromLegacyArray = new Converter<GymProperties>((from: unknown): Result<GymProperties> => {
+export const gymPropertiesFromLegacyArray = new BaseConverter<GymProperties>((from: unknown): Result<GymProperties> => {
     if ((!Array.isArray(from)) || (from.length !== 8)) {
         return fail('Gym array must have eight columns: uid, zones, city, official name, friendly name, longitude, latitude, exStatus');
     }

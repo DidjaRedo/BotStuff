@@ -22,7 +22,7 @@
 
 import * as Converters from '@fgv/ts-utils/converters';
 import * as Geo from '../utils/geo';
-import { Converter, Result, fail } from '@fgv/ts-utils';
+import { BaseConverter, Result, fail } from '@fgv/ts-utils';
 
 export const latitude = Converters.number.withConstraint(Geo.validateLatitude);
 export const longitude = Converters.number.withConstraint(Geo.validateLongitude);
@@ -32,7 +32,7 @@ export const coordinateFromObject = Converters.object({
     longitude: longitude,
 });
 
-export const coordinateFromArrayLatLong = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+export const coordinateFromArrayLatLong = new BaseConverter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
     if ((!Array.isArray(from)) || (from.length !== 2)
         || ((typeof from[0] !== 'string') && (typeof from[0] !== 'number'))
         || ((typeof from[1] !== 'string') && (typeof from[1] !== 'number'))) {
@@ -44,7 +44,7 @@ export const coordinateFromArrayLatLong = new Converter<Geo.Coordinate>((from: u
     });
 });
 
-export const coordinateFromArrayLongLat = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+export const coordinateFromArrayLongLat = new BaseConverter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
     if ((!Array.isArray(from)) || (from.length !== 2)
         || ((typeof from[0] !== 'string') && (typeof from[0] !== 'number'))
         || ((typeof from[1] !== 'string') && (typeof from[1] !== 'number'))) {
@@ -56,14 +56,14 @@ export const coordinateFromArrayLongLat = new Converter<Geo.Coordinate>((from: u
     });
 });
 
-export const coordinateFromStringLatLong = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+export const coordinateFromStringLatLong = new BaseConverter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
     if (typeof from === 'string') {
         return coordinateFromArrayLatLong.convert(from.split(',').map((c) => c.trim()));
     }
     return fail('Cannot convert a non-string to lat/long coordinate');
 });
 
-export const coordinateFromStringLongLat = new Converter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
+export const coordinateFromStringLongLat = new BaseConverter<Geo.Coordinate>((from: unknown): Result<Geo.Coordinate> => {
     if (typeof from === 'string') {
         return coordinateFromArrayLongLat.convert(from.split(',').map((c) => c.trim()));
     }

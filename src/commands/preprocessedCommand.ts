@@ -21,7 +21,17 @@
  */
 
 import { CommandFailureDetail, CommandResult, succeedCommand } from './commandResult';
-import { Converter, DetailedResult, Result, captureResult, failWithDetail, propagateWithDetail, succeed } from '@fgv/ts-utils';
+import {
+    Converter,
+    DetailedResult,
+    Formatter,
+    Result,
+    captureResult,
+    fail,
+    failWithDetail,
+    propagateWithDetail,
+    succeed,
+} from '@fgv/ts-utils';
 
 import { CommandParser } from './commandParser';
 
@@ -72,10 +82,10 @@ export abstract class PreprocessedCommandBase<TNAME, TCTX, TPARAMS, TRET> implem
             return failWithDetail(`Command ${this._baseInit.name} cannot be repeated`, 'execute');
         }
         this.count++;
-        return this._executeAndFormat();
+        return this._executeAndGetFormat();
     }
 
-    protected _executeAndFormat(): CommandResult<TNAME, TRET> {
+    protected _executeAndGetFormat(): CommandResult<TNAME, TRET> {
         const executeResult = this._execute();
         if (executeResult.isSuccess()) {
             const getFormatResult = this._getFormat(executeResult.value);
@@ -91,6 +101,42 @@ export abstract class PreprocessedCommandBase<TNAME, TCTX, TPARAMS, TRET> implem
 
     protected abstract _execute(): Result<TRET>;
     protected abstract _getFormat(val: TRET): Result<string>;
+}
+
+export interface PreprocessedTextCommand {
+    description: string;
+    executeAndFormat(): DetailedResult<string, CommandFailureDetail>;
+}
+
+export class GenericPreprocessedTextCommand<TNAME, TRET> implements PreprocessedTextCommand {
+    public readonly description: string;
+    public readonly command: PreprocessedCommand<TNAME, TRET>;
+    public readonly formatter: Formatter<TRET>;
+
+    public constructor(description: string, cmd: PreprocessedCommand<TNAME, TRET>, formatter: Formatter<TRET>) {
+        this.description = description;
+        this.command = cmd;
+        this.formatter = formatter;
+    }
+
+    public static create<TNAME, TRET>(
+        description: string,
+        cmd: PreprocessedCommand<TNAME, TRET>,
+        formatter: Formatter<TRET>,
+    ): Result<GenericPreprocessedTextCommand<TNAME, TRET>> {
+        if (cmd === undefined) {
+            return fail('cmd is undefined');
+        }
+        return captureResult(() => new GenericPreprocessedTextCommand(description, cmd, formatter));
+    }
+
+    public executeAndFormat(): DetailedResult<string, CommandFailureDetail> {
+        const commandResult = this.command.execute();
+        if (commandResult.isSuccess()) {
+            return propagateWithDetail(this.formatter(commandResult.format, commandResult.value), 'format');
+        }
+        return failWithDetail(commandResult.message, commandResult.detail);
+    }
 }
 
 export type CommandFormatSelector<TPARAMS, TCTX, TRET> = (params: TPARAMS, context: TCTX, val: TRET) => Result<string>;

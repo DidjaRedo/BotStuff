@@ -23,7 +23,7 @@
 import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from './pogoConverters';
 
-import { Converter, Result, fail } from '@fgv/ts-utils';
+import { BaseConverter, Converter, Result, fail } from '@fgv/ts-utils';
 import { Raid, RaidJson, validateRaidType } from '../raid';
 
 import { BossDirectory } from '../bossDirectory';
@@ -31,7 +31,7 @@ import { GlobalGymDirectory } from '../gymDirectory';
 import { RaidMap } from '../raidMap';
 import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
 
-export const raidType = new Converter(validateRaidType);
+export const raidType = new BaseConverter(validateRaidType);
 
 export function raidFromObject(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
     return Converters.object<RaidJson>({
@@ -46,7 +46,7 @@ export function raidFromObject(gyms: GlobalGymDirectory, bosses: BossDirectory):
 }
 
 export function raidFromArray(gyms: GlobalGymDirectory, bosses: BossDirectory): Converter<Raid> {
-    return new Converter((from: unknown) => {
+    return new BaseConverter((from: unknown) => {
         if (Array.isArray(from) && (from.length === 4)) {
             return raidFromObject(gyms, bosses).convert({
                 hatch: from[0],

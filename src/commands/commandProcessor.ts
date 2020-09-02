@@ -31,17 +31,24 @@ import {
     succeed,
     succeedWithDetail,
 } from '@fgv/ts-utils';
+import { PreprocessedCommand, PreprocessedTextCommand } from './preprocessedCommand';
 
 import { Command } from './command';
-import { PreprocessedCommand } from './preprocessedCommand';
 
 export type CommandsByName<TCMDS, TCTX> = { [key in keyof TCMDS]: Command<keyof TCMDS, TCTX, TCMDS[key]> };
 export type PreprocessedCommandsByName<TCMDS> = { [key in keyof TCMDS]: PreprocessedCommand<keyof TCMDS, TCMDS[key]> };
+export type PreprocessedTextCommandsByName<TCMDS> = { [key in keyof TCMDS]: PreprocessedTextCommand };
 export type CommandResultsByName<TCMDS> = { [key in keyof TCMDS]: CommandSuccess<keyof TCMDS, TCMDS[key]> };
 
 export interface PreprocessResults<TCMDS> {
     keys: (keyof TCMDS)[];
     preprocessed: Partial<PreprocessedCommandsByName<TCMDS>>;
+    preprocessErrors: string[];
+}
+
+export interface PreprocessTextResults<TCMDS> {
+    keys: (keyof TCMDS)[];
+    preprocessed: Partial<PreprocessedTextCommandsByName<TCMDS>>;
     preprocessErrors: string[];
 }
 

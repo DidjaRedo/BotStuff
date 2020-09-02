@@ -22,7 +22,7 @@
 
 import * as PoiLookupOptions from '../places/poiLookupOptions';
 
-import { Converter, fail, mapResults, succeed } from '@fgv/ts-utils';
+import { BaseConverter, Converter, fail, mapResults, succeed } from '@fgv/ts-utils';
 
 import { City } from '../places/city';
 import { GlobalPoiDirectoryBase } from '../places/globalPoiDirectory';
@@ -31,7 +31,7 @@ import { Zone } from '../places/zone';
 import { isArray } from 'util';
 
 export function cityFromString<T extends Poi, TO extends PoiLookupOptions.Properties>(dir: GlobalPoiDirectoryBase<T, TO>): Converter<City> {
-    return new Converter<City>((from: unknown) => {
+    return new BaseConverter<City>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail(`Cannot convert non-string ${JSON.stringify(from)} to city`);
         }
@@ -40,7 +40,7 @@ export function cityFromString<T extends Poi, TO extends PoiLookupOptions.Proper
 }
 
 export function cities<T extends Poi, TO extends PoiLookupOptions.Properties>(dir: GlobalPoiDirectoryBase<T, TO>): Converter<City[]> {
-    return new Converter<City[]>((from: unknown) => {
+    return new BaseConverter<City[]>((from: unknown) => {
         let cityNames: string[]|undefined = undefined;
         if (typeof from === 'string') {
             cityNames = from.split(',').map((n) => n.trim());
@@ -61,7 +61,7 @@ export function cities<T extends Poi, TO extends PoiLookupOptions.Properties>(di
 }
 
 export function zoneFromString<T extends Poi, TO extends PoiLookupOptions.Properties>(dir: GlobalPoiDirectoryBase<T, TO>): Converter<Zone> {
-    return new Converter<Zone>((from: unknown) => {
+    return new BaseConverter<Zone>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail(`Cannot convert non-string ${JSON.stringify(from)} to zone`);
         }
@@ -70,7 +70,7 @@ export function zoneFromString<T extends Poi, TO extends PoiLookupOptions.Proper
 }
 
 export function zones<T extends Poi, TO extends PoiLookupOptions.Properties>(dir: GlobalPoiDirectoryBase<T, TO>): Converter<Zone[]> {
-    return new Converter<Zone[]>((from: unknown) => {
+    return new BaseConverter<Zone[]>((from: unknown) => {
         let zoneNames: string[]|undefined = undefined;
         if (typeof from === 'string') {
             zoneNames = from.split(',').map((n) => n.trim());
@@ -93,7 +93,7 @@ export function zones<T extends Poi, TO extends PoiLookupOptions.Properties>(dir
 export type Places = { cities: City[], zones: Zone[] };
 
 export function places<T extends Poi, TO extends PoiLookupOptions.Properties>(dir: GlobalPoiDirectoryBase<T, TO>): Converter<Places> {
-    return new Converter<Places>((from: unknown) => {
+    return new BaseConverter<Places>((from: unknown) => {
         let names: string[]|undefined = undefined;
         if (typeof from === 'string') {
             names = from.split(',').map((n) => n.trim());

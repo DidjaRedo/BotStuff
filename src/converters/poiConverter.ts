@@ -23,7 +23,7 @@
 import * as Converters from '@fgv/ts-utils/converters';
 import * as GeoConverters from './geoConverters';
 
-import { Converter, fail } from '@fgv/ts-utils';
+import { BaseConverter, fail } from '@fgv/ts-utils';
 import { Poi, PoiProperties } from '../places/poi';
 
 const delimitedString = Converters.delimitedString('|');
@@ -38,7 +38,7 @@ export const poiPropertiesFieldConverters: Converters.FieldConverters<PoiPropert
 
 export const poiPropertiesFromObject = Converters.object<PoiProperties>(poiPropertiesFieldConverters);
 
-export const poiPropertiesFromArray = new Converter<PoiProperties>((from: unknown) => {
+export const poiPropertiesFromArray = new BaseConverter<PoiProperties>((from: unknown) => {
     if ((!Array.isArray(from)) || (from.length !== 5)) {
         return fail('POI Array must have five columns: zones,city,names,latitude,longitude');
     }

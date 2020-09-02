@@ -22,10 +22,10 @@
 
 import * as Converters from '@fgv/ts-utils/converters';
 
-import { Converter, RangeOf, fail } from '@fgv/ts-utils';
+import { BaseConverter, RangeOf, fail } from '@fgv/ts-utils';
 import { RaidTier, validatePokemonType, validateRaidTier, validateWeather } from '../game';
 
-export const pokemonType = new Converter(validatePokemonType);
+export const pokemonType = new BaseConverter(validatePokemonType);
 export const pokemonTypeArray = Converters.arrayOf(pokemonType);
 
 export const pokemonTypes = Converters.oneOf([
@@ -33,10 +33,10 @@ export const pokemonTypes = Converters.oneOf([
     Converters.delimitedString('|').mapConvert(pokemonTypeArray),
 ]);
 
-export const raidTier = new Converter(validateRaidTier);
-export const weather = new Converter(validateWeather);
+export const raidTier = new BaseConverter(validateRaidTier);
+export const weather = new BaseConverter(validateWeather);
 
-export const raidTierRange = new Converter<RangeOf<RaidTier>>((from: unknown) => {
+export const raidTierRange = new BaseConverter<RangeOf<RaidTier>>((from: unknown) => {
     if (typeof from !== 'string') {
         return fail(`Cannot convert ${JSON.stringify(from)} to raid tier range`);
     }

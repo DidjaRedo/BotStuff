@@ -23,9 +23,8 @@
 import * as Converters from '@fgv/ts-utils/converters';
 import * as PogoConverters from './pogoConverters';
 import * as TimeConverters from '../../time/timeConverters';
-import { Boss, BossProperties } from '../boss';
-import { BossDirectory, BossLookupOptions, BossNamesByStatus, BossPropertiesByTier } from '../bossDirectory';
 import {
+    BaseConverter,
     Converter,
     ExtendedArray,
     Result,
@@ -34,6 +33,8 @@ import {
     mapResults,
     succeed,
 } from '@fgv/ts-utils';
+import { Boss, BossProperties } from '../boss';
+import { BossDirectory, BossLookupOptions, BossNamesByStatus, BossPropertiesByTier } from '../bossDirectory';
 import { DateRange } from '../../time/dateRange';
 import { DirectoryFilter } from '../../names/directory';
 import { Names } from '../../names/names';
@@ -65,7 +66,7 @@ export const bossPropertiesFromObject = Converters.object<BossProperties>(
     bossPropertiesOptionalFields,
 );
 
-export const bossPropertiesFromLegacyArray = new Converter<BossProperties>((from: unknown) => {
+export const bossPropertiesFromLegacyArray = new BaseConverter<BossProperties>((from: unknown) => {
     if ((!Array.isArray(from)) || (from.length !== 5)) {
         return fail('Legacy boss array must have five columns: name, index, tier, image, status');
     }
@@ -83,7 +84,7 @@ export interface BossNames {
     alternateNames?: string[];
 }
 
-export const bossNames = new Converter<BossNames>((from: unknown): Result<BossNames> => {
+export const bossNames = new BaseConverter<BossNames>((from: unknown): Result<BossNames> => {
     if (typeof from !== 'string') {
         return fail(`Invalid names specifier ${JSON.stringify(from)} must be string.`);
     }
@@ -110,7 +111,7 @@ export const bossNames = new Converter<BossNames>((from: unknown): Result<BossNa
     return succeed({ name, displayName, alternateNames });
 });
 
-export const bossPropertiesFromArray = new Converter<BossProperties>((from: unknown) => {
+export const bossPropertiesFromArray = new BaseConverter<BossProperties>((from: unknown) => {
     if ((!Array.isArray(from)) || (from.length < 8) || (from.length > 9)) {
         return fail('Boss array must have 8-9 columns: tier, names, index, numRaiders, cpMin, cpMax, bcpMin, bcpMax, [types]');
     }
@@ -133,7 +134,7 @@ export const bossPropertiesFromArray = new Converter<BossProperties>((from: unkn
 
 export const noTierBossPropertiesFromObject = bossPropertiesFromObject.addPartial(['tier']);
 
-export const noTierBossPropertiesFromArray = new Converter<Partial<BossProperties>>((from: unknown) => {
+export const noTierBossPropertiesFromArray = new BaseConverter<Partial<BossProperties>>((from: unknown) => {
     if ((!Array.isArray(from)) || (from.length < 7) || (from.length > 8)) {
         return fail('Boss array must have seven or eight columns: names, index, numRaiders, cpMin, cpMax, bcpMin, bcpMax, [types]');
     }
@@ -179,7 +180,7 @@ export const bossPropertiesByTier = Converters.object<BossPropertiesByTier>({
 
 export const bossDirectoryInitializer = Converters.arrayOf(bossPropertiesByTier);
 
-export const bossDirectory = new Converter((from: unknown): Result<BossDirectory> => {
+export const bossDirectory = new BaseConverter((from: unknown): Result<BossDirectory> => {
     const initResult = bossDirectoryInitializer.convert(from);
     if (initResult.isFailure()) {
         return fail(initResult.message);
@@ -209,7 +210,7 @@ export function singleBossByName(
     options?: BossLookupOptions,
     filter?: DirectoryFilter<Boss, BossLookupOptions>,
 ): Converter<Boss> {
-    return new Converter<Boss>((from: unknown) => {
+    return new BaseConverter<Boss>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Boss name must be a string');
         }
@@ -222,7 +223,7 @@ export function bestBossByName(
     options?: BossLookupOptions,
     filter?: DirectoryFilter<Boss, BossLookupOptions>,
 ): Converter<Boss> {
-    return new Converter<Boss>((from: unknown) => {
+    return new BaseConverter<Boss>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Boss name must be a string');
         }
@@ -235,7 +236,7 @@ export function bossesByName(
     options?: BossLookupOptions,
     filter?: DirectoryFilter<Boss, BossLookupOptions>,
 ): Converter<ExtendedArray<Boss>> {
-    return new Converter<ExtendedArray<Boss>>((from: unknown) => {
+    return new BaseConverter<ExtendedArray<Boss>>((from: unknown) => {
         if (typeof from !== 'string') {
             return fail('Boss name must be a string');
         }

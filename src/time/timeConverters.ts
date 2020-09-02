@@ -21,14 +21,14 @@
  */
 
 import * as Converters from '@fgv/ts-utils/converters';
-import { Converter, Result, captureResult, fail, succeed } from '@fgv/ts-utils';
+import { BaseConverter, Result, captureResult, fail, succeed } from '@fgv/ts-utils';
 import { DateRange, DateRangeProperties } from './dateRange';
 import { FlexTime } from './flexTime';
 import moment from 'moment';
 
 (moment as unknown as { suppressDeprecationWarnings: boolean }).suppressDeprecationWarnings = true;
 
-export const date = new Converter<Date>((from: unknown): Result<Date> => {
+export const date = new BaseConverter<Date>((from: unknown): Result<Date> => {
     if (typeof from === 'number') {
         return succeed(new Date(from));
     }
@@ -44,7 +44,7 @@ export const date = new Converter<Date>((from: unknown): Result<Date> => {
     return fail(`Invalid date specification ${JSON.stringify(from)}`);
 });
 
-export const flexTime = new Converter<Date>((from: unknown): Result<Date> => {
+export const flexTime = new BaseConverter<Date>((from: unknown): Result<Date> => {
     if ((typeof from === 'string') || (typeof from === 'number') || (from instanceof Date)) {
         return captureResult(() => new FlexTime(from).toDate());
     }
@@ -56,7 +56,7 @@ const dateRangePropertiesFromObject = Converters.object<DateRangeProperties>({
     end: date,
 }, ['start', 'end']);
 
-export const dateRangeFromObject = new Converter<DateRange>((from: unknown) => {
+export const dateRangeFromObject = new BaseConverter<DateRange>((from: unknown) => {
     const result = dateRangePropertiesFromObject.convert(from);
     if (result.isSuccess()) {
         return DateRange.createDateRange(result.value);
@@ -64,7 +64,7 @@ export const dateRangeFromObject = new Converter<DateRange>((from: unknown) => {
     return fail(result.message);
 });
 
-export const dateRange = new Converter((from: unknown): Result<DateRange> => {
+export const dateRange = new BaseConverter((from: unknown): Result<DateRange> => {
     if (typeof from === 'string') {
         const parts = from.split('..');
         if (parts.length === 2) {
