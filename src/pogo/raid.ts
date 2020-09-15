@@ -30,7 +30,7 @@ import { BossDirectory } from './bossDirectory';
 import { DirectoryOptions } from '../names/directory';
 import { GlobalGymDirectory } from './gymDirectory';
 import { Gym } from './gym';
-import { JsonObject } from '@fgv/ts-utils/jsonHelpers';
+import { JsonObject } from '@fgv/ts-json';
 import moment from 'moment';
 
 export interface RaidKeys {
@@ -40,7 +40,7 @@ export interface RaidKeys {
 
 export type RaidType = 'normal'|'raid-hour';
 export type RaidState = 'future'|'upcoming'|'active'|'expired';
-export type CategorizedRaids = Record<RaidState, Raid[]>;
+export type CategorizedRaids = Record<RaidState, Raid[]>; // eslint-disable-line no-use-before-define
 
 export const MAX_EGG_HATCH_TIME = 60;
 export const MAX_NORMAL_RAID_ACTIVE_TIME = 45;
@@ -377,7 +377,7 @@ export class Raid implements KeyedThing<RaidKeys>, RaidProperties {
             hatch: this.raidTimes.start.toISOString(),
             tier: this.tier,
             type: this.raidType,
-        };
+        } as JsonObject;
     }
 
     public toArray(): (string|number)[] {

@@ -38,7 +38,7 @@ import { BossDirectory, BossLookupOptions, BossNamesByStatus, BossPropertiesByTi
 import { DateRange } from '../../time/dateRange';
 import { DirectoryFilter } from '../../names/directory';
 import { Names } from '../../names/names';
-import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
+import { readJsonFileSync } from '@fgv/ts-json/file';
 
 export const bossPropertiesFieldConverters: Converters.FieldConverters<BossProperties> = {
     name: Converters.string,

@@ -24,7 +24,7 @@ import { KeyedThing, NamedThing, Names } from '../names/names';
 import { Result, captureResult } from '@fgv/ts-utils';
 import { validateLatitude, validateLongitude } from '../utils/geo';
 import { DirectoryOptions } from '../names/directory';
-import { JsonObject } from '@fgv/ts-utils/jsonHelpers';
+import { JsonObject } from '@fgv/ts-json';
 import { Utils } from '../utils/utils';
 
 export interface PoiKeys extends NamedThing {

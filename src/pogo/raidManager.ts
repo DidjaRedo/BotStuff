@@ -45,7 +45,7 @@ import { RaidLookupOptions } from './raidMap';
 import { RaidMap } from './raidMap';
 import { RaidTier } from './game';
 import { ResultArray } from '../names/directory';
-import { writeJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
+import { writeJsonFileSync } from '@fgv/ts-json/file';
 
 export const DEFAULT_BOSSES_FILE = './data/bosses.json';
 export const DEFAULT_GYMS_FILE = './data/gyms.json';
@@ -54,7 +54,10 @@ export const DEFAULT_REFRESH_INTERVAL = 30;
 
 export type RaidChangeType = 'added'|'updated'|'hatched'|'ended'|'deleted';
 export interface RaidManagerListener {
+    // eslint-disable-next-line no-use-before-define
     raidUpdated(rm: RaidManager, raid: Raid, change: RaidChangeType, prior?: Raid): void;
+
+    // eslint-disable-next-line no-use-before-define
     raidListUpdated(rm: RaidManager): void;
 }
 
@@ -88,7 +91,7 @@ export class RaidManager {
 
     protected _reportingSuspended = false;
     protected _refreshInterval: number;
-    protected _timer?: NodeJS.Timeout;
+    protected _timer?: NodeJS.Timeout; // eslint-disable-line no-undef
 
     protected _listeners: RaidManagerListener[];
 

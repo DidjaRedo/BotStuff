@@ -29,7 +29,7 @@ import { Raid, RaidJson, validateRaidType } from '../raid';
 import { BossDirectory } from '../bossDirectory';
 import { GlobalGymDirectory } from '../gymDirectory';
 import { RaidMap } from '../raidMap';
-import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
+import { readJsonFileSync } from '@fgv/ts-json/file';
 
 export const raidType = new BaseConverter(validateRaidType);
 

@@ -25,7 +25,7 @@ import * as GymConverters from '../../../../src/pogo/converters';
 import { ExtendedArray, succeed } from '@fgv/ts-utils';
 import { GlobalGymDirectory, Gym, GymLookupOptionsProperties } from '../../../../src/pogo';
 import { bestGymByName, gymsByName, partialGymLookupOptionsProperties, singleGymByName } from '../../../../src/pogo/converters';
-import { readJsonFileSync, writeJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
+import { readJsonFileSync, writeJsonFileSync } from '@fgv/ts-json/file';
 
 import { MockFileSystem } from '../../../helpers/dataHelpers';
 import { TestRaidManager } from '../../../helpers/pogoHelpers';

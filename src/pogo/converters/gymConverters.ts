@@ -36,7 +36,7 @@ import { allPoiLookupOptionsPropertiesFields } from '../../converters';
 import { poiLookupOptionsPropertiesFieldConverters } from '../../converters';
 import { poiPropertiesFieldConverters } from '../../converters/poiConverter';
 import { readCsvFileSync } from '@fgv/ts-utils/csvHelpers';
-import { readJsonFileSync } from '@fgv/ts-utils/jsonHelpers';
+import { readJsonFileSync } from '@fgv/ts-json/file';
 
 export const exStatus = new BaseConverter((from: unknown): Result<boolean> => {
     if (typeof from === 'string') {
